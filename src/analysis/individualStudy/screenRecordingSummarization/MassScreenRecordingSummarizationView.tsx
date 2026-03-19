@@ -12,8 +12,7 @@ import {
 } from '@mantine/core';
 import { useMemo, useState } from 'react';
 
-import type { ParticipantData, StudyConfig } from '../../../parser/types';
-import { studyComponentToIndividualComponent } from '../../../utils/handleComponentInheritance';
+import type { ParticipantData } from '../../../parser/types';
 import { useStorageEngine } from '../../../storage/storageEngineHooks';
 
 type GeminiAnalyzeResponse = {
@@ -69,10 +68,8 @@ function getDefaultPrompt() {
 
 export function MassScreenRecordingSummarizationView({
   visibleParticipants,
-  studyConfig,
 }: {
   visibleParticipants: ParticipantData[];
-  studyConfig?: StudyConfig;
 }) {
   const { storageEngine } = useStorageEngine();
 
@@ -87,21 +84,6 @@ export function MassScreenRecordingSummarizationView({
 
   const maxInlineBytes = 20 * 1024 * 1024;
 
-  const recordScreenComponentNames = useMemo(() => {
-    if (!studyConfig) return null;
-    const componentIds = Object.keys(studyConfig.components);
-    const recordScreenSet = new Set<string>();
-
-    for (const componentId of componentIds) {
-      const individual = studyComponentToIndividualComponent(studyConfig.components[componentId], studyConfig);
-      if (individual.recordScreen) {
-        recordScreenSet.add(componentId);
-      }
-    }
-
-    return recordScreenSet;
-  }, [studyConfig]);
-
   const recordings = useMemo(() => {
     const items: RecordingItem[] = [];
     for (const participant of visibleParticipants) {
@@ -109,7 +91,6 @@ export function MassScreenRecordingSummarizationView({
       for (const a of answers) {
         if (
           a.endTime > 0
-          && (!recordScreenComponentNames || recordScreenComponentNames.has(a.componentName))
         ) {
           items.push({
             participantId: participant.participantId,
@@ -130,7 +111,7 @@ export function MassScreenRecordingSummarizationView({
       seen.add(key);
       return true;
     });
-  }, [visibleParticipants, recordScreenComponentNames]);
+  }, [visibleParticipants]);
 
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(() => new Set());
 

@@ -475,7 +475,7 @@ export function StudyAnalysisTabs({ globalConfig }: { globalConfig: GlobalConfig
                 {studyConfig && storageEngine?.getEngine() === 'firebase' ? <ThinkAloudAnalysis visibleParticipants={visibleParticipants} storageEngine={storageEngine as FirebaseStorageEngine} /> : <Center>Think aloud coding is only available when using Firebase.</Center>}
               </Tabs.Panel>
               <Tabs.Panel style={{ overflow: 'auto' }} value="screen-recording-summarization" pt="xs">
-                {hasScreenRecording ? <ScreenRecordingSummarizationView visibleParticipants={visibleParticipants} studyConfig={studyConfig} /> : <Center>No screen recording found for this study.</Center>}
+                {hasScreenRecording ? <ScreenRecordingSummarizationView visibleParticipants={visibleParticipants} /> : <Center>No screen recording found for this study.</Center>}
               </Tabs.Panel>
               {storageEngine?.getEngine() === 'firebase' && (
                 <Tabs.Panel style={{ overflow: 'auto' }} value="live-monitor" pt="xs">
