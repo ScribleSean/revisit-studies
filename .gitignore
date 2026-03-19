@@ -37,3 +37,13 @@ supabase/volumes/*
 !supabase/volumes/db/
 supabase/volumes/db/data
 !supabase/volumes/api/
+
+# Environment and secrets (do not commit)
+.env
+.env.local
+*.pem
+
+# Virtual environment
+.venv
+venv
+env
