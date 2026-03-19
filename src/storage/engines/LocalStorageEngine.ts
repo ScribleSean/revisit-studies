@@ -251,6 +251,26 @@ export class LocalStorageEngine extends StorageEngine {
     return URL.createObjectURL(screenRecordingBlob);
   }
 
+  protected async _getScreenRecordingSummaryUrl(task: string, participantId?: string) {
+    await this.verifyStudyDatabase();
+    if (this.studyId === undefined) {
+      throw new Error('Study ID is not set');
+    }
+
+    const id = participantId || this.currentParticipantId;
+    if (!id) return null;
+
+    // Best-guess prefixes. If the study creator stored summaries under a different prefix,
+    // they can update this mapping accordingly.
+    const primary = await this._getFromStorage(`screenRecordingSummary/${id}`, task);
+    if (primary) return URL.createObjectURL(primary);
+
+    const fallback = await this._getFromStorage(`screenRecordingAnalysis/${id}`, task);
+    if (fallback) return URL.createObjectURL(fallback);
+
+    return null;
+  }
+
   protected async _testingReset(studyId: string) {
     if (!studyId) {
       throw new Error('Study ID is required for reset');
