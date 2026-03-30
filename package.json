@@ -22,7 +22,7 @@
     "postinstall": "husky"
   },
   "lint-staged": {
-    "*.{tsx,jsx,ts,js}": "yarn lint"
+    "*.{tsx,jsx,ts,js}": "eslint"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
