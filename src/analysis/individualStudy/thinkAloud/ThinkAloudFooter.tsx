@@ -99,6 +99,7 @@ export function ThinkAloudFooter({
     async function fetchAssetsUrl() {
       if (!storageEngine || !participantId || !currentTrial) {
         setAudioUrl(null);
+        setScreenRecordingUrl(null);
         return;
       }
 
