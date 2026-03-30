@@ -120,7 +120,18 @@ export function MassScreenRecordingSummarizationView({
   const [isRunning, setIsRunning] = useState(false);
   const [progress, setProgress] = useState<{ done: number; total: number }>({ done: 0, total: 0 });
   const [error, setError] = useState<string | null>(null);
-  const [results, setResults] = useState<Record<string, { summary?: string; status: 'ok' | 'skipped' | 'failed' | 'too_large' }>>({});
+  const [results, setResults] = useState<Record<string, {
+    summary?: string;
+    status: 'ok' | 'skipped' | 'failed' | 'too_large';
+    error?: string;
+  }>>({});
+
+  const geminiMassApiBase = env.VITE_GEMINI_MASS_API_URL;
+  const massApiAnalyzeUrl = useMemo(() => {
+    const base = (geminiMassApiBase || '').replace(/\/$/, '');
+    if (base) return `${base}/api/analyze-large`;
+    return '/api/analyze-large';
+  }, [geminiMassApiBase]);
 
   const selectionToggle = (key: string, checked: boolean) => {
     setSelectedKeys((prev) => {
@@ -185,6 +196,39 @@ export function MassScreenRecordingSummarizationView({
     return { summary: text ?? undefined, raw: json } as GeminiAnalyzeResponse;
   };
 
+  type LargeAnalyzeOk = { summary: string; modelUsed: string; durationMs?: number };
+  type LargeAnalyzeErr = { error: string; code?: string; durationMs?: number };
+
+  const analyzeViaFilesApi = async (file: File): Promise<LargeAnalyzeOk | LargeAnalyzeErr> => {
+    const fd = new FormData();
+    fd.append('video', file, file.name);
+    fd.append('prompt', prompt);
+    fd.append('model', effectiveModel);
+    let res: Response;
+    try {
+      res = await fetch(massApiAnalyzeUrl, { method: 'POST', body: fd });
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Network error';
+      return {
+        error: `${msg}. Start the local API with \`yarn serve:mass-api\` (same machine as \`yarn serve\`).`,
+        code: 'NETWORK',
+      };
+    }
+    const json = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+    if (!res.ok) {
+      const errMsg = typeof json.error === 'string' ? json.error : `HTTP ${res.status}`;
+      const code = typeof json.code === 'string' ? json.code : undefined;
+      return { error: errMsg, code };
+    }
+    const summary = typeof json.summary === 'string' ? json.summary : '';
+    if (!summary) {
+      return { error: 'Empty summary from server', code: 'EMPTY_SUMMARY' };
+    }
+    const modelUsed = typeof json.modelUsed === 'string' ? json.modelUsed : effectiveModel;
+    const durationMs = typeof json.durationMs === 'number' ? json.durationMs : undefined;
+    return { summary, modelUsed, durationMs };
+  };
+
   const analyzeSelected = async () => {
     if (!storageEngine) return;
     if (!apiKey) {
@@ -230,31 +274,43 @@ export function MassScreenRecordingSummarizationView({
           const blob = await fetchBlobFromObjectUrl(videoObjectUrl);
           URL.revokeObjectURL(videoObjectUrl);
 
-          if (!canBeInlineSummarized(blob.size, maxInlineBytes)) {
-            setResults((prev) => ({ ...prev, [itemKey]: { status: 'too_large' } }));
-            setProgress((p) => ({ ...p, done: p.done + 1 }));
-            return;
-          }
-
           const file = new File([blob], `${item.identifier}.webm`, { type: blob.type || 'video/webm' });
-          const result = await analyzeInline(file);
 
-          if (!result.summary) {
-            setResults((prev) => ({ ...prev, [itemKey]: { status: 'failed' } }));
-            setProgress((p) => ({ ...p, done: p.done + 1 }));
-            return;
+          let summaryText: string | undefined;
+          let persistedModel = effectiveModel;
+
+          if (!canBeInlineSummarized(blob.size, maxInlineBytes)) {
+            const large = await analyzeViaFilesApi(file);
+            if ('error' in large) {
+              setResults((prev) => ({
+                ...prev,
+                [itemKey]: { status: 'failed', error: large.error },
+              }));
+              setProgress((p) => ({ ...p, done: p.done + 1 }));
+              return;
+            }
+            summaryText = large.summary;
+            persistedModel = large.modelUsed;
+          } else {
+            const result = await analyzeInline(file);
+            if (!result.summary) {
+              setResults((prev) => ({ ...prev, [itemKey]: { status: 'failed', error: 'No summary text from Gemini' } }));
+              setProgress((p) => ({ ...p, done: p.done + 1 }));
+              return;
+            }
+            summaryText = result.summary;
           }
 
           setResults((prev) => ({
             ...prev,
-            [itemKey]: { status: 'ok', summary: result.summary },
+            [itemKey]: { status: 'ok', summary: summaryText },
           }));
 
-          if (persistResults) {
+          if (persistResults && summaryText) {
             const summaryBlob = new Blob([JSON.stringify({
-              summary: result.summary,
+              summary: summaryText,
               prompt,
-              model: effectiveModel,
+              model: persistedModel,
             }, null, 2)], { type: 'application/json' });
             await storageEngine.saveScreenRecordingSummary(summaryBlob, item.identifier, item.participantId);
           }
@@ -262,8 +318,7 @@ export function MassScreenRecordingSummarizationView({
           setProgress((p) => ({ ...p, done: p.done + 1 }));
         } catch (e) {
           const msg = e instanceof Error ? e.message : 'Failed to summarize clip';
-          setResults((prev) => ({ ...prev, [itemKey]: { status: 'failed' } }));
-          setError(msg);
+          setResults((prev) => ({ ...prev, [itemKey]: { status: 'failed', error: msg } }));
           setProgress((p) => ({ ...p, done: p.done + 1 }));
         }
       };
@@ -285,7 +340,18 @@ export function MassScreenRecordingSummarizationView({
           <div>
             <Text fw={700}>Mass screen recording summarization</Text>
             <Text size="sm" color="dimmed">
-              Select multiple stored clips across the study, edit the prompt, then summarize them in bulk.
+              Select multiple stored clips across the study, edit the prompt, then summarize them in bulk. Clips over 20MB use the Gemini Files API via
+              {' '}
+              <code>yarn serve:mass-api</code>
+              {' '}
+              (proxied as
+              {' '}
+              <code>/api/analyze-large</code>
+              {' '}
+              during
+              {' '}
+              <code>yarn serve</code>
+              ).
             </Text>
           </div>
           <Group gap="xs">
@@ -392,6 +458,7 @@ export function MassScreenRecordingSummarizationView({
                     {result?.status && (
                       <Text size="xs" mt={4} color={result.status === 'ok' ? 'green' : result.status === 'skipped' ? 'blue' : 'red'}>
                         {result.status === 'ok' ? 'Ready' : result.status === 'skipped' ? 'Skipped (already summarized)' : result.status === 'too_large' ? `Too large (> ${maxInlineBytes / (1024 * 1024)}MB)` : 'Failed'}
+                        {result.status === 'failed' && result.error ? `: ${result.error}` : ''}
                       </Text>
                     )}
 
