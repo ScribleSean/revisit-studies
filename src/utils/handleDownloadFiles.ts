@@ -172,6 +172,15 @@ async function downloadParticipantsScreenRecording({
     const screenRecordingUrl = await storageEngine.getScreenRecording(identifier, participantId);
     await loadAssetToZip(screenRecordingZip, `${namePrefix}_${participantId}_${identifier}.webm`, screenRecordingUrl);
 
+    // If the study already has a precomputed screen recording summary stored for this recording,
+    // include it in the zip alongside the raw `.webm`.
+    const summaryUrl = await storageEngine.getScreenRecordingSummary(identifier, participantId);
+    if (summaryUrl) {
+      const summaryBlob = await (await fetch(summaryUrl)).blob();
+      const ext = summaryBlob.type.includes('json') ? 'json' : 'txt';
+      screenRecordingZip.file(`${namePrefix}_${participantId}_${identifier}_screenRecording_summary.${ext}`, summaryBlob);
+    }
+
     if (!zip) {
       downloadZip(screenRecordingZip, `${namePrefix}_${participantId}_${identifier}_screenRecording.zip`);
     }

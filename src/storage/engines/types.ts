@@ -231,6 +231,10 @@ export abstract class StorageEngine {
   // Gets the screen recording URL for the given task and participantId. This method is used to fetch the screen recording video file from the storage engine.
   protected abstract _getScreenRecordingUrl(task: string, participantId?: string): Promise<string | null>;
 
+  // Gets the download URL for the given task and participantId's screen recording summary.
+  // Optional: only some storage engines (or some study setups) may have precomputed summaries saved.
+  protected _getScreenRecordingSummaryUrl?(task: string, participantId?: string): Promise<string | null>;
+
   // Gets the transcript URL for the given task and participantId. (Optional - not all storage engines need to implement this, only if they generate transcripts).
   protected _getTranscriptUrl?(task: string, participantId?: string): Promise<string | null>;
 
@@ -1117,6 +1121,49 @@ export abstract class StorageEngine {
   ) {
     const url = await this._getScreenRecordingUrl(task, participantId);
     return this.getAsset(url);
+  }
+
+  // Gets a precomputed summary for the given screen recording task/participant.
+  // Returns an object URL string for the summary blob, or null if no summary exists.
+  async getScreenRecordingSummary(
+    task: string,
+    participantId: string,
+  ) {
+    if (!this._getScreenRecordingSummaryUrl) {
+      return null;
+    }
+
+    const url = await this._getScreenRecordingSummaryUrl(task, participantId);
+    if (!url) {
+      return null;
+    }
+
+    return this.getAsset(url);
+  }
+
+  // Saves a precomputed summary for a given screen recording.
+  // The summary is stored so that it can be reloaded later from the "Screen recording summarization" tab.
+  async saveScreenRecordingSummary(
+    summaryBlob: Blob,
+    taskName: string,
+    participantId: string,
+  ) {
+    if (this.studyId === undefined) {
+      throw new Error('Study ID is not set');
+    }
+
+    const participantKey = `screenRecordingSummary/${participantId}`;
+    await this._pushToStorage(participantKey, taskName, summaryBlob);
+    await this._cacheStorageObject(participantKey, taskName);
+  }
+
+  async saveScreenRecordingSummaryText(
+    summaryText: string,
+    taskName: string,
+    participantId: string,
+  ) {
+    const blob = new Blob([JSON.stringify({ summary: summaryText })], { type: 'application/json' });
+    return this.saveScreenRecordingSummary(blob, taskName, participantId);
   }
 
   // Saves the video stream to the storage engine. This method is used to save the screen recorded video data from a MediaRecorder stream.

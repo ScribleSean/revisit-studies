@@ -3,7 +3,7 @@ import {
 } from '@mantine/core';
 import { useNavigate, useParams } from 'react-router';
 import {
-  IconChartDonut2, IconTable, IconSettings,
+  IconChartDonut2, IconTable, IconSettings, IconPlayerPlayFilled,
   IconInfoCircle,
   IconChartPie,
   IconTags,
@@ -34,6 +34,7 @@ import 'mantine-react-table/styles.css';
 import { ThinkAloudAnalysis } from './thinkAloud/ThinkAloudAnalysis';
 import { FirebaseStorageEngine } from '../../storage/engines/FirebaseStorageEngine';
 import { ConfigView } from './config/ConfigView';
+import { ScreenRecordingSummarizationView } from './screenRecordingSummarization/ScreenRecordingSummarizationView';
 
 const TABLE_HEADER_HEIGHT = 37; // Height of the tabs header
 
@@ -447,6 +448,14 @@ export function StudyAnalysisTabs({ globalConfig }: { globalConfig: GlobalConfig
                 <Tabs.Tab value="table" leftSection={<IconTable size={16} />}>Participant View</Tabs.Tab>
                 <Tabs.Tab value="stats" leftSection={<IconChartDonut2 size={16} />}>Trial Stats</Tabs.Tab>
                 <Tabs.Tab value="tagging" leftSection={<IconTags size={16} />}>Coding</Tabs.Tab>
+                {hasScreenRecording && (
+                  <Tabs.Tab
+                    value="screen-recording-summarization"
+                    leftSection={<IconPlayerPlayFilled size={16} />}
+                  >
+                    Screen recording summarization
+                  </Tabs.Tab>
+                )}
                 {storageEngine?.getEngine() === 'firebase' && (
                   <Tabs.Tab value="live-monitor" leftSection={<IconDashboard size={16} />}>Live Monitor</Tabs.Tab>
                 )}
@@ -464,6 +473,9 @@ export function StudyAnalysisTabs({ globalConfig }: { globalConfig: GlobalConfig
               </Tabs.Panel>
               <Tabs.Panel value="tagging" pt="xs">
                 {studyConfig && storageEngine?.getEngine() === 'firebase' ? <ThinkAloudAnalysis visibleParticipants={visibleParticipants} storageEngine={storageEngine as FirebaseStorageEngine} /> : <Center>Think aloud coding is only available when using Firebase.</Center>}
+              </Tabs.Panel>
+              <Tabs.Panel style={{ overflow: 'auto' }} value="screen-recording-summarization" pt="xs">
+                {hasScreenRecording ? <ScreenRecordingSummarizationView visibleParticipants={visibleParticipants} studyConfig={studyConfig} /> : <Center>No screen recording found for this study.</Center>}
               </Tabs.Panel>
               {storageEngine?.getEngine() === 'firebase' && (
                 <Tabs.Panel style={{ overflow: 'auto' }} value="live-monitor" pt="xs">
