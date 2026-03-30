@@ -138,11 +138,20 @@ export function AuthProvider({ children } : { children: ReactNode }) {
     // Determine authentication listener based on storageEngine and authEnabled variable
     const determineAuthentication = async () => {
       if (storageEngine && isCloudStorageEngine(storageEngine)) {
-        const authInfo = await storageEngine.getUserManagementData('authentication');
-        if (authInfo?.isEnabled) {
-          storageEngine.unsubscribe(handleAuthStateChanged);
-        } else {
-          setUser(nonAuthUser);
+        try {
+          const authInfo = await storageEngine.getUserManagementData('authentication');
+          if (authInfo?.isEnabled) {
+            storageEngine.unsubscribe(handleAuthStateChanged);
+          } else {
+            setUser(nonAuthUser);
+          }
+        } catch (err) {
+          // Firestore `getDocs` on `user-management` throws if rules/App Check block reads — leaves the app stuck on LoadingOverlay otherwise.
+          console.error(
+            '[useAuth] Failed to read Firestore user-management (check Firestore rules, Anonymous auth, and App Check debug token).',
+            err,
+          );
+          setUser(nonLoadingNullUser);
         }
       } else if (storageEngine) {
         setUser(nonAuthUser);
