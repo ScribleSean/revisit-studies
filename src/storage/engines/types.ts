@@ -1248,6 +1248,9 @@ export abstract class StorageEngine {
       await this._copyDirectory(`${sourceName}/participants`, `${targetName}/participants`);
       await this._copyDirectory(`${sourceName}/audio`, `${targetName}/audio`);
       await this._copyDirectory(`${sourceName}/screenRecording`, `${targetName}/screenRecording`);
+      if (await this._directoryExists(`${sourceName}/screenRecordingSummary`)) {
+        await this._copyDirectory(`${sourceName}/screenRecordingSummary`, `${targetName}/screenRecordingSummary`);
+      }
       await this._copyDirectory(sourceName, targetName);
       await this._copyRealtimeData(sourceName, targetName);
     }
@@ -1295,6 +1298,9 @@ export abstract class StorageEngine {
         await this._deleteDirectory(`${deletionTarget}/participants`);
         await this._deleteDirectory(`${deletionTarget}/audio`);
         await this._deleteDirectory(`${deletionTarget}/screenRecording`);
+        if (await this._directoryExists(`${deletionTarget}/screenRecordingSummary`)) {
+          await this._deleteDirectory(`${deletionTarget}/screenRecordingSummary`);
+        }
         await this._deleteDirectory(deletionTarget);
         await this._deleteRealtimeData(deletionTarget);
       }
@@ -1364,6 +1370,12 @@ export abstract class StorageEngine {
         `${snapshotName}/screenRecording`,
         `${originalName}/screenRecording`,
       );
+      if (await this._directoryExists(`${snapshotName}/screenRecordingSummary`)) {
+        await this._copyDirectory(
+          `${snapshotName}/screenRecordingSummary`,
+          `${originalName}/screenRecordingSummary`,
+        );
+      }
       await this._copyDirectory(snapshotName, originalName);
       await this._copyRealtimeData(snapshotName, originalName);
       successNotifications.push({
