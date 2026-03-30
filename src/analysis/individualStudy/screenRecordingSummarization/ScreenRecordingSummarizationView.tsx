@@ -19,7 +19,6 @@ import {
 
 import type { ParticipantData } from '../../../storage/types';
 import { useStorageEngine } from '../../../storage/storageEngineHooks';
-import type { StudyConfig } from '../../../parser/types';
 import { MassScreenRecordingSummarizationView } from './MassScreenRecordingSummarizationView';
 
 type GeminiAnalyzeResponse = {
@@ -81,7 +80,7 @@ function GroupRow({ children }: { children: ReactNode }) {
   );
 }
 
-export function ScreenRecordingSummarizationView({ visibleParticipants, studyConfig }: { visibleParticipants: ParticipantData[]; studyConfig?: StudyConfig }) {
+export function ScreenRecordingSummarizationView({ visibleParticipants }: { visibleParticipants: ParticipantData[] }) {
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
 
@@ -450,7 +449,7 @@ export function ScreenRecordingSummarizationView({ visibleParticipants, studyCon
           </Card>
         )}
 
-        <MassScreenRecordingSummarizationView visibleParticipants={visibleParticipants} studyConfig={studyConfig} />
+        <MassScreenRecordingSummarizationView visibleParticipants={visibleParticipants} />
       </Stack>
     </Box>
   );
