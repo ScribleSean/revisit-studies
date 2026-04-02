@@ -1,5 +1,15 @@
 {
+  // macOS/Linux — on Windows use: "${workspaceFolder}/.venv/Scripts/python.exe"
   "yaml.schemas": {
     "./src/parser/StudyConfigSchema.json": "*.yaml"
-  }
+  },
+  "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
+  "python.terminal.activateEnvironment": true,
+  "python-envs.pythonProjects": [
+    {
+      "path": "",
+      "envManager": "ms-python.python:venv",
+      "packageManager": "ms-python.python:pip"
+    }
+  ]
 }
