@@ -9,6 +9,7 @@ import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { GoogleAIFileManager, FileState } from '@google/generative-ai/server';
+import { registerTimelineRoutes } from './timeline-route.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.join(__dirname, '..', '.env') });
@@ -160,6 +161,8 @@ app.post('/api/analyze-large', upload.single('video'), async (req, res) => {
   }
 });
 
+registerTimelineRoutes(app, upload);
+
 // eslint-disable-next-line no-unused-vars
 app.use((err, _req, res, _next) => {
   if (err instanceof multer.MulterError && err.code === 'LIMIT_FILE_SIZE') {
@@ -177,5 +180,5 @@ app.use((err, _req, res, _next) => {
 
 app.listen(PORT, '127.0.0.1', () => {
   // eslint-disable-next-line no-console
-  console.log(`[mqp] Gemini mass-analyze API at http://127.0.0.1:${PORT} (POST /api/analyze-large)`);
+  console.log(`[mqp] API http://127.0.0.1:${PORT} — POST /api/analyze-large, POST /api/analyze-timeline, GET /api/health`);
 });

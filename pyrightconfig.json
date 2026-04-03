@@ -1,0 +1,15 @@
+{
+  "venvPath": ".",
+  "venv": ".venv",
+  "pythonVersion": "3.11",
+  "exclude": ["node_modules", "dist", "public"],
+  "executionEnvironments": [
+    {
+      "root": "scripts",
+      "pythonVersion": "3.11",
+      "venvPath": ".",
+      "venv": ".venv",
+      "reportMissingImports": "none"
+    }
+  ]
+}

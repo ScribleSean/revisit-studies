@@ -7,6 +7,7 @@
     "buildDocs": "typedoc",
     "serve": "vite --host=0.0.0.0 --port=8080",
     "serve:mass-api": "node server/analyze-large.mjs",
+    "setup:timeline-python": "bash -c 'test -d .venv || python3 -m venv .venv && .venv/bin/pip install -U pip && .venv/bin/pip install -r scripts/requirements-timeline.txt'",
     "typecheck": "tsc --noEmit",
     "build": "tsc && vite build",
     "lint": "eslint src",
