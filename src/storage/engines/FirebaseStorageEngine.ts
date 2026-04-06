@@ -517,6 +517,44 @@ export class FirebaseStorageEngine extends CloudStorageEngine {
     }
   }
 
+  protected async _getScreenRecordingEventsUrl(
+    task: string,
+    participantId?: string,
+  ): Promise<string | null> {
+    const storage = getStorage();
+    if (!participantId) return null;
+
+    const eventsRef = ref(
+      storage,
+      `${this.collectionPrefix}${this.studyId}/screenRecordingEvents/${participantId}_${task}`,
+    );
+    try {
+      return await getDownloadURL(eventsRef);
+    } catch {
+      console.warn(`ScreenRecording events for task ${task} and participant ${participantId} not found.`);
+      return null;
+    }
+  }
+
+  protected async _getScreenRecordingTagsUrl(
+    task: string,
+    participantId?: string,
+  ): Promise<string | null> {
+    const storage = getStorage();
+    if (!participantId) return null;
+
+    const tagsRef = ref(
+      storage,
+      `${this.collectionPrefix}${this.studyId}/screenRecordingTags/${participantId}_${task}`,
+    );
+    try {
+      return await getDownloadURL(tagsRef);
+    } catch {
+      console.warn(`ScreenRecording tags for task ${task} and participant ${participantId} not found.`);
+      return null;
+    }
+  }
+
   protected async _getTranscriptUrl(
     task: string,
     participantId: string,

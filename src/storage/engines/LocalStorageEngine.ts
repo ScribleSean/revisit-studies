@@ -271,6 +271,36 @@ export class LocalStorageEngine extends StorageEngine {
     return null;
   }
 
+  protected async _getScreenRecordingEventsUrl(task: string, participantId?: string) {
+    await this.verifyStudyDatabase();
+    if (this.studyId === undefined) {
+      throw new Error('Study ID is not set');
+    }
+
+    const id = participantId || this.currentParticipantId;
+    if (!id) return null;
+
+    const blob = await this._getFromStorage(`screenRecordingEvents/${id}`, task);
+    if (blob) return URL.createObjectURL(blob);
+
+    return null;
+  }
+
+  protected async _getScreenRecordingTagsUrl(task: string, participantId?: string) {
+    await this.verifyStudyDatabase();
+    if (this.studyId === undefined) {
+      throw new Error('Study ID is not set');
+    }
+
+    const id = participantId || this.currentParticipantId;
+    if (!id) return null;
+
+    const blob = await this._getFromStorage(`screenRecordingTags/${id}`, task);
+    if (blob) return URL.createObjectURL(blob);
+
+    return null;
+  }
+
   protected async _testingReset(studyId: string) {
     if (!studyId) {
       throw new Error('Study ID is required for reset');

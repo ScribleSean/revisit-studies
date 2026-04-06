@@ -235,6 +235,12 @@ export abstract class StorageEngine {
   // Optional: only some storage engines (or some study setups) may have precomputed summaries saved.
   protected _getScreenRecordingSummaryUrl?(task: string, participantId?: string): Promise<string | null>;
 
+  // Optional: timeline events (hesitation / confusion / scene_change) saved as JSON sidecar.
+  protected _getScreenRecordingEventsUrl?(task: string, participantId?: string): Promise<string | null>;
+
+  // Optional: researcher-defined tags (full JSON array replaced on save).
+  protected _getScreenRecordingTagsUrl?(task: string, participantId?: string): Promise<string | null>;
+
   // Gets the transcript URL for the given task and participantId. (Optional - not all storage engines need to implement this, only if they generate transcripts).
   protected _getTranscriptUrl?(task: string, participantId?: string): Promise<string | null>;
 
@@ -1166,6 +1172,60 @@ export abstract class StorageEngine {
     return this.saveScreenRecordingSummary(blob, taskName, participantId);
   }
 
+  async getScreenRecordingEvents(
+    task: string,
+    participantId: string,
+  ) {
+    if (!this._getScreenRecordingEventsUrl) {
+      return null;
+    }
+    const url = await this._getScreenRecordingEventsUrl(task, participantId);
+    if (!url) {
+      return null;
+    }
+    return this.getAsset(url);
+  }
+
+  async saveScreenRecordingEvents(
+    eventsBlob: Blob,
+    taskName: string,
+    participantId: string,
+  ) {
+    if (this.studyId === undefined) {
+      throw new Error('Study ID is not set');
+    }
+    const participantKey = `screenRecordingEvents/${participantId}`;
+    await this._pushToStorage(participantKey, taskName, eventsBlob);
+    await this._cacheStorageObject(participantKey, taskName);
+  }
+
+  async getScreenRecordingTags(
+    task: string,
+    participantId: string,
+  ) {
+    if (!this._getScreenRecordingTagsUrl) {
+      return null;
+    }
+    const url = await this._getScreenRecordingTagsUrl(task, participantId);
+    if (!url) {
+      return null;
+    }
+    return this.getAsset(url);
+  }
+
+  async saveScreenRecordingTags(
+    tagsBlob: Blob,
+    taskName: string,
+    participantId: string,
+  ) {
+    if (this.studyId === undefined) {
+      throw new Error('Study ID is not set');
+    }
+    const participantKey = `screenRecordingTags/${participantId}`;
+    await this._pushToStorage(participantKey, taskName, tagsBlob);
+    await this._cacheStorageObject(participantKey, taskName);
+  }
+
   // Saves the video stream to the storage engine. This method is used to save the screen recorded video data from a MediaRecorder stream.
   async saveScreenRecording(
     blob: Blob,
@@ -1251,6 +1311,12 @@ export abstract class StorageEngine {
       if (await this._directoryExists(`${sourceName}/screenRecordingSummary`)) {
         await this._copyDirectory(`${sourceName}/screenRecordingSummary`, `${targetName}/screenRecordingSummary`);
       }
+      if (await this._directoryExists(`${sourceName}/screenRecordingEvents`)) {
+        await this._copyDirectory(`${sourceName}/screenRecordingEvents`, `${targetName}/screenRecordingEvents`);
+      }
+      if (await this._directoryExists(`${sourceName}/screenRecordingTags`)) {
+        await this._copyDirectory(`${sourceName}/screenRecordingTags`, `${targetName}/screenRecordingTags`);
+      }
       await this._copyDirectory(sourceName, targetName);
       await this._copyRealtimeData(sourceName, targetName);
     }
@@ -1300,6 +1366,12 @@ export abstract class StorageEngine {
         await this._deleteDirectory(`${deletionTarget}/screenRecording`);
         if (await this._directoryExists(`${deletionTarget}/screenRecordingSummary`)) {
           await this._deleteDirectory(`${deletionTarget}/screenRecordingSummary`);
+        }
+        if (await this._directoryExists(`${deletionTarget}/screenRecordingEvents`)) {
+          await this._deleteDirectory(`${deletionTarget}/screenRecordingEvents`);
+        }
+        if (await this._directoryExists(`${deletionTarget}/screenRecordingTags`)) {
+          await this._deleteDirectory(`${deletionTarget}/screenRecordingTags`);
         }
         await this._deleteDirectory(deletionTarget);
         await this._deleteRealtimeData(deletionTarget);
@@ -1374,6 +1446,18 @@ export abstract class StorageEngine {
         await this._copyDirectory(
           `${snapshotName}/screenRecordingSummary`,
           `${originalName}/screenRecordingSummary`,
+        );
+      }
+      if (await this._directoryExists(`${snapshotName}/screenRecordingEvents`)) {
+        await this._copyDirectory(
+          `${snapshotName}/screenRecordingEvents`,
+          `${originalName}/screenRecordingEvents`,
+        );
+      }
+      if (await this._directoryExists(`${snapshotName}/screenRecordingTags`)) {
+        await this._copyDirectory(
+          `${snapshotName}/screenRecordingTags`,
+          `${originalName}/screenRecordingTags`,
         );
       }
       await this._copyDirectory(snapshotName, originalName);

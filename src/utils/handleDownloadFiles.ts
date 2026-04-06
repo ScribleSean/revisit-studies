@@ -181,6 +181,26 @@ async function downloadParticipantsScreenRecording({
       screenRecordingZip.file(`${namePrefix}_${participantId}_${identifier}_screenRecording_summary.${ext}`, summaryBlob);
     }
 
+    const eventsUrl = await storageEngine.getScreenRecordingEvents(identifier, participantId);
+    if (eventsUrl) {
+      const eventsBlob = await (await fetch(eventsUrl)).blob();
+      screenRecordingZip.file(
+        `${namePrefix}_${participantId}_${identifier}_screenRecording_events.json`,
+        eventsBlob,
+      );
+      URL.revokeObjectURL(eventsUrl);
+    }
+
+    const tagsUrl = await storageEngine.getScreenRecordingTags(identifier, participantId);
+    if (tagsUrl) {
+      const tagsBlob = await (await fetch(tagsUrl)).blob();
+      screenRecordingZip.file(
+        `${namePrefix}_${participantId}_${identifier}_screenRecording_tags.json`,
+        tagsBlob,
+      );
+      URL.revokeObjectURL(tagsUrl);
+    }
+
     if (!zip) {
       downloadZip(screenRecordingZip, `${namePrefix}_${participantId}_${identifier}_screenRecording.zip`);
     }
