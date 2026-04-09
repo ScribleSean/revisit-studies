@@ -11,8 +11,10 @@ import {
   Title,
 } from '@mantine/core';
 import {
+  useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from 'react';
@@ -20,6 +22,12 @@ import {
 import type { ParticipantData } from '../../../storage/types';
 import { useStorageEngine } from '../../../storage/storageEngineHooks';
 import { MassScreenRecordingSummarizationView } from './MassScreenRecordingSummarizationView';
+import { RecordingTagsPanel } from './RecordingTagsPanel';
+import { RecordingTimelineStrip } from './RecordingTimelineStrip';
+import type { RecordingTag } from './recordingTagTypes';
+import { parseRecordingTagsJson } from './recordingTagTypes';
+import type { TimelineEvent } from './timelineEventTypes';
+import { parseTimelineEventsJson } from './timelineEventTypes';
 
 type GeminiAnalyzeResponse = {
   summary?: string;
@@ -117,6 +125,12 @@ export function ScreenRecordingSummarizationView({ visibleParticipants }: { visi
   const [storedSummary, setStoredSummary] = useState<string | null>(null);
   const [storedIsLoading, setStoredIsLoading] = useState(false);
   const [storedError, setStoredError] = useState<string | null>(null);
+  const [storedTimelineEvents, setStoredTimelineEvents] = useState<TimelineEvent[]>([]);
+  const [storedTags, setStoredTags] = useState<RecordingTag[]>([]);
+  const [videoDuration, setVideoDuration] = useState(0);
+  const [timelineLoading, setTimelineLoading] = useState(false);
+  const [timelineError, setTimelineError] = useState<string | null>(null);
+  const storedVideoRef = useRef<HTMLVideoElement | null>(null);
 
   // Keep selected participant valid if the visible participants list changes.
   useEffect(() => {
@@ -129,9 +143,20 @@ export function ScreenRecordingSummarizationView({ visibleParticipants }: { visi
     }
   }, [storedParticipantId, storedParticipantIds]);
 
-  const envVars = import.meta.env as unknown as { VITE_GEMINI_API_KEY?: string; VITE_GEMINI_VIDEO_MODEL?: string };
+  const envVars = import.meta.env as unknown as {
+    VITE_GEMINI_API_KEY?: string;
+    VITE_GEMINI_VIDEO_MODEL?: string;
+    VITE_GEMINI_MASS_API_URL?: string;
+  };
   const apiKey = envVars.VITE_GEMINI_API_KEY;
   const model = envVars.VITE_GEMINI_VIDEO_MODEL;
+  const geminiMassApiBase = envVars.VITE_GEMINI_MASS_API_URL;
+
+  const timelineApiUrl = useMemo(() => {
+    const base = (geminiMassApiBase || '').replace(/\/$/, '');
+    if (base) return `${base}/api/analyze-timeline`;
+    return '/api/analyze-timeline';
+  }, [geminiMassApiBase]);
 
   const effectiveModel = useMemo(
     () => model || 'models/gemini-2.0-flash',
@@ -237,6 +262,10 @@ export function ScreenRecordingSummarizationView({ visibleParticipants }: { visi
     setStoredError(null);
     setStoredSummary(null);
     setStoredVideoUrl(null);
+    setStoredTimelineEvents([]);
+    setStoredTags([]);
+    setVideoDuration(0);
+    setTimelineError(null);
 
     (async () => {
       try {
@@ -251,13 +280,50 @@ export function ScreenRecordingSummarizationView({ visibleParticipants }: { visi
 
         if (!summaryObjectUrl) {
           setStoredSummary(null);
-          return;
+        } else {
+          const blob = await (await fetch(summaryObjectUrl)).blob();
+          const text = await blob.text();
+          const parsed = parsePossibleStoredSummary(text);
+          setStoredSummary(parsed);
         }
 
-        const blob = await (await fetch(summaryObjectUrl)).blob();
-        const text = await blob.text();
-        const parsed = parsePossibleStoredSummary(text);
-        setStoredSummary(parsed);
+        let eventsObjectUrl: string | null = null;
+        try {
+          eventsObjectUrl = await storageEngine.getScreenRecordingEvents(
+            storedRecordingIdentifier,
+            storedParticipantId,
+          );
+          if (eventsObjectUrl && !cancelled) {
+            const evBlob = await (await fetch(eventsObjectUrl)).blob();
+            const evText = await evBlob.text();
+            setStoredTimelineEvents(parseTimelineEventsJson(evText));
+          } else if (!cancelled) {
+            setStoredTimelineEvents([]);
+          }
+        } finally {
+          if (eventsObjectUrl) {
+            URL.revokeObjectURL(eventsObjectUrl);
+          }
+        }
+
+        let tagsObjectUrl: string | null = null;
+        try {
+          tagsObjectUrl = await storageEngine.getScreenRecordingTags(
+            storedRecordingIdentifier,
+            storedParticipantId,
+          );
+          if (tagsObjectUrl && !cancelled) {
+            const tagBlob = await (await fetch(tagsObjectUrl)).blob();
+            const tagText = await tagBlob.text();
+            setStoredTags(parseRecordingTagsJson(tagText));
+          } else if (!cancelled) {
+            setStoredTags([]);
+          }
+        } finally {
+          if (tagsObjectUrl) {
+            URL.revokeObjectURL(tagsObjectUrl);
+          }
+        }
       } catch (e) {
         if (cancelled) return;
         setStoredError(e instanceof Error ? e.message : 'Failed to load stored summary');
@@ -301,6 +367,67 @@ export function ScreenRecordingSummarizationView({ visibleParticipants }: { visi
       setIsAnalyzing(false);
     }
   };
+
+  const handleGenerateTimeline = async () => {
+    if (!storageEngine || !storedParticipantId || !storedRecordingIdentifier) return;
+    setTimelineError(null);
+    setTimelineLoading(true);
+    try {
+      const recordingUrl = await storageEngine.getScreenRecording(storedRecordingIdentifier, storedParticipantId);
+      if (!recordingUrl) {
+        setTimelineError('No screen recording found for this selection.');
+        return;
+      }
+      const blob = await (await fetch(recordingUrl)).blob();
+      URL.revokeObjectURL(recordingUrl);
+
+      const file = new File([blob], `${storedRecordingIdentifier}.webm`, { type: blob.type || 'video/webm' });
+      const fd = new FormData();
+      fd.append('video', file);
+
+      const res = await fetch(timelineApiUrl, { method: 'POST', body: fd });
+      const json = (await res.json().catch(() => ({}))) as { events?: TimelineEvent[]; error?: string };
+      if (!res.ok) {
+        setTimelineError(typeof json.error === 'string' ? json.error : `HTTP ${res.status}`);
+        return;
+      }
+      const normalized = parseTimelineEventsJson(JSON.stringify({ events: json.events }));
+      setStoredTimelineEvents(normalized);
+
+      const payload = JSON.stringify(
+        { events: normalized, generatedAt: new Date().toISOString() },
+        null,
+        2,
+      );
+      await storageEngine.saveScreenRecordingEvents(
+        new Blob([payload], { type: 'application/json' }),
+        storedRecordingIdentifier,
+        storedParticipantId,
+      );
+    } catch (e) {
+      setTimelineError(e instanceof Error ? e.message : 'Timeline generation failed');
+    } finally {
+      setTimelineLoading(false);
+    }
+  };
+
+  const persistRecordingTags = useCallback(
+    async (next: RecordingTag[]) => {
+      if (!storageEngine || !storedParticipantId || !storedRecordingIdentifier) return;
+      const payload = JSON.stringify(
+        { tags: next, updatedAt: new Date().toISOString() },
+        null,
+        2,
+      );
+      await storageEngine.saveScreenRecordingTags(
+        new Blob([payload], { type: 'application/json' }),
+        storedRecordingIdentifier,
+        storedParticipantId,
+      );
+      setStoredTags(next);
+    },
+    [storageEngine, storedParticipantId, storedRecordingIdentifier],
+  );
 
   return (
     <Box pos="relative">
@@ -407,11 +534,59 @@ export function ScreenRecordingSummarizationView({ visibleParticipants }: { visi
                   )}
 
                   {storedVideoUrl && (
-                    <video
-                      src={storedVideoUrl}
-                      controls
-                      style={{ width: '100%', borderRadius: 8, background: 'black' }}
-                    />
+                    <Box>
+                      <video
+                        ref={storedVideoRef}
+                        src={storedVideoUrl}
+                        controls
+                        style={{ width: '100%', borderRadius: 8, background: 'black' }}
+                        onLoadedMetadata={(e) => setVideoDuration(e.currentTarget.duration || 0)}
+                      />
+                      <RecordingTimelineStrip
+                        events={storedTimelineEvents}
+                        tags={storedTags}
+                        durationSeconds={videoDuration}
+                        onSeek={(t) => {
+                          const el = storedVideoRef.current;
+                          if (el) {
+                            el.currentTime = t;
+                          }
+                        }}
+                      />
+                      <RecordingTagsPanel
+                        tags={storedTags}
+                        onPersist={persistRecordingTags}
+                        videoRef={storedVideoRef}
+                        disabled={!storageEngine || storedIsLoading}
+                      />
+                      <GroupRow>
+                        <Button
+                          variant="light"
+                          loading={timelineLoading}
+                          disabled={!storageEngine || timelineLoading || !storedVideoUrl}
+                          onClick={handleGenerateTimeline}
+                        >
+                          Generate timeline
+                        </Button>
+                        <Text size="xs" color="dimmed" style={{ alignSelf: 'center' }}>
+                          Whisper + scene detection (run
+                          {' '}
+                          <code>yarn serve:mass-api</code>
+                          ). Requires Python:
+                          {' '}
+                          <code>openai-whisper</code>
+                          ,
+                          {' '}
+                          <code>scenedetect[opencv]</code>
+                          .
+                        </Text>
+                      </GroupRow>
+                      {timelineError && (
+                        <Alert color="red" variant="light" mt="xs">
+                          {timelineError}
+                        </Alert>
+                      )}
+                    </Box>
                   )}
 
                   <Box mt="sm">
