@@ -386,13 +386,25 @@ export function ScreenRecordingSummarizationView({ visibleParticipants }: { visi
       fd.append('video', file);
 
       const res = await fetch(timelineApiUrl, { method: 'POST', body: fd });
-      const json = (await res.json().catch(() => ({}))) as { events?: TimelineEvent[]; error?: string };
+      const json = (await res.json().catch(() => ({}))) as {
+        events?: TimelineEvent[];
+        error?: string;
+        meta?: Record<string, unknown>;
+      };
       if (!res.ok) {
         setTimelineError(typeof json.error === 'string' ? json.error : `HTTP ${res.status}`);
         return;
       }
       const normalized = parseTimelineEventsJson(JSON.stringify({ events: json.events }));
       setStoredTimelineEvents(normalized);
+      if (normalized.length === 0) {
+        const audioSkipped = Boolean(json.meta && (json.meta as Record<string, unknown>).audio_skipped);
+        setTimelineError(
+          audioSkipped
+            ? 'Timeline generated, but 0 events were detected (this recording appears to have no audio track, so only scene changes can be detected).'
+            : 'Timeline generated, but 0 events were detected for this recording.',
+        );
+      }
 
       const payload = JSON.stringify(
         { events: normalized, generatedAt: new Date().toISOString() },

@@ -20,6 +20,7 @@ import json
 import os
 import sys
 from pathlib import Path
+import subprocess
 
 CONFUSION_PHRASES = [
     "confused",
@@ -35,6 +36,39 @@ CONFUSION_PHRASES = [
     "lost",
     "unsure",
 ]
+
+
+def has_audio_stream(video_path: Path) -> bool:
+    """
+    Best-effort check for an audio track.
+
+    Whisper shells out to ffmpeg; some screen recordings are video-only, which
+    causes ffmpeg extraction to fail. We detect that case and fall back to
+    scene-only events instead of hard-failing.
+    """
+    try:
+        res = subprocess.run(
+            [
+                "ffprobe",
+                "-v",
+                "error",
+                "-select_streams",
+                "a",
+                "-show_entries",
+                "stream=index",
+                "-of",
+                "csv=p=0",
+                str(video_path),
+            ],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        if res.returncode != 0:
+            return True  # unknown; proceed with Whisper and let it error if needed
+        return bool((res.stdout or "").strip())
+    except Exception:
+        return True  # ffprobe missing/unavailable; proceed
 
 
 def analyze_audio_events(video_path: Path, model_size: str) -> tuple[list[dict], dict]:
@@ -119,14 +153,37 @@ def main() -> int:
     model_size = os.environ.get("WHISPER_MODEL", "base")
 
     try:
-        audio_events, meta = analyze_audio_events(video_path, model_size)
-        scene_events = scene_change_events(video_path)
+        meta: dict = {"whisper_model": model_size}
+
+        # Scene detection is useful even when audio/Whisper fails; keep it independent.
+        scene_events: list[dict] = []
+        try:
+            scene_events = scene_change_events(video_path)
+        except Exception as e:  # noqa: BLE001
+            meta["scene_error"] = str(e)[:300]
+            scene_events = []
+
+        audio_events: list[dict] = []
+        if not has_audio_stream(video_path):
+            meta["audio_skipped"] = True
+            meta["audio_skip_reason"] = "no_audio_stream_detected"
+        else:
+            try:
+                audio_events, audio_meta = analyze_audio_events(video_path, model_size)
+                meta.update(audio_meta)
+            except Exception as e:  # noqa: BLE001
+                # Fall back to scene-only output (and still succeed) when audio analysis fails.
+                meta["audio_skipped"] = True
+                meta["audio_skip_reason"] = str(e)[:300]
+                audio_events = []
+
         events = audio_events + scene_events
         events.sort(key=lambda e: e["timestamp"])
         print(json.dumps({"events": events, "meta": meta}, indent=None))
         return 0
     except Exception as e:  # noqa: BLE001 — return JSON to Node caller
-        print(json.dumps({"events": [], "error": str(e), "meta": {"whisper_model": model_size}}))
+        msg = str(e)
+        print(json.dumps({"events": [], "error": msg, "meta": {"whisper_model": model_size}}))
         return 1
 
 
