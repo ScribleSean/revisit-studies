@@ -8,6 +8,7 @@ import { writeFile, unlink } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { readJsonCache, sha256Hex, writeJsonCache } from './cache.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.join(__dirname, '..');
@@ -52,6 +53,23 @@ export function registerTimelineRoutes(app, upload) {
       .map((w) => String(w).trim())
       .filter(Boolean)
       .join(',');
+
+    const whisperModel = String(process.env.WHISPER_MODEL || 'base');
+    const cacheKey = sha256Hex([req.file.buffer, confusionWordsArg, whisperModel]);
+    const cached = await readJsonCache(cacheKey);
+    if (cached && Array.isArray(cached.events)) {
+      // eslint-disable-next-line no-console
+      console.log(`[mqp-cache] hit analyze-timeline ${cacheKey.slice(0, 12)}`);
+      res.json({
+        events: cached.events,
+        meta: cached.meta || {},
+        durationMs: Date.now() - started,
+        cacheHit: true,
+      });
+      return;
+    }
+    // eslint-disable-next-line no-console
+    console.log(`[mqp-cache] miss analyze-timeline ${cacheKey.slice(0, 12)}`);
 
     const ext = extFromMime(req.file.mimetype);
     const tmp = path.join(tmpdir(), `mqp-timeline-${randomUUID()}.${ext}`);
@@ -145,5 +163,11 @@ export function registerTimelineRoutes(app, upload) {
       meta: parsed.meta || {},
       durationMs: Date.now() - started,
     });
+
+    await writeJsonCache(cacheKey, {
+      events,
+      meta: parsed.meta || {},
+      cachedAt: new Date().toISOString(),
+    }).catch(() => {});
   });
 }

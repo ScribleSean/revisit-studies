@@ -10,6 +10,7 @@ import path from 'node:path';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { GoogleAIFileManager, FileState } from '@google/generative-ai/server';
 import { registerTimelineRoutes } from './timeline-route.mjs';
+import { readJsonCache, sha256Hex, writeJsonCache } from './cache.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.join(__dirname, '..', '.env') });
@@ -88,6 +89,23 @@ app.post('/api/analyze-large', upload.single('video'), async (req, res) => {
 
   const modelId = normalizeModelId(req.body.model);
   const mimeType = req.file.mimetype || 'video/webm';
+
+  const cacheKey = sha256Hex([req.file.buffer, prompt, modelId]);
+  const cached = await readJsonCache(cacheKey);
+  if (cached && typeof cached.summary === 'string') {
+    // eslint-disable-next-line no-console
+    console.log(`[mqp-cache] hit analyze-large ${cacheKey.slice(0, 12)}`);
+    res.json({
+      summary: cached.summary,
+      modelUsed: cached.modelUsed || (modelId.startsWith('models/') ? modelId : `models/${modelId}`),
+      durationMs: Date.now() - started,
+      cacheHit: true,
+    });
+    return;
+  }
+  // eslint-disable-next-line no-console
+  console.log(`[mqp-cache] miss analyze-large ${cacheKey.slice(0, 12)}`);
+
   const fileManager = new GoogleAIFileManager(apiKey);
   const genAI = new GoogleGenerativeAI(apiKey);
 
@@ -144,6 +162,12 @@ app.post('/api/analyze-large', upload.single('video'), async (req, res) => {
       modelUsed,
       durationMs: Date.now() - started,
     });
+
+    await writeJsonCache(cacheKey, {
+      summary: text,
+      modelUsed,
+      cachedAt: new Date().toISOString(),
+    }).catch(() => {});
   } catch (e) {
     if (uploadedName) {
       try {
