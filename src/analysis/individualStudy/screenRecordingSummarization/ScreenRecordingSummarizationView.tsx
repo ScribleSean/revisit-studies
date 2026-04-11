@@ -158,6 +158,12 @@ export function ScreenRecordingSummarizationView({ visibleParticipants }: { visi
     return '/api/analyze-timeline';
   }, [geminiMassApiBase]);
 
+  const analyzeLargeApiUrl = useMemo(() => {
+    const base = (geminiMassApiBase || '').replace(/\/$/, '');
+    if (base) return `${base}/api/analyze-large`;
+    return '/api/analyze-large';
+  }, [geminiMassApiBase]);
+
   const effectiveModel = useMemo(
     () => model || 'models/gemini-2.0-flash',
     [model],
@@ -239,6 +245,20 @@ export function ScreenRecordingSummarizationView({ visibleParticipants }: { visi
 
     const text = extractGeminiText(json);
     return { summary: text ?? undefined, raw: json };
+  }
+
+  async function analyzeVideoLarge(file: File): Promise<GeminiAnalyzeResponse> {
+    const fd = new FormData();
+    fd.append('video', file);
+    fd.append('prompt', prompt);
+    if (effectiveModel) fd.append('model', effectiveModel);
+
+    const res = await fetch(analyzeLargeApiUrl, { method: 'POST', body: fd });
+    const json = (await res.json().catch(() => ({}))) as { summary?: string; error?: string };
+    if (!res.ok) {
+      return { summary: undefined, raw: { status: res.status, json } };
+    }
+    return { summary: typeof json.summary === 'string' ? json.summary : undefined, raw: json };
   }
 
   useEffect(() => {
@@ -346,7 +366,9 @@ export function ScreenRecordingSummarizationView({ visibleParticipants }: { visi
     setIsAnalyzing(true);
 
     try {
-      const result = await analyzeVideo(videoFile);
+      const result = canInlineUpload
+        ? await analyzeVideo(videoFile)
+        : await analyzeVideoLarge(videoFile);
       if (!result.summary) {
         const raw = result.raw as { error?: unknown; status?: unknown } | undefined;
         const rawErr = raw?.error;
@@ -490,12 +512,22 @@ export function ScreenRecordingSummarizationView({ visibleParticipants }: { visi
 
               {videoFile && !canInlineUpload && (
                 <Alert color="orange" variant="light">
-                  File is too large for inline upload (&gt; 20MB). Convert to a smaller clip or implement the Files API server-side.
+                  File is too large for inline upload (&gt; 20MB). This tab will send the clip to
+                  {' '}
+                  <code>/api/analyze-large</code>
+                  {' '}
+                  (run
+                  {' '}
+                  <code>yarn serve:mass-api</code>
+                  ).
                 </Alert>
               )}
 
               <GroupRow>
-                <Button onClick={handleAnalyze} disabled={!videoFile || !canInlineUpload || !apiKey || isAnalyzing}>
+                <Button
+                  onClick={handleAnalyze}
+                  disabled={!videoFile || isAnalyzing || (canInlineUpload && !apiKey)}
+                >
                   Analyze video
                 </Button>
               </GroupRow>
