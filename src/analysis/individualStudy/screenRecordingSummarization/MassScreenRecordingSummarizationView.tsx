@@ -9,11 +9,15 @@ import {
   Button,
   Progress,
   Group,
+  Modal,
+  Select,
+  TextInput,
 } from '@mantine/core';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import type { ParticipantData } from '../../../parser/types';
 import { useStorageEngine } from '../../../storage/storageEngineHooks';
+import type { ScreenRecordingPromptLibrary } from '../../../storage/engines/types';
 
 type GeminiAnalyzeResponse = {
   summary?: string;
@@ -82,7 +86,40 @@ export function MassScreenRecordingSummarizationView({
   const [skipIfExists, setSkipIfExists] = useState<boolean>(true);
   const [persistResults, setPersistResults] = useState<boolean>(true);
 
+  const [promptLibrary, setPromptLibrary] = useState<ScreenRecordingPromptLibrary>({ prompts: [] });
+  const [selectedPromptId, setSelectedPromptId] = useState<string | null>(null);
+  const [promptLibraryLoading, setPromptLibraryLoading] = useState(false);
+  const [promptLibraryError, setPromptLibraryError] = useState<string | null>(null);
+  const [saveModalOpen, setSaveModalOpen] = useState(false);
+  const [saveNameDraft, setSaveNameDraft] = useState('');
+
   const maxInlineBytes = 20 * 1024 * 1024;
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!storageEngine) return () => { cancelled = true; };
+
+    setPromptLibraryLoading(true);
+    setPromptLibraryError(null);
+    (async () => {
+      try {
+        const lib = await storageEngine.getScreenRecordingPrompts();
+        if (!cancelled) {
+          setPromptLibrary(lib);
+        }
+      } catch (e) {
+        if (!cancelled) {
+          setPromptLibraryError(e instanceof Error ? e.message : 'Failed to load prompt library');
+        }
+      } finally {
+        if (!cancelled) {
+          setPromptLibraryLoading(false);
+        }
+      }
+    })();
+
+    return () => { cancelled = true; };
+  }, [storageEngine]);
 
   const recordings = useMemo(() => {
     const items: RecordingItem[] = [];
@@ -333,6 +370,12 @@ export function MassScreenRecordingSummarizationView({
     }
   };
 
+  const persistPromptLibrary = async (next: ScreenRecordingPromptLibrary) => {
+    if (!storageEngine) return;
+    await storageEngine.saveScreenRecordingPrompts(next);
+    setPromptLibrary(next);
+  };
+
   return (
     <Card withBorder shadow="sm" padding="md">
       <Stack gap="md">
@@ -370,6 +413,63 @@ export function MassScreenRecordingSummarizationView({
         )}
 
         <Stack gap="xs">
+          {promptLibraryError && (
+            <Alert color="red" variant="light">
+              Prompt library:
+              {' '}
+              {promptLibraryError}
+            </Alert>
+          )}
+
+          <Group justify="space-between" align="flex-end">
+            <Select
+              label="Saved prompts"
+              placeholder={promptLibraryLoading ? 'Loading…' : 'Select a prompt'}
+              value={selectedPromptId}
+              onChange={(v) => {
+                setSelectedPromptId(v || null);
+                const match = promptLibrary.prompts.find((p) => p.id === v);
+                if (match) setPrompt(match.prompt);
+              }}
+              data={promptLibrary.prompts
+                .slice()
+                .sort((a, b) => a.name.localeCompare(b.name))
+                .map((p) => ({ value: p.id, label: p.name }))}
+              disabled={isRunning || promptLibraryLoading || !storageEngine}
+              style={{ flex: 1 }}
+              searchable
+              clearable
+            />
+            <Group gap="xs">
+              <Button
+                variant="light"
+                disabled={!storageEngine || isRunning}
+                onClick={() => {
+                  setSaveNameDraft('');
+                  setSaveModalOpen(true);
+                }}
+              >
+                Save current
+              </Button>
+              <Button
+                variant="default"
+                color="red"
+                disabled={!storageEngine || isRunning || !selectedPromptId}
+                onClick={() => {
+                  const next = {
+                    prompts: promptLibrary.prompts.filter((p) => p.id !== selectedPromptId),
+                  };
+                  persistPromptLibrary(next).catch((e) => {
+                    setPromptLibraryError(e instanceof Error ? e.message : 'Failed to delete prompt');
+                  });
+                  setSelectedPromptId(null);
+                }}
+              >
+                Delete
+              </Button>
+            </Group>
+          </Group>
+
           <Textarea
             minRows={3}
             autosize
@@ -494,6 +594,57 @@ export function MassScreenRecordingSummarizationView({
             {error}
           </Alert>
         )}
+
+        <Modal opened={saveModalOpen} onClose={() => setSaveModalOpen(false)} title="Save prompt">
+          <Stack gap="md">
+            <TextInput
+              label="Name"
+              placeholder="e.g. Strategy + friction summary"
+              value={saveNameDraft}
+              onChange={(e) => setSaveNameDraft(e.currentTarget.value)}
+              data-autofocus
+            />
+            <Group justify="flex-end">
+              <Button variant="default" onClick={() => setSaveModalOpen(false)}>
+                Cancel
+              </Button>
+              <Button
+                disabled={!saveNameDraft.trim() || !storageEngine}
+                onClick={() => {
+                  const name = saveNameDraft.trim();
+                  const now = new Date().toISOString();
+                  const existingByName = promptLibrary.prompts.find(
+                    (p) => p.name.toLowerCase() === name.toLowerCase(),
+                  );
+                  const nextPrompts = existingByName
+                    ? promptLibrary.prompts.map((p) => (p.id === existingByName.id
+                      ? {
+                        ...p,
+                        prompt,
+                        updatedAt: now,
+                        name,
+                      }
+                      : p))
+                    : [
+                      ...promptLibrary.prompts,
+                      {
+                        id: crypto.randomUUID(),
+                        name,
+                        prompt,
+                        updatedAt: now,
+                      },
+                    ];
+                  persistPromptLibrary({ prompts: nextPrompts }).catch((e) => {
+                    setPromptLibraryError(e instanceof Error ? e.message : 'Failed to save prompt');
+                  });
+                  setSaveModalOpen(false);
+                }}
+              >
+                Save
+              </Button>
+            </Group>
+          </Stack>
+        </Modal>
       </Stack>
     </Card>
   );

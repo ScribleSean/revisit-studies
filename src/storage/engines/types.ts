@@ -70,6 +70,17 @@ export interface ConditionData {
   conditionCounts: Record<string, number>;
 }
 
+export type ScreenRecordingPrompt = {
+  id: string;
+  name: string;
+  prompt: string;
+  updatedAt: string;
+};
+
+export type ScreenRecordingPromptLibrary = {
+  prompts: ScreenRecordingPrompt[];
+};
+
 const defaultStageColor = '#F05A30';
 
 export type StorageObjectType = 'sequenceArray' | 'participantData' | 'config' | string;
@@ -80,6 +91,8 @@ export type StorageObject<T extends StorageObjectType> =
   ? ParticipantData
   : T extends 'config'
   ? StudyConfig
+  : T extends 'screenRecordingPrompts'
+  ? ScreenRecordingPromptLibrary
   : T extends 'transcription.txt'
   ? TranscribedAudio
   : T extends 'editedText'
@@ -1224,6 +1237,23 @@ export abstract class StorageEngine {
     const participantKey = `screenRecordingTags/${participantId}`;
     await this._pushToStorage(participantKey, taskName, tagsBlob);
     await this._cacheStorageObject(participantKey, taskName);
+  }
+
+  async getScreenRecordingPrompts(): Promise<ScreenRecordingPromptLibrary> {
+    await this.verifyStudyDatabase();
+    const raw = await this._getFromStorage('', 'screenRecordingPrompts');
+    if (!raw || typeof raw !== 'object') return { prompts: [] };
+    const lib = raw as ScreenRecordingPromptLibrary;
+    if (!Array.isArray(lib.prompts)) return { prompts: [] };
+    return { prompts: lib.prompts };
+  }
+
+  async saveScreenRecordingPrompts(library: ScreenRecordingPromptLibrary) {
+    if (this.studyId === undefined) {
+      throw new Error('Study ID is not set');
+    }
+    await this._pushToStorage('', 'screenRecordingPrompts', library);
+    await this._cacheStorageObject('', 'screenRecordingPrompts');
   }
 
   // Saves the video stream to the storage engine. This method is used to save the screen recorded video data from a MediaRecorder stream.
