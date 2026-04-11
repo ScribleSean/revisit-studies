@@ -21,6 +21,7 @@ import {
 
 import type { ParticipantData } from '../../../storage/types';
 import { useStorageEngine } from '../../../storage/storageEngineHooks';
+import { useStudyConfig } from '../../../store/hooks/useStudyConfig';
 import { MassScreenRecordingSummarizationView } from './MassScreenRecordingSummarizationView';
 import { RecordingTagsPanel } from './RecordingTagsPanel';
 import { RecordingTimelineStrip } from './RecordingTimelineStrip';
@@ -89,6 +90,7 @@ function GroupRow({ children }: { children: ReactNode }) {
 }
 
 export function ScreenRecordingSummarizationView({ visibleParticipants }: { visibleParticipants: ParticipantData[] }) {
+  const studyConfig = useStudyConfig();
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
 
@@ -157,6 +159,13 @@ export function ScreenRecordingSummarizationView({ visibleParticipants }: { visi
     if (base) return `${base}/api/analyze-timeline`;
     return '/api/analyze-timeline';
   }, [geminiMassApiBase]);
+
+  const confusionWords = useMemo(() => {
+    const raw = studyConfig?.screenRecordingAnalysis?.confusionWords;
+    if (!Array.isArray(raw)) return null;
+    const cleaned = raw.map((w) => (typeof w === 'string' ? w.trim() : '')).filter(Boolean);
+    return cleaned.length > 0 ? cleaned : null;
+  }, [studyConfig]);
 
   const analyzeLargeApiUrl = useMemo(() => {
     const base = (geminiMassApiBase || '').replace(/\/$/, '');
@@ -406,6 +415,9 @@ export function ScreenRecordingSummarizationView({ visibleParticipants }: { visi
       const file = new File([blob], `${storedRecordingIdentifier}.webm`, { type: blob.type || 'video/webm' });
       const fd = new FormData();
       fd.append('video', file);
+      if (confusionWords) {
+        fd.append('confusionWords', confusionWords.join(','));
+      }
 
       const res = await fetch(timelineApiUrl, { method: 'POST', body: fd });
       const json = (await res.json().catch(() => ({}))) as {

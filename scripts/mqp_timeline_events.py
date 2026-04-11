@@ -19,10 +19,11 @@ from __future__ import annotations
 import json
 import os
 import sys
+import argparse
 from pathlib import Path
 import subprocess
 
-CONFUSION_PHRASES = [
+DEFAULT_CONFUSION_PHRASES = [
     "confused",
     "unclear",
     "don't understand",
@@ -71,7 +72,7 @@ def has_audio_stream(video_path: Path) -> bool:
         return True  # ffprobe missing/unavailable; proceed
 
 
-def analyze_audio_events(video_path: Path, model_size: str) -> tuple[list[dict], dict]:
+def analyze_audio_events(video_path: Path, model_size: str, confusion_phrases: list[str]) -> tuple[list[dict], dict]:
     import whisper
 
     model = whisper.load_model(model_size)
@@ -99,7 +100,7 @@ def analyze_audio_events(video_path: Path, model_size: str) -> tuple[list[dict],
         if not text.strip():
             continue
         matched: list[str] = []
-        for phrase in CONFUSION_PHRASES:
+        for phrase in confusion_phrases:
             if phrase in text:
                 matched.append(phrase)
         if not matched:
@@ -141,16 +142,20 @@ def scene_change_events(video_path: Path, threshold: float = 27.0) -> list[dict]
 
 
 def main() -> int:
-    if len(sys.argv) < 2:
-        print(json.dumps({"events": [], "error": "Usage: mqp_timeline_events.py <video_path>"}))
-        return 1
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument("video_path")
+    parser.add_argument("--confusion-words", dest="confusion_words", default="")
+    args, _unknown = parser.parse_known_args()
 
-    video_path = Path(sys.argv[1]).resolve()
+    video_path = Path(args.video_path).resolve()
     if not video_path.is_file():
         print(json.dumps({"events": [], "error": f"File not found: {video_path}"}))
         return 1
 
     model_size = os.environ.get("WHISPER_MODEL", "base")
+    confusion_phrases = DEFAULT_CONFUSION_PHRASES
+    if isinstance(args.confusion_words, str) and args.confusion_words.strip():
+        confusion_phrases = [w.strip().lower() for w in args.confusion_words.split(",") if w.strip()]
 
     try:
         meta: dict = {"whisper_model": model_size}
@@ -169,7 +174,7 @@ def main() -> int:
             meta["audio_skip_reason"] = "no_audio_stream_detected"
         else:
             try:
-                audio_events, audio_meta = analyze_audio_events(video_path, model_size)
+                audio_events, audio_meta = analyze_audio_events(video_path, model_size, confusion_phrases)
                 meta.update(audio_meta)
             except Exception as e:  # noqa: BLE001
                 # Fall back to scene-only output (and still succeed) when audio analysis fails.
@@ -179,6 +184,7 @@ def main() -> int:
 
         events = audio_events + scene_events
         events.sort(key=lambda e: e["timestamp"])
+        meta["confusion_words"] = confusion_phrases
         print(json.dumps({"events": events, "meta": meta}, indent=None))
         return 0
     except Exception as e:  # noqa: BLE001 — return JSON to Node caller

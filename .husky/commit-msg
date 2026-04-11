@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+MSG_FILE="$1"
+
+# Hard stop / sanitize: never allow "Made-with: Cursor" (or similar) trailers.
+if [ -f "$MSG_FILE" ]; then
+  # Delete any "Made-with: Cursor" or "made with:cursor" lines (case-insensitive).
+  perl -i -0pe 's/\n?^Made-with:\s*Cursor\s*\n//gmi; s/\n?^made with:cursor\s*\n//gmi; s/\n{3,}/\n\n/g; s/\n\z/\n/s' "$MSG_FILE"
+fi
+
+exit 0
+

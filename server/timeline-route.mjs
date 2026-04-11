@@ -46,6 +46,13 @@ export function registerTimelineRoutes(app, upload) {
     const py = process.env.MQP_TIMELINE_PYTHON || defaultPythonExecutable();
     const scriptPath = process.env.MQP_TIMELINE_SCRIPT || DEFAULT_SCRIPT;
 
+    const confusionWords = typeof req.body?.confusionWords === 'string' ? req.body.confusionWords : '';
+    const confusionWordsArg = confusionWords
+      .split(',')
+      .map((w) => String(w).trim())
+      .filter(Boolean)
+      .join(',');
+
     const ext = extFromMime(req.file.mimetype);
     const tmp = path.join(tmpdir(), `mqp-timeline-${randomUUID()}.${ext}`);
 
@@ -64,7 +71,11 @@ export function registerTimelineRoutes(app, upload) {
     let stderr = '';
     try {
       const result = await new Promise((resolve, reject) => {
-        const child = spawn(py, [scriptPath, tmp], {
+        const args = [scriptPath, tmp];
+        if (confusionWordsArg) {
+          args.push('--confusion-words', confusionWordsArg);
+        }
+        const child = spawn(py, args, {
           cwd: REPO_ROOT,
           env: { ...process.env },
         });
