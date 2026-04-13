@@ -10,6 +10,7 @@ import { parseConditionParam } from '../../utils/handleConditionLogic';
 import {
   ParticipantTags, Tag, TaglessEditedText, TranscribedAudio,
 } from '../../analysis/individualStudy/thinkAloud/types';
+import type { StudyEventsIndex } from '../../analysis/individualStudy/screenRecordingSummarization/studyEventsIndexTypes';
 
 export interface StoredUser {
   email: string | null,
@@ -91,6 +92,8 @@ export type StorageObject<T extends StorageObjectType> =
   ? ParticipantData
   : T extends 'config'
   ? StudyConfig
+  : T extends 'studyEventsIndex'
+  ? StudyEventsIndex
   : T extends 'screenRecordingPrompts'
   ? ScreenRecordingPromptLibrary
   : T extends 'transcription.txt'
@@ -1237,6 +1240,24 @@ export abstract class StorageEngine {
     const participantKey = `screenRecordingTags/${participantId}`;
     await this._pushToStorage(participantKey, taskName, tagsBlob);
     await this._cacheStorageObject(participantKey, taskName);
+  }
+
+  async getStudyEventsIndex(): Promise<StudyEventsIndex | null> {
+    await this.verifyStudyDatabase();
+    const raw = await this._getFromStorage('', 'studyEventsIndex');
+    if (!raw || typeof raw !== 'object') return null;
+    const idx = raw as StudyEventsIndex;
+    if (!Array.isArray(idx.events)) return null;
+    if (typeof idx.lastUpdatedAt !== 'string') return null;
+    return idx;
+  }
+
+  async saveStudyEventsIndex(index: StudyEventsIndex): Promise<void> {
+    if (this.studyId === undefined) {
+      throw new Error('Study ID is not set');
+    }
+    await this._pushToStorage('', 'studyEventsIndex', index);
+    await this._cacheStorageObject('', 'studyEventsIndex');
   }
 
   async getScreenRecordingPrompts(): Promise<ScreenRecordingPromptLibrary> {
