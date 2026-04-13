@@ -10,7 +10,7 @@ import { parseConditionParam } from '../../utils/handleConditionLogic';
 import {
   ParticipantTags, Tag, TaglessEditedText, TranscribedAudio,
 } from '../../analysis/individualStudy/thinkAloud/types';
-import type { StudyEventsIndex } from '../../analysis/individualStudy/screenRecordingSummarization/studyEventsIndexTypes';
+import type { StudyEventsIndex, StudyIndexedEvent } from '../../analysis/individualStudy/screenRecordingSummarization/studyEventsIndexTypes';
 
 export interface StoredUser {
   email: string | null,
@@ -1213,6 +1213,13 @@ export abstract class StorageEngine {
     const participantKey = `screenRecordingEvents/${participantId}`;
     await this._pushToStorage(participantKey, taskName, eventsBlob);
     await this._cacheStorageObject(participantKey, taskName);
+
+    await this._updateStudyEventsIndexForClip(
+      participantId,
+      taskName,
+      await eventsBlob.text().catch(() => ''),
+      null,
+    ).catch(() => {});
   }
 
   async getScreenRecordingTags(
@@ -1240,6 +1247,71 @@ export abstract class StorageEngine {
     const participantKey = `screenRecordingTags/${participantId}`;
     await this._pushToStorage(participantKey, taskName, tagsBlob);
     await this._cacheStorageObject(participantKey, taskName);
+
+    await this._updateStudyEventsIndexForClip(
+      participantId,
+      taskName,
+      null,
+      await tagsBlob.text().catch(() => ''),
+    ).catch(() => {});
+  }
+
+  private _removeIndexEntriesForClip(
+    events: StudyIndexedEvent[],
+    participantId: string,
+    taskId: string,
+    source: 'auto' | 'tag',
+  ) {
+    return events.filter((e) => !(e.participantId === participantId && e.taskId === taskId && e.source === source));
+  }
+
+  private async _updateStudyEventsIndexForClip(
+    participantId: string,
+    taskId: string,
+    eventsJsonText: string | null,
+    tagsJsonText: string | null,
+  ) {
+    const { parseTimelineEventsJson } = await import('../../analysis/individualStudy/screenRecordingSummarization/timelineEventTypes');
+    const { parseRecordingTagsJson } = await import('../../analysis/individualStudy/screenRecordingSummarization/recordingTagTypes');
+
+    const existing = (await this.getStudyEventsIndex()) || { events: [], lastUpdatedAt: new Date(0).toISOString() };
+    let nextEvents = existing.events;
+
+    if (eventsJsonText !== null) {
+      nextEvents = this._removeIndexEntriesForClip(nextEvents, participantId, taskId, 'auto');
+      const parsed = parseTimelineEventsJson(eventsJsonText);
+      for (const e of parsed) {
+        nextEvents.push({
+          participantId,
+          taskId,
+          type: e.type,
+          timestamp: e.timestamp,
+          evidence: e.evidence,
+          source: 'auto',
+        });
+      }
+    }
+
+    if (tagsJsonText !== null) {
+      nextEvents = this._removeIndexEntriesForClip(nextEvents, participantId, taskId, 'tag');
+      const tags = parseRecordingTagsJson(tagsJsonText);
+      for (const t of tags) {
+        nextEvents.push({
+          participantId,
+          taskId,
+          type: 'tag',
+          timestamp: t.timestamp,
+          evidence: t.label,
+          source: 'tag',
+        });
+      }
+    }
+
+    const index: StudyEventsIndex = {
+      events: nextEvents,
+      lastUpdatedAt: new Date().toISOString(),
+    };
+    await this.saveStudyEventsIndex(index);
   }
 
   async getStudyEventsIndex(): Promise<StudyEventsIndex | null> {
