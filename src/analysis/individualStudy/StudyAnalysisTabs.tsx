@@ -9,6 +9,7 @@ import {
   IconTags,
   IconDashboard,
   IconFileCode,
+  IconTimelineEvent,
 } from '@tabler/icons-react';
 import {
   useCallback, useEffect, useMemo, useState,
@@ -35,6 +36,7 @@ import { ThinkAloudAnalysis } from './thinkAloud/ThinkAloudAnalysis';
 import { FirebaseStorageEngine } from '../../storage/engines/FirebaseStorageEngine';
 import { ConfigView } from './config/ConfigView';
 import { ScreenRecordingSummarizationView } from './screenRecordingSummarization/ScreenRecordingSummarizationView';
+import { StudyCrossClipDashboardView } from './screenRecordingSummarization/StudyCrossClipDashboardView';
 
 const TABLE_HEADER_HEIGHT = 37; // Height of the tabs header
 
@@ -456,6 +458,11 @@ export function StudyAnalysisTabs({ globalConfig }: { globalConfig: GlobalConfig
                     Screen recording summarization
                   </Tabs.Tab>
                 )}
+                {hasScreenRecording && (
+                  <Tabs.Tab value="study-cross-clip" leftSection={<IconTimelineEvent size={16} />}>
+                    Study analysis (cross-clip)
+                  </Tabs.Tab>
+                )}
                 {storageEngine?.getEngine() === 'firebase' && (
                   <Tabs.Tab value="live-monitor" leftSection={<IconDashboard size={16} />}>Live Monitor</Tabs.Tab>
                 )}
@@ -476,6 +483,9 @@ export function StudyAnalysisTabs({ globalConfig }: { globalConfig: GlobalConfig
               </Tabs.Panel>
               <Tabs.Panel style={{ overflow: 'auto' }} value="screen-recording-summarization" pt="xs">
                 {hasScreenRecording ? <ScreenRecordingSummarizationView visibleParticipants={visibleParticipants} /> : <Center>No screen recording found for this study.</Center>}
+              </Tabs.Panel>
+              <Tabs.Panel style={{ overflow: 'auto' }} value="study-cross-clip" pt="xs">
+                {hasScreenRecording ? <StudyCrossClipDashboardView visibleParticipants={visibleParticipants} /> : <Center>No screen recording found for this study.</Center>}
               </Tabs.Panel>
               {storageEngine?.getEngine() === 'firebase' && (
                 <Tabs.Panel style={{ overflow: 'auto' }} value="live-monitor" pt="xs">
