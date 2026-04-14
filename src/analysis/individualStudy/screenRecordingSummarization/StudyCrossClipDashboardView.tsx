@@ -28,7 +28,9 @@ import {
   eventsByParticipant,
   eventsByTask,
 } from './aggregations';
+import { buildStudyReport } from './buildStudyReport';
 import { rebuildStudyEventsIndex } from './rebuildStudyEventsIndex';
+import { renderStudyReportMarkdown } from './renderStudyReportMarkdown';
 import type { StudyEventsIndex, StudyIndexedEvent } from './studyEventsIndexTypes';
 
 function clipKey(e: StudyIndexedEvent) {
@@ -85,6 +87,29 @@ export function StudyCrossClipDashboardView({
       setIndex(idx);
     } catch (e) {
       setErr(e instanceof Error ? e.message : 'Failed to rebuild index');
+    } finally {
+      setLoading(false);
+    }
+  }, [storageEngine, visibleParticipants]);
+
+  const exportMarkdown = useCallback(async () => {
+    if (!storageEngine) return;
+    setLoading(true);
+    setErr(null);
+    try {
+      const report = await buildStudyReport(storageEngine, visibleParticipants);
+      const md = renderStudyReportMarkdown(report);
+      const blob = new Blob([md], { type: 'text/markdown' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `study_report_${new Date().toISOString().slice(0, 10)}.md`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : 'Failed to export report');
     } finally {
       setLoading(false);
     }
@@ -173,6 +198,15 @@ export function StudyCrossClipDashboardView({
               }}
             >
               Rebuild index
+            </Button>
+            <Button
+              variant="light"
+              disabled={!storageEngine || loading}
+              onClick={() => {
+                exportMarkdown().catch(() => undefined);
+              }}
+            >
+              Export Markdown report
             </Button>
           </Group>
         </Group>
