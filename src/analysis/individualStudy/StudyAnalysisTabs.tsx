@@ -132,6 +132,18 @@ export function StudyAnalysisTabs({ globalConfig }: { globalConfig: GlobalConfig
     };
   }, [selectedParticipants]);
 
+  const participantsForScreenRecording = useMemo(() => {
+    if (selectedParticipants.length > 0) return selectedParticipants;
+    if (!expData) return [];
+    const expList = Object.values(expData);
+
+    const comp = includedParticipants.includes('completed') ? expList.filter((d) => !d.rejected && d.completed) : [];
+    const prog = includedParticipants.includes('inprogress') ? expList.filter((d) => !d.rejected && !d.completed) : [];
+    const rej = includedParticipants.includes('rejected') ? expList.filter((d) => d.rejected) : [];
+
+    return [...comp, ...prog, ...rej].sort(sortByStartTime);
+  }, [expData, includedParticipants, selectedParticipants]);
+
   const visibleParticipants = useMemo(() => {
     if (!expData) return [];
     const expList = Object.values(expData);
@@ -483,11 +495,11 @@ export function StudyAnalysisTabs({ globalConfig }: { globalConfig: GlobalConfig
               </Tabs.Panel>
               <Tabs.Panel style={{ overflow: 'auto' }} value="screen-recording-summarization" pt="xs">
                 {hasScreenRecording
-                  ? <ScreenRecordingSummarizationView visibleParticipants={visibleParticipants} studyConfig={studyConfig} />
+                  ? <ScreenRecordingSummarizationView visibleParticipants={participantsForScreenRecording} studyConfig={studyConfig} />
                   : <Center>No screen recording found for this study.</Center>}
               </Tabs.Panel>
               <Tabs.Panel style={{ overflow: 'auto' }} value="study-cross-clip" pt="xs">
-                {hasScreenRecording ? <StudyCrossClipDashboardView visibleParticipants={visibleParticipants} /> : <Center>No screen recording found for this study.</Center>}
+                {hasScreenRecording ? <StudyCrossClipDashboardView visibleParticipants={participantsForScreenRecording} /> : <Center>No screen recording found for this study.</Center>}
               </Tabs.Panel>
               {storageEngine?.getEngine() === 'firebase' && (
                 <Tabs.Panel style={{ overflow: 'auto' }} value="live-monitor" pt="xs">
