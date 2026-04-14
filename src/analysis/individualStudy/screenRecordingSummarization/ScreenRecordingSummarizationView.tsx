@@ -21,7 +21,7 @@ import {
 
 import type { ParticipantData } from '../../../storage/types';
 import { useStorageEngine } from '../../../storage/storageEngineHooks';
-import { useStudyConfig } from '../../../store/hooks/useStudyConfig';
+import type { StudyConfig } from '../../../parser/types';
 import { MassScreenRecordingSummarizationView } from './MassScreenRecordingSummarizationView';
 import { RecordingTagsPanel } from './RecordingTagsPanel';
 import { RecordingTimelineStrip } from './RecordingTimelineStrip';
@@ -88,9 +88,13 @@ function GroupRow({ children }: { children: ReactNode }) {
     </Box>
   );
 }
-
-export function ScreenRecordingSummarizationView({ visibleParticipants }: { visibleParticipants: ParticipantData[] }) {
-  const studyConfig = useStudyConfig();
+export function ScreenRecordingSummarizationView({
+  visibleParticipants,
+  studyConfig,
+}: {
+  visibleParticipants: ParticipantData[];
+  studyConfig?: StudyConfig;
+}) {
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
 
