@@ -91,9 +91,11 @@ function GroupRow({ children }: { children: ReactNode }) {
 export function ScreenRecordingSummarizationView({
   visibleParticipants,
   studyConfig,
+  useLocalModel,
 }: {
   visibleParticipants: ParticipantData[];
   studyConfig?: StudyConfig;
+  useLocalModel?: boolean;
 }) {
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
@@ -177,6 +179,12 @@ export function ScreenRecordingSummarizationView({
     return '/api/analyze-large';
   }, [geminiMassApiBase]);
 
+  const analyzeLocalApiUrl = useMemo(() => {
+    const base = (geminiMassApiBase || '').replace(/\/$/, '');
+    if (base) return `${base}/api/analyze-local`;
+    return '/api/analyze-local';
+  }, [geminiMassApiBase]);
+
   const effectiveModel = useMemo(
     () => model || 'models/gemini-2.0-flash',
     [model],
@@ -206,6 +214,17 @@ export function ScreenRecordingSummarizationView({
   }, [videoFile]);
 
   async function analyzeVideo(file: File): Promise<GeminiAnalyzeResponse> {
+    if (useLocalModel) {
+      const fd = new FormData();
+      fd.append('video', file);
+      fd.append('prompt', prompt);
+      const res = await fetch(analyzeLocalApiUrl, { method: 'POST', body: fd });
+      const json = (await res.json().catch(() => ({}))) as { summary?: string; error?: string };
+      if (!res.ok) {
+        return { summary: undefined, raw: { status: res.status, json } };
+      }
+      return { summary: typeof json.summary === 'string' ? json.summary : undefined, raw: json };
+    }
     if (!apiKey) {
       return { summary: undefined, raw: { error: 'Missing VITE_GEMINI_API_KEY' } };
     }
@@ -265,6 +284,15 @@ export function ScreenRecordingSummarizationView({
     fd.append('video', file);
     fd.append('prompt', prompt);
     if (effectiveModel) fd.append('model', effectiveModel);
+
+    if (useLocalModel) {
+      const res = await fetch(analyzeLocalApiUrl, { method: 'POST', body: fd });
+      const json = (await res.json().catch(() => ({}))) as { summary?: string; error?: string };
+      if (!res.ok) {
+        return { summary: undefined, raw: { status: res.status, json } };
+      }
+      return { summary: typeof json.summary === 'string' ? json.summary : undefined, raw: json };
+    }
 
     const res = await fetch(analyzeLargeApiUrl, { method: 'POST', body: fd });
     const json = (await res.json().catch(() => ({}))) as { summary?: string; error?: string };
@@ -542,7 +570,7 @@ export function ScreenRecordingSummarizationView({
               <GroupRow>
                 <Button
                   onClick={handleAnalyze}
-                  disabled={!videoFile || isAnalyzing || (canInlineUpload && !apiKey)}
+                  disabled={!videoFile || isAnalyzing || (!useLocalModel && canInlineUpload && !apiKey)}
                 >
                   Analyze video
                 </Button>
@@ -684,7 +712,7 @@ export function ScreenRecordingSummarizationView({
           </Card>
         )}
 
-        <MassScreenRecordingSummarizationView visibleParticipants={visibleParticipants} />
+        <MassScreenRecordingSummarizationView visibleParticipants={visibleParticipants} useLocalModel={useLocalModel} />
       </Stack>
     </Box>
   );

@@ -82,6 +82,11 @@ export type ScreenRecordingPromptLibrary = {
   prompts: ScreenRecordingPrompt[];
 };
 
+export type ScreenRecordingAnalysisSettings = {
+  useLocalModel: boolean;
+  updatedAt: string;
+};
+
 const defaultStageColor = '#F05A30';
 
 export type StorageObjectType = 'sequenceArray' | 'participantData' | 'config' | string;
@@ -96,6 +101,8 @@ export type StorageObject<T extends StorageObjectType> =
   ? StudyEventsIndex
   : T extends 'screenRecordingPrompts'
   ? ScreenRecordingPromptLibrary
+  : T extends 'screenRecordingAnalysisSettings'
+  ? ScreenRecordingAnalysisSettings
   : T extends 'transcription.txt'
   ? TranscribedAudio
   : T extends 'editedText'
@@ -1347,6 +1354,27 @@ export abstract class StorageEngine {
     }
     await this._pushToStorage('', 'screenRecordingPrompts', library);
     await this._cacheStorageObject('', 'screenRecordingPrompts');
+  }
+
+  async getScreenRecordingAnalysisSettings(): Promise<ScreenRecordingAnalysisSettings> {
+    await this.verifyStudyDatabase();
+    const raw = await this._getFromStorage('', 'screenRecordingAnalysisSettings');
+    if (!raw || typeof raw !== 'object') {
+      return { useLocalModel: false, updatedAt: new Date(0).toISOString() };
+    }
+    const v = raw as Partial<ScreenRecordingAnalysisSettings>;
+    return {
+      useLocalModel: Boolean(v.useLocalModel),
+      updatedAt: typeof v.updatedAt === 'string' ? v.updatedAt : new Date(0).toISOString(),
+    };
+  }
+
+  async saveScreenRecordingAnalysisSettings(next: ScreenRecordingAnalysisSettings): Promise<void> {
+    if (this.studyId === undefined) {
+      throw new Error('Study ID is not set');
+    }
+    await this._pushToStorage('', 'screenRecordingAnalysisSettings', next);
+    await this._cacheStorageObject('', 'screenRecordingAnalysisSettings');
   }
 
   // Saves the video stream to the storage engine. This method is used to save the screen recorded video data from a MediaRecorder stream.

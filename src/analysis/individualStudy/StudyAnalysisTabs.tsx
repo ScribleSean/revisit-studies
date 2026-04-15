@@ -1,5 +1,5 @@
 import {
-  Alert, AppShell, Center, Checkbox, Container, Flex, Group, LoadingOverlay, Stack, Tabs, Text, Title, MultiSelect,
+  Alert, AppShell, Center, Checkbox, Container, Flex, Group, LoadingOverlay, Stack, Tabs, Text, Title, MultiSelect, Switch,
 } from '@mantine/core';
 import { useNavigate, useParams } from 'react-router';
 import {
@@ -87,6 +87,7 @@ export function StudyAnalysisTabs({ globalConfig }: { globalConfig: GlobalConfig
   const { analysisTab } = useParams();
   const { user } = useAuth();
   const [ref, { width }] = useResizeObserver();
+  const [useLocalModel, setUseLocalModel] = useState(false);
 
   // 0-1 percentage of scroll height
 
@@ -270,6 +271,20 @@ export function StudyAnalysisTabs({ globalConfig }: { globalConfig: GlobalConfig
   }, [allConditions]);
 
   useEffect(() => {
+    let cancelled = false;
+    if (!storageEngine) return () => { cancelled = true; };
+    (async () => {
+      try {
+        const s = await storageEngine.getScreenRecordingAnalysisSettings();
+        if (!cancelled) setUseLocalModel(Boolean(s.useLocalModel));
+      } catch {
+        if (!cancelled) setUseLocalModel(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [storageEngine, studyId]);
+
+  useEffect(() => {
     if (!studyId) return () => { };
     if (studyId === '__revisit-widget') {
       const messageListener = async (event: MessageEvent) => {
@@ -326,6 +341,23 @@ export function StudyAnalysisTabs({ globalConfig }: { globalConfig: GlobalConfig
               )}
             </Flex>
             <Flex direction="row" align="center" gap="md">
+              <Flex direction="row" align="center" gap="xs">
+                <Switch
+                  checked={useLocalModel}
+                  onChange={(e) => {
+                    const next = e.currentTarget.checked;
+                    setUseLocalModel(next);
+                    if (storageEngine) {
+                      storageEngine
+                        .saveScreenRecordingAnalysisSettings({ useLocalModel: next, updatedAt: new Date().toISOString() })
+                        .catch(() => undefined);
+                    }
+                  }}
+                  label="Use local model"
+                  size="sm"
+                />
+              </Flex>
+
               <Flex direction="row" align="center" gap="xs">
                 <Text size="sm" fw={500}>Stage:</Text>
                 <MultiSelect
@@ -495,7 +527,7 @@ export function StudyAnalysisTabs({ globalConfig }: { globalConfig: GlobalConfig
               </Tabs.Panel>
               <Tabs.Panel style={{ overflow: 'auto' }} value="screen-recording-summarization" pt="xs">
                 {hasScreenRecording
-                  ? <ScreenRecordingSummarizationView visibleParticipants={participantsForScreenRecording} studyConfig={studyConfig} />
+                  ? <ScreenRecordingSummarizationView visibleParticipants={participantsForScreenRecording} studyConfig={studyConfig} useLocalModel={useLocalModel} />
                   : <Center>No screen recording found for this study.</Center>}
               </Tabs.Panel>
               <Tabs.Panel style={{ overflow: 'auto' }} value="study-cross-clip" pt="xs">

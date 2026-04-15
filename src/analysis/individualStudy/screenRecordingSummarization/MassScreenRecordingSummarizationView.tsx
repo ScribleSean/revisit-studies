@@ -72,8 +72,10 @@ function getDefaultPrompt() {
 
 export function MassScreenRecordingSummarizationView({
   visibleParticipants,
+  useLocalModel,
 }: {
   visibleParticipants: ParticipantData[];
+  useLocalModel?: boolean;
 }) {
   const { storageEngine } = useStorageEngine();
 
@@ -170,6 +172,12 @@ export function MassScreenRecordingSummarizationView({
     return '/api/analyze-large';
   }, [geminiMassApiBase]);
 
+  const massApiAnalyzeLocalUrl = useMemo(() => {
+    const base = (geminiMassApiBase || '').replace(/\/$/, '');
+    if (base) return `${base}/api/analyze-local`;
+    return '/api/analyze-local';
+  }, [geminiMassApiBase]);
+
   const selectionToggle = (key: string, checked: boolean) => {
     setSelectedKeys((prev) => {
       const next = new Set(prev);
@@ -186,6 +194,18 @@ export function MassScreenRecordingSummarizationView({
   const clearSelection = () => setSelectedKeys(new Set());
 
   const analyzeInline = async (file: File) => {
+    if (useLocalModel) {
+      const fd = new FormData();
+      fd.append('video', file);
+      fd.append('prompt', prompt);
+      const res = await fetch(massApiAnalyzeLocalUrl, { method: 'POST', body: fd });
+      const json = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+      if (!res.ok) {
+        return { summary: undefined, raw: { status: res.status, json } } as GeminiAnalyzeResponse;
+      }
+      const summary = typeof json.summary === 'string' ? json.summary : undefined;
+      return { summary, raw: json } as GeminiAnalyzeResponse;
+    }
     if (!apiKey) throw new Error('Missing VITE_GEMINI_API_KEY');
 
     const dataUrl = await new Promise<string>((resolve, reject) => {
@@ -240,10 +260,10 @@ export function MassScreenRecordingSummarizationView({
     const fd = new FormData();
     fd.append('video', file, file.name);
     fd.append('prompt', prompt);
-    fd.append('model', effectiveModel);
+    if (!useLocalModel) fd.append('model', effectiveModel);
     let res: Response;
     try {
-      res = await fetch(massApiAnalyzeUrl, { method: 'POST', body: fd });
+      res = await fetch(useLocalModel ? massApiAnalyzeLocalUrl : massApiAnalyzeUrl, { method: 'POST', body: fd });
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Network error';
       return {
