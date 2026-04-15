@@ -10,6 +10,7 @@ import path from 'node:path';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { GoogleAIFileManager, FileState } from '@google/generative-ai/server';
 import { registerTimelineRoutes } from './timeline-route.mjs';
+import { registerLocalRoutes } from './local-route.mjs';
 import { readJsonCache, sha256Hex, writeJsonCache } from './cache.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -53,7 +54,12 @@ const upload = multer({
 });
 
 app.get('/api/health', (_req, res) => {
-  res.json({ ok: true, hasKey: Boolean(getApiKey()) });
+  res.json({
+    ok: true,
+    hasKey: Boolean(getApiKey()),
+    ollamaBaseUrl: process.env.OLLAMA_BASE_URL || 'http://127.0.0.1:11434',
+    ollamaModel: process.env.OLLAMA_VLM_MODEL || 'llava:7b',
+  });
 });
 
 app.post('/api/analyze-large', upload.single('video'), async (req, res) => {
@@ -186,6 +192,7 @@ app.post('/api/analyze-large', upload.single('video'), async (req, res) => {
 });
 
 registerTimelineRoutes(app, upload);
+registerLocalRoutes(app, upload);
 
 // eslint-disable-next-line no-unused-vars
 app.use((err, _req, res, _next) => {
@@ -204,5 +211,5 @@ app.use((err, _req, res, _next) => {
 
 app.listen(PORT, '127.0.0.1', () => {
   // eslint-disable-next-line no-console
-  console.log(`[mqp] API http://127.0.0.1:${PORT} — POST /api/analyze-large, POST /api/analyze-timeline, GET /api/health`);
+  console.log(`[mqp] API http://127.0.0.1:${PORT} — POST /api/analyze-large, POST /api/analyze-local, POST /api/analyze-timeline, GET /api/health`);
 });
