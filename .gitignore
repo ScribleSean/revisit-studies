@@ -30,6 +30,10 @@ dist-ssr
 docs/
 docsLibraries/
 
+# MQP thesis / advisor markdown: keep under /mqp/mqp-paper locally (do not commit here)
+mqp-paper/
+UPSTREAM_PR_PLAN.md
+
 public/__revisit-widget
 src/public/__revisit-widget
 

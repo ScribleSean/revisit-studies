@@ -19,6 +19,10 @@ export default defineConfig(({ command, mode }) => {
           target: `http://127.0.0.1:${massApiPort}`,
           changeOrigin: true,
         },
+        '/api/analyze-local': {
+          target: `http://127.0.0.1:${massApiPort}`,
+          changeOrigin: true,
+        },
         '/api/health': {
           target: `http://127.0.0.1:${massApiPort}`,
           changeOrigin: true,
