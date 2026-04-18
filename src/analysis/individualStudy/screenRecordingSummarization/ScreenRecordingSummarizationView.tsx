@@ -22,6 +22,7 @@ import {
 import type { ParticipantData } from '../../../storage/types';
 import { useStorageEngine } from '../../../storage/storageEngineHooks';
 import type { StudyConfig } from '../../../parser/types';
+import type { ScreenRecordingSummarizationPipeline } from '../../../storage/engines/types';
 import { MassScreenRecordingSummarizationView } from './MassScreenRecordingSummarizationView';
 import { RecordingTagsPanel } from './RecordingTagsPanel';
 import { RecordingTimelineStrip } from './RecordingTimelineStrip';
@@ -62,6 +63,60 @@ function extractGeminiText(json: unknown): string | null {
   return null;
 }
 
+type ConfusionScoreWindow = {
+  startSec: number;
+  endSec: number;
+  score: number;
+};
+
+type StoredConfusionScore = {
+  windows: ConfusionScoreWindow[];
+  totalScore: number;
+  maxWindow: ConfusionScoreWindow | null;
+  meta?: unknown;
+  generatedAt?: string;
+};
+
+function parseStoredConfusionScoreJson(text: string): StoredConfusionScore | null {
+  try {
+    const parsed = JSON.parse(text || '{}') as Record<string, unknown>;
+    const rawWindows = parsed.windows;
+    if (!Array.isArray(rawWindows)) return null;
+    const windows: ConfusionScoreWindow[] = rawWindows
+      .map((w) => {
+        const o = w as Record<string, unknown>;
+        return {
+          startSec: Number(o.startSec ?? 0),
+          endSec: Number(o.endSec ?? 0),
+          score: Number(o.score ?? 0),
+        };
+      })
+      .filter((w) => Number.isFinite(w.startSec) && Number.isFinite(w.endSec) && Number.isFinite(w.score));
+    const maxW = parsed.maxWindow;
+    let maxWindow: ConfusionScoreWindow | null = null;
+    if (maxW && typeof maxW === 'object') {
+      const o = maxW as Record<string, unknown>;
+      const mw: ConfusionScoreWindow = {
+        startSec: Number(o.startSec ?? 0),
+        endSec: Number(o.endSec ?? 0),
+        score: Number(o.score ?? 0),
+      };
+      if (Number.isFinite(mw.startSec) && Number.isFinite(mw.endSec) && Number.isFinite(mw.score)) {
+        maxWindow = mw;
+      }
+    }
+    return {
+      windows,
+      totalScore: typeof parsed.totalScore === 'number' ? parsed.totalScore : Number(parsed.totalScore) || 0,
+      maxWindow,
+      meta: parsed.meta,
+      generatedAt: typeof parsed.generatedAt === 'string' ? parsed.generatedAt : undefined,
+    };
+  } catch {
+    return null;
+  }
+}
+
 function parsePossibleStoredSummary(text: string): string | null {
   const trimmed = text.trim();
   if (!trimmed) return null;
@@ -91,11 +146,13 @@ function GroupRow({ children }: { children: ReactNode }) {
 export function ScreenRecordingSummarizationView({
   visibleParticipants,
   studyConfig,
-  useLocalModel,
+  summarizationPipeline = 'gemini',
+  openAiAvailable = false,
 }: {
   visibleParticipants: ParticipantData[];
   studyConfig?: StudyConfig;
-  useLocalModel?: boolean;
+  summarizationPipeline?: ScreenRecordingSummarizationPipeline;
+  openAiAvailable?: boolean;
 }) {
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
@@ -135,9 +192,15 @@ export function ScreenRecordingSummarizationView({
   const [storedError, setStoredError] = useState<string | null>(null);
   const [storedTimelineEvents, setStoredTimelineEvents] = useState<TimelineEvent[]>([]);
   const [storedTags, setStoredTags] = useState<RecordingTag[]>([]);
+  const [storedOcrFrames, setStoredOcrFrames] = useState<Array<{ index: number; timestampSec: number; text: string; wordCount: number }>>([]);
   const [videoDuration, setVideoDuration] = useState(0);
   const [timelineLoading, setTimelineLoading] = useState(false);
   const [timelineError, setTimelineError] = useState<string | null>(null);
+  const [ocrLoading, setOcrLoading] = useState(false);
+  const [ocrError, setOcrError] = useState<string | null>(null);
+  const [storedConfusionScore, setStoredConfusionScore] = useState<StoredConfusionScore | null>(null);
+  const [confusionScoreLoading, setConfusionScoreLoading] = useState(false);
+  const [confusionScoreError, setConfusionScoreError] = useState<string | null>(null);
   const storedVideoRef = useRef<HTMLVideoElement | null>(null);
 
   // Keep selected participant valid if the visible participants list changes.
@@ -166,6 +229,18 @@ export function ScreenRecordingSummarizationView({
     return '/api/analyze-timeline';
   }, [geminiMassApiBase]);
 
+  const ocrApiUrl = useMemo(() => {
+    const base = (geminiMassApiBase || '').replace(/\/$/, '');
+    if (base) return `${base}/api/extract-ocr`;
+    return '/api/extract-ocr';
+  }, [geminiMassApiBase]);
+
+  const confusionScoreApiUrl = useMemo(() => {
+    const base = (geminiMassApiBase || '').replace(/\/$/, '');
+    if (base) return `${base}/api/confusion-score`;
+    return '/api/confusion-score';
+  }, [geminiMassApiBase]);
+
   const confusionWords = useMemo(() => {
     const raw = studyConfig?.screenRecordingAnalysis?.confusionWords;
     if (!Array.isArray(raw)) return null;
@@ -185,10 +260,22 @@ export function ScreenRecordingSummarizationView({
     return '/api/analyze-local';
   }, [geminiMassApiBase]);
 
+  const analyzeGpt4vApiUrl = useMemo(() => {
+    const base = (geminiMassApiBase || '').replace(/\/$/, '');
+    if (base) return `${base}/api/analyze-gpt4v`;
+    return '/api/analyze-gpt4v';
+  }, [geminiMassApiBase]);
+
   const effectiveModel = useMemo(
     () => model || 'models/gemini-2.0-flash',
     [model],
   );
+
+  const largeUploadEndpointLabel = useMemo(() => {
+    if (summarizationPipeline === 'local') return '/api/analyze-local';
+    if (summarizationPipeline === 'gpt4o') return '/api/analyze-gpt4v';
+    return '/api/analyze-large';
+  }, [summarizationPipeline]);
 
   useEffect(() => {
     if (!videoFile) return undefined;
@@ -213,12 +300,30 @@ export function ScreenRecordingSummarizationView({
     return videoFile.size <= 20 * 1024 * 1024;
   }, [videoFile]);
 
+  const analyzeSingleClipDisabled = useMemo(() => {
+    if (!videoFile || isAnalyzing) return true;
+    if (summarizationPipeline === 'gemini' && canInlineUpload && !apiKey) return true;
+    if (summarizationPipeline === 'gpt4o' && !openAiAvailable) return true;
+    return false;
+  }, [apiKey, canInlineUpload, isAnalyzing, openAiAvailable, summarizationPipeline, videoFile]);
+
   async function analyzeVideo(file: File): Promise<GeminiAnalyzeResponse> {
-    if (useLocalModel) {
+    if (summarizationPipeline === 'local') {
       const fd = new FormData();
       fd.append('video', file);
       fd.append('prompt', prompt);
       const res = await fetch(analyzeLocalApiUrl, { method: 'POST', body: fd });
+      const json = (await res.json().catch(() => ({}))) as { summary?: string; error?: string };
+      if (!res.ok) {
+        return { summary: undefined, raw: { status: res.status, json } };
+      }
+      return { summary: typeof json.summary === 'string' ? json.summary : undefined, raw: json };
+    }
+    if (summarizationPipeline === 'gpt4o') {
+      const fd = new FormData();
+      fd.append('video', file);
+      fd.append('prompt', prompt);
+      const res = await fetch(analyzeGpt4vApiUrl, { method: 'POST', body: fd });
       const json = (await res.json().catch(() => ({}))) as { summary?: string; error?: string };
       if (!res.ok) {
         return { summary: undefined, raw: { status: res.status, json } };
@@ -283,10 +388,19 @@ export function ScreenRecordingSummarizationView({
     const fd = new FormData();
     fd.append('video', file);
     fd.append('prompt', prompt);
-    if (effectiveModel) fd.append('model', effectiveModel);
+    if (summarizationPipeline === 'gemini' && effectiveModel) fd.append('model', effectiveModel);
 
-    if (useLocalModel) {
+    if (summarizationPipeline === 'local') {
       const res = await fetch(analyzeLocalApiUrl, { method: 'POST', body: fd });
+      const json = (await res.json().catch(() => ({}))) as { summary?: string; error?: string };
+      if (!res.ok) {
+        return { summary: undefined, raw: { status: res.status, json } };
+      }
+      return { summary: typeof json.summary === 'string' ? json.summary : undefined, raw: json };
+    }
+
+    if (summarizationPipeline === 'gpt4o') {
+      const res = await fetch(analyzeGpt4vApiUrl, { method: 'POST', body: fd });
       const json = (await res.json().catch(() => ({}))) as { summary?: string; error?: string };
       if (!res.ok) {
         return { summary: undefined, raw: { status: res.status, json } };
@@ -325,8 +439,12 @@ export function ScreenRecordingSummarizationView({
     setStoredVideoUrl(null);
     setStoredTimelineEvents([]);
     setStoredTags([]);
+    setStoredOcrFrames([]);
+    setStoredConfusionScore(null);
     setVideoDuration(0);
     setTimelineError(null);
+    setOcrError(null);
+    setConfusionScoreError(null);
 
     (async () => {
       try {
@@ -383,6 +501,63 @@ export function ScreenRecordingSummarizationView({
         } finally {
           if (tagsObjectUrl) {
             URL.revokeObjectURL(tagsObjectUrl);
+          }
+        }
+
+        let ocrObjectUrl: string | null = null;
+        try {
+          ocrObjectUrl = await storageEngine.getScreenRecordingOcrFrames(
+            storedRecordingIdentifier,
+            storedParticipantId,
+          );
+          if (ocrObjectUrl && !cancelled) {
+            const ocrBlob = await (await fetch(ocrObjectUrl)).blob();
+            const ocrText = await ocrBlob.text();
+            const parsed = JSON.parse(ocrText || '{}') as { frames?: unknown };
+            const frames = Array.isArray((parsed as { frames?: unknown }).frames) ? (parsed as { frames: unknown[] }).frames : [];
+            setStoredOcrFrames(
+              frames
+                .map((f) => {
+                  const obj = f as Record<string, unknown>;
+                  return {
+                    index: Number(obj.index || 0),
+                    timestampSec: Number(obj.timestampSec || 0),
+                    text: typeof obj.text === 'string' ? obj.text : '',
+                    wordCount: Number(obj.wordCount || 0),
+                  };
+                })
+                .filter((f) => Number.isFinite(f.timestampSec)),
+            );
+          } else if (!cancelled) {
+            setStoredOcrFrames([]);
+          }
+        } catch {
+          if (!cancelled) setStoredOcrFrames([]);
+        } finally {
+          if (ocrObjectUrl) {
+            URL.revokeObjectURL(ocrObjectUrl);
+          }
+        }
+
+        let confusionObjectUrl: string | null = null;
+        try {
+          confusionObjectUrl = await storageEngine.getScreenRecordingConfusionScore(
+            storedRecordingIdentifier,
+            storedParticipantId,
+          );
+          if (confusionObjectUrl && !cancelled) {
+            const cBlob = await (await fetch(confusionObjectUrl)).blob();
+            const cText = await cBlob.text();
+            const parsedConfusion = parseStoredConfusionScoreJson(cText);
+            setStoredConfusionScore(parsedConfusion);
+          } else if (!cancelled) {
+            setStoredConfusionScore(null);
+          }
+        } catch {
+          if (!cancelled) setStoredConfusionScore(null);
+        } finally {
+          if (confusionObjectUrl) {
+            URL.revokeObjectURL(confusionObjectUrl);
           }
         }
       } catch (e) {
@@ -489,6 +664,127 @@ export function ScreenRecordingSummarizationView({
     }
   };
 
+  const handleExtractOcr = async () => {
+    if (!storageEngine || !storedParticipantId || !storedRecordingIdentifier) return;
+    setOcrError(null);
+    setOcrLoading(true);
+    try {
+      const recordingUrl = await storageEngine.getScreenRecording(storedRecordingIdentifier, storedParticipantId);
+      if (!recordingUrl) {
+        setOcrError('No screen recording found for this selection.');
+        return;
+      }
+      const blob = await (await fetch(recordingUrl)).blob();
+      URL.revokeObjectURL(recordingUrl);
+
+      const file = new File([blob], `${storedRecordingIdentifier}.webm`, { type: blob.type || 'video/webm' });
+      const fd = new FormData();
+      fd.append('video', file);
+
+      const res = await fetch(ocrApiUrl, { method: 'POST', body: fd });
+      const json = (await res.json().catch(() => ({}))) as { frames?: unknown; error?: string };
+      if (!res.ok) {
+        setOcrError(typeof json.error === 'string' ? json.error : `HTTP ${res.status}`);
+        return;
+      }
+
+      const frames = Array.isArray(json.frames) ? json.frames : [];
+      const normalized = frames
+        .map((f) => {
+          const obj = f as Record<string, unknown>;
+          return {
+            index: Number(obj.index || 0),
+            timestampSec: Number(obj.timestampSec || 0),
+            text: typeof obj.text === 'string' ? obj.text : '',
+            wordCount: Number(obj.wordCount || 0),
+          };
+        })
+        .filter((f) => Number.isFinite(f.timestampSec));
+
+      setStoredOcrFrames(normalized);
+      const payload = JSON.stringify({ frames: normalized, generatedAt: new Date().toISOString() }, null, 2);
+      await storageEngine.saveScreenRecordingOcrFrames(
+        new Blob([payload], { type: 'application/json' }),
+        storedRecordingIdentifier,
+        storedParticipantId,
+      );
+    } catch (e) {
+      setOcrError(e instanceof Error ? e.message : 'OCR extraction failed');
+    } finally {
+      setOcrLoading(false);
+    }
+  };
+
+  const handleComputeConfusionScore = async () => {
+    if (!storageEngine || !storedParticipantId || !storedRecordingIdentifier) return;
+    setConfusionScoreError(null);
+    setConfusionScoreLoading(true);
+    try {
+      const recordingUrl = await storageEngine.getScreenRecording(storedRecordingIdentifier, storedParticipantId);
+      if (!recordingUrl) {
+        setConfusionScoreError('No screen recording found for this selection.');
+        return;
+      }
+      const blob = await (await fetch(recordingUrl)).blob();
+      URL.revokeObjectURL(recordingUrl);
+
+      const file = new File([blob], `${storedRecordingIdentifier}.webm`, { type: blob.type || 'video/webm' });
+      const fd = new FormData();
+      fd.append('video', file);
+      if (confusionWords) {
+        fd.append('confusionWords', confusionWords.join(','));
+      }
+
+      const res = await fetch(confusionScoreApiUrl, { method: 'POST', body: fd });
+      const json = (await res.json().catch(() => ({}))) as {
+        windows?: unknown;
+        totalScore?: unknown;
+        maxWindow?: unknown;
+        meta?: unknown;
+        error?: string;
+      };
+      if (!res.ok) {
+        setConfusionScoreError(typeof json.error === 'string' ? json.error : `HTTP ${res.status}`);
+        return;
+      }
+
+      const parsed = parseStoredConfusionScoreJson(
+        JSON.stringify({
+          windows: json.windows,
+          totalScore: json.totalScore,
+          maxWindow: json.maxWindow,
+          meta: json.meta,
+        }),
+      );
+      if (!parsed || parsed.windows.length === 0) {
+        setConfusionScoreError('Confusion score returned no windows (is the recording very short or missing timeline signals?).');
+        return;
+      }
+
+      const payload = JSON.stringify(
+        {
+          ...parsed,
+          generatedAt: new Date().toISOString(),
+        },
+        null,
+        2,
+      );
+      await storageEngine.saveScreenRecordingConfusionScore(
+        new Blob([payload], { type: 'application/json' }),
+        storedRecordingIdentifier,
+        storedParticipantId,
+      );
+      setStoredConfusionScore({
+        ...parsed,
+        generatedAt: new Date().toISOString(),
+      });
+    } catch (e) {
+      setConfusionScoreError(e instanceof Error ? e.message : 'Confusion score computation failed');
+    } finally {
+      setConfusionScoreLoading(false);
+    }
+  };
+
   const persistRecordingTags = useCallback(
     async (next: RecordingTag[]) => {
       if (!storageEngine || !storedParticipantId || !storedRecordingIdentifier) return;
@@ -517,16 +813,32 @@ export function ScreenRecordingSummarizationView({
         <Card withBorder shadow="sm" padding="md">
           <Stack gap="sm">
             <Text size="sm" color="dimmed">
-              Upload a single screen recording video and get a short Gemini summary below. This generates a new
-              summary in the browser (it is not persisted to the study).
+              Upload a single screen recording and get a short summary below (pipeline is chosen in the header:
+              Gemini, GPT-4o vision, or local Ollama). This one-off run is not persisted to the study.
             </Text>
 
-            {!apiKey && (
+            {summarizationPipeline === 'gemini' && !apiKey && (
               <Alert title="Missing API key" color="red" variant="light" icon={<Text>!</Text>}>
-                This tab needs
+                Gemini inline mode needs
                 <code>VITE_GEMINI_API_KEY</code>
                 {' '}
                 set in your environment (Vite client env).
+              </Alert>
+            )}
+
+            {summarizationPipeline === 'gpt4o' && !openAiAvailable && (
+              <Alert title="GPT-4o unavailable" color="orange" variant="light" icon={<Text>!</Text>}>
+                The mass API server reports no
+                {' '}
+                <code>OPENAI_API_KEY</code>
+                . Add it to
+                {' '}
+                <code>.env</code>
+                {' '}
+                for
+                {' '}
+                <code>yarn serve:mass-api</code>
+                , then refresh this page.
               </Alert>
             )}
 
@@ -558,7 +870,7 @@ export function ScreenRecordingSummarizationView({
                 <Alert color="orange" variant="light">
                   File is too large for inline upload (&gt; 20MB). This tab will send the clip to
                   {' '}
-                  <code>/api/analyze-large</code>
+                  <code>{largeUploadEndpointLabel}</code>
                   {' '}
                   (run
                   {' '}
@@ -570,7 +882,7 @@ export function ScreenRecordingSummarizationView({
               <GroupRow>
                 <Button
                   onClick={handleAnalyze}
-                  disabled={!videoFile || isAnalyzing || (!useLocalModel && canInlineUpload && !apiKey)}
+                  disabled={analyzeSingleClipDisabled}
                 >
                   Analyze video
                 </Button>
@@ -641,6 +953,70 @@ export function ScreenRecordingSummarizationView({
                           }
                         }}
                       />
+                      {storedConfusionScore && storedConfusionScore.windows.length > 0 && (
+                        <Box mt="sm">
+                          <Text size="sm" fw={600}>
+                            Confusion score by window
+                          </Text>
+                          <Text size="xs" color="dimmed">
+                            Total score
+                            {' '}
+                            {typeof storedConfusionScore.totalScore === 'number'
+                              ? storedConfusionScore.totalScore.toFixed(2)
+                              : String(storedConfusionScore.totalScore)}
+                            {storedConfusionScore.generatedAt
+                              ? ` · computed ${new Date(storedConfusionScore.generatedAt).toLocaleString()}`
+                              : ''}
+                          </Text>
+                          <div
+                            role="img"
+                            aria-label="Confusion score bar chart by time window"
+                            style={{
+                              display: 'flex',
+                              alignItems: 'flex-end',
+                              gap: 2,
+                              height: 72,
+                              marginTop: 8,
+                              paddingBottom: 2,
+                              borderBottom: '1px solid var(--mantine-color-gray-3)',
+                            }}
+                          >
+                            {(() => {
+                              const scores = storedConfusionScore.windows.map((w) => w.score);
+                              const maxAbs = Math.max(0.01, ...scores.map((s) => Math.abs(s)));
+                              return storedConfusionScore.windows.map((w, i) => {
+                                const hPct = (Math.abs(w.score) / maxAbs) * 100;
+                                const neg = w.score < 0;
+                                return (
+                                  <button
+                                    type="button"
+                                    key={`${w.startSec}-${i}`}
+                                    title={`${w.startSec.toFixed(0)}s–${w.endSec.toFixed(0)}s: score ${w.score}`}
+                                    onClick={() => {
+                                      const el = storedVideoRef.current;
+                                      if (el) el.currentTime = w.startSec;
+                                    }}
+                                    style={{
+                                      flex: 1,
+                                      minWidth: 2,
+                                      height: `${hPct}%`,
+                                      padding: 0,
+                                      border: 'none',
+                                      cursor: 'pointer',
+                                      background: neg ? 'var(--mantine-color-blue-3)' : 'var(--mantine-color-red-4)',
+                                      borderRadius: '3px 3px 0 0',
+                                    }}
+                                  />
+                                );
+                              });
+                            })()}
+                          </div>
+                          <Text size="xs" color="dimmed" mt={4}>
+                            Each bar is one fusion window (default 30s). Click a bar to seek. Red = positive confusion
+                            signal; blue = net negative (e.g. active interaction).
+                          </Text>
+                        </Box>
+                      )}
                       <RecordingTagsPanel
                         tags={storedTags}
                         onPersist={persistRecordingTags}
@@ -655,6 +1031,22 @@ export function ScreenRecordingSummarizationView({
                           onClick={handleGenerateTimeline}
                         >
                           Generate timeline
+                        </Button>
+                        <Button
+                          variant="light"
+                          loading={ocrLoading}
+                          disabled={!storageEngine || ocrLoading || !storedVideoUrl}
+                          onClick={handleExtractOcr}
+                        >
+                          Extract OCR
+                        </Button>
+                        <Button
+                          variant="light"
+                          loading={confusionScoreLoading}
+                          disabled={!storageEngine || confusionScoreLoading || !storedVideoUrl}
+                          onClick={handleComputeConfusionScore}
+                        >
+                          Compute confusion score
                         </Button>
                         <Text size="xs" color="dimmed" style={{ alignSelf: 'center' }}>
                           Whisper + scene detection (run
@@ -672,6 +1064,28 @@ export function ScreenRecordingSummarizationView({
                       {timelineError && (
                         <Alert color="red" variant="light" mt="xs">
                           {timelineError}
+                        </Alert>
+                      )}
+                      {ocrError && (
+                        <Alert color="red" variant="light" mt="xs">
+                          {ocrError}
+                        </Alert>
+                      )}
+                      {confusionScoreError && (
+                        <Alert color="red" variant="light" mt="xs">
+                          {confusionScoreError}
+                        </Alert>
+                      )}
+                      {storedOcrFrames.length > 0 && (
+                        <Alert color="gray" variant="light" mt="xs">
+                          Loaded OCR frames:
+                          {' '}
+                          <b>{storedOcrFrames.length}</b>
+                          {' '}
+                          (sample excerpt:
+                          {' '}
+                          {storedOcrFrames.find((f) => f.text.trim())?.text.slice(0, 80) || 'no text'}
+                          )
                         </Alert>
                       )}
                     </Box>
@@ -712,7 +1126,11 @@ export function ScreenRecordingSummarizationView({
           </Card>
         )}
 
-        <MassScreenRecordingSummarizationView visibleParticipants={visibleParticipants} useLocalModel={useLocalModel} />
+        <MassScreenRecordingSummarizationView
+          visibleParticipants={visibleParticipants}
+          summarizationPipeline={summarizationPipeline}
+          openAiAvailable={openAiAvailable}
+        />
       </Stack>
     </Box>
   );

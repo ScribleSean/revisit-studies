@@ -11,6 +11,9 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { GoogleAIFileManager, FileState } from '@google/generative-ai/server';
 import { registerTimelineRoutes } from './timeline-route.mjs';
 import { registerLocalRoutes } from './local-route.mjs';
+import { registerOcrRoutes } from './ocr-route.mjs';
+import { registerGpt4vRoutes } from './gpt4v-route.mjs';
+import { registerConfusionScoreRoutes } from './confusion-score-route.mjs';
 import { readJsonCache, sha256Hex, writeJsonCache } from './cache.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -21,6 +24,10 @@ const MAX_UPLOAD_BYTES = 512 * 1024 * 1024;
 
 function getApiKey() {
   return process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY || '';
+}
+
+function getOpenAiKey() {
+  return process.env.OPENAI_API_KEY || '';
 }
 
 function normalizeModelId(model) {
@@ -57,6 +64,7 @@ app.get('/api/health', (_req, res) => {
   res.json({
     ok: true,
     hasKey: Boolean(getApiKey()),
+    hasOpenAiKey: Boolean(getOpenAiKey()),
     ollamaBaseUrl: process.env.OLLAMA_BASE_URL || 'http://127.0.0.1:11434',
     ollamaModel: process.env.OLLAMA_VLM_MODEL || 'llava:7b',
   });
@@ -193,6 +201,9 @@ app.post('/api/analyze-large', upload.single('video'), async (req, res) => {
 
 registerTimelineRoutes(app, upload);
 registerLocalRoutes(app, upload);
+registerOcrRoutes(app, upload);
+registerGpt4vRoutes(app, upload);
+registerConfusionScoreRoutes(app, upload);
 
 // eslint-disable-next-line no-unused-vars
 app.use((err, _req, res, _next) => {
@@ -211,5 +222,7 @@ app.use((err, _req, res, _next) => {
 
 app.listen(PORT, '127.0.0.1', () => {
   // eslint-disable-next-line no-console
-  console.log(`[mqp] API http://127.0.0.1:${PORT} — POST /api/analyze-large, POST /api/analyze-local, POST /api/analyze-timeline, GET /api/health`);
+  console.log(
+    `[mqp] API http://127.0.0.1:${PORT} — POST /api/analyze-large, POST /api/analyze-local, POST /api/analyze-gpt4v, POST /api/analyze-timeline, POST /api/extract-ocr, POST /api/confusion-score, GET /api/health`,
+  );
 });

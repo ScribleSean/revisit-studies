@@ -201,6 +201,26 @@ async function downloadParticipantsScreenRecording({
       URL.revokeObjectURL(tagsUrl);
     }
 
+    const ocrUrl = await storageEngine.getScreenRecordingOcrFrames(identifier, participantId);
+    if (ocrUrl) {
+      const ocrBlob = await (await fetch(ocrUrl)).blob();
+      screenRecordingZip.file(
+        `${namePrefix}_${participantId}_${identifier}_screenRecording_ocr.json`,
+        ocrBlob,
+      );
+      URL.revokeObjectURL(ocrUrl);
+    }
+
+    const confusionUrl = await storageEngine.getScreenRecordingConfusionScore(identifier, participantId);
+    if (confusionUrl) {
+      const confusionBlob = await (await fetch(confusionUrl)).blob();
+      screenRecordingZip.file(
+        `${namePrefix}_${participantId}_${identifier}_screenRecording_confusion_score.json`,
+        confusionBlob,
+      );
+      URL.revokeObjectURL(confusionUrl);
+    }
+
     if (!zip) {
       downloadZip(screenRecordingZip, `${namePrefix}_${participantId}_${identifier}_screenRecording.zip`);
     }

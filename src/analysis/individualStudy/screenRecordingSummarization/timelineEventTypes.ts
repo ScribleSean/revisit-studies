@@ -1,4 +1,10 @@
-export type TimelineEventType = 'hesitation' | 'confusion_word' | 'scene_change';
+export type TimelineEventType =
+  | 'hesitation'
+  | 'confusion_word'
+  | 'scene_change'
+  | 'reading'
+  | 'confused_transition'
+  | 'active_interaction';
 
 export interface TimelineEvent {
   type: TimelineEventType;
@@ -6,7 +12,14 @@ export interface TimelineEvent {
   evidence: string;
 }
 
-const TYPES: TimelineEventType[] = ['hesitation', 'confusion_word', 'scene_change'];
+const TYPES: TimelineEventType[] = [
+  'hesitation',
+  'confusion_word',
+  'scene_change',
+  'reading',
+  'confused_transition',
+  'active_interaction',
+];
 
 export function isTimelineEventType(t: string): t is TimelineEventType {
   return (TYPES as string[]).includes(t);

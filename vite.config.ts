@@ -23,11 +23,23 @@ export default defineConfig(({ command, mode }) => {
           target: `http://127.0.0.1:${massApiPort}`,
           changeOrigin: true,
         },
+        '/api/analyze-gpt4v': {
+          target: `http://127.0.0.1:${massApiPort}`,
+          changeOrigin: true,
+        },
         '/api/health': {
           target: `http://127.0.0.1:${massApiPort}`,
           changeOrigin: true,
         },
         '/api/analyze-timeline': {
+          target: `http://127.0.0.1:${massApiPort}`,
+          changeOrigin: true,
+        },
+        '/api/extract-ocr': {
+          target: `http://127.0.0.1:${massApiPort}`,
+          changeOrigin: true,
+        },
+        '/api/confusion-score': {
           target: `http://127.0.0.1:${massApiPort}`,
           changeOrigin: true,
         },

@@ -1,5 +1,5 @@
 import {
-  Alert, AppShell, Center, Checkbox, Container, Flex, Group, LoadingOverlay, Stack, Tabs, Text, Title, MultiSelect, Switch,
+  Alert, AppShell, Center, Checkbox, Container, Flex, Group, LoadingOverlay, Stack, Tabs, Text, Title, MultiSelect, Select,
 } from '@mantine/core';
 import { useNavigate, useParams } from 'react-router';
 import {
@@ -27,7 +27,7 @@ import { ManageView } from './management/ManageView';
 import { useAuth } from '../../store/hooks/useAuth';
 import { parseStudyConfig } from '../../parser/parser';
 import { useAsync } from '../../store/hooks/useAsync';
-import { StorageEngine } from '../../storage/engines/types';
+import { StorageEngine, type ScreenRecordingSummarizationPipeline } from '../../storage/engines/types';
 import { DownloadButtons } from '../../components/downloader/DownloadButtons';
 import { useStudyRecordings } from '../../utils/useStudyRecordings';
 import { parseConditionParam } from '../../utils/handleConditionLogic';
@@ -87,7 +87,15 @@ export function StudyAnalysisTabs({ globalConfig }: { globalConfig: GlobalConfig
   const { analysisTab } = useParams();
   const { user } = useAuth();
   const [ref, { width }] = useResizeObserver();
-  const [useLocalModel, setUseLocalModel] = useState(false);
+  const [summarizationPipeline, setSummarizationPipeline] = useState<ScreenRecordingSummarizationPipeline>('gemini');
+  const [openAiAvailable, setOpenAiAvailable] = useState(false);
+
+  const massApiHealthUrl = useMemo(() => {
+    const env = import.meta.env as unknown as { VITE_GEMINI_MASS_API_URL?: string };
+    const base = (env.VITE_GEMINI_MASS_API_URL || '').replace(/\/$/, '');
+    if (base) return `${base}/api/health`;
+    return '/api/health';
+  }, []);
 
   // 0-1 percentage of scroll height
 
@@ -274,15 +282,38 @@ export function StudyAnalysisTabs({ globalConfig }: { globalConfig: GlobalConfig
     let cancelled = false;
     if (!storageEngine) return () => { cancelled = true; };
     (async () => {
+      let openAi = false;
+      try {
+        const hr = await fetch(massApiHealthUrl);
+        const hj = (await hr.json().catch(() => ({}))) as { hasOpenAiKey?: boolean };
+        openAi = Boolean(hj.hasOpenAiKey);
+        if (!cancelled) setOpenAiAvailable(openAi);
+      } catch {
+        if (!cancelled) setOpenAiAvailable(false);
+      }
       try {
         const s = await storageEngine.getScreenRecordingAnalysisSettings();
-        if (!cancelled) setUseLocalModel(Boolean(s.useLocalModel));
+        let p = s.summarizationPipeline;
+        if (p === 'gpt4o' && !openAi) p = 'gemini';
+        if (!cancelled) setSummarizationPipeline(p);
       } catch {
-        if (!cancelled) setUseLocalModel(false);
+        if (!cancelled) setSummarizationPipeline('gemini');
       }
     })();
     return () => { cancelled = true; };
-  }, [storageEngine, studyId]);
+  }, [storageEngine, studyId, massApiHealthUrl]);
+
+  useEffect(() => {
+    if (summarizationPipeline === 'gpt4o' && !openAiAvailable) {
+      setSummarizationPipeline('gemini');
+      storageEngine
+        ?.saveScreenRecordingAnalysisSettings({
+          summarizationPipeline: 'gemini',
+          updatedAt: new Date().toISOString(),
+        })
+        .catch(() => undefined);
+    }
+  }, [openAiAvailable, summarizationPipeline, storageEngine]);
 
   useEffect(() => {
     if (!studyId) return () => { };
@@ -342,19 +373,27 @@ export function StudyAnalysisTabs({ globalConfig }: { globalConfig: GlobalConfig
             </Flex>
             <Flex direction="row" align="center" gap="md">
               <Flex direction="row" align="center" gap="xs">
-                <Switch
-                  checked={useLocalModel}
-                  onChange={(e) => {
-                    const next = e.currentTarget.checked;
-                    setUseLocalModel(next);
-                    if (storageEngine) {
-                      storageEngine
-                        .saveScreenRecordingAnalysisSettings({ useLocalModel: next, updatedAt: new Date().toISOString() })
-                        .catch(() => undefined);
-                    }
-                  }}
-                  label="Use local model"
+                <Select
                   size="sm"
+                  w={280}
+                  label="Screen recording pipeline"
+                  data={[
+                    { value: 'gemini', label: 'Gemini (cloud)' },
+                    { value: 'gpt4o', label: 'GPT-4o vision (cloud)', disabled: !openAiAvailable },
+                    { value: 'local', label: 'Local model (Ollama)' },
+                  ]}
+                  value={summarizationPipeline}
+                  onChange={(v) => {
+                    const next = (v === 'gpt4o' || v === 'local' ? v : 'gemini') as ScreenRecordingSummarizationPipeline;
+                    const normalized = next === 'gpt4o' && !openAiAvailable ? 'gemini' : next;
+                    setSummarizationPipeline(normalized);
+                    storageEngine
+                      ?.saveScreenRecordingAnalysisSettings({
+                        summarizationPipeline: normalized,
+                        updatedAt: new Date().toISOString(),
+                      })
+                      .catch(() => undefined);
+                  }}
                 />
               </Flex>
 
@@ -527,7 +566,14 @@ export function StudyAnalysisTabs({ globalConfig }: { globalConfig: GlobalConfig
               </Tabs.Panel>
               <Tabs.Panel style={{ overflow: 'auto' }} value="screen-recording-summarization" pt="xs">
                 {hasScreenRecording
-                  ? <ScreenRecordingSummarizationView visibleParticipants={participantsForScreenRecording} studyConfig={studyConfig} useLocalModel={useLocalModel} />
+                  ? (
+                    <ScreenRecordingSummarizationView
+                      visibleParticipants={participantsForScreenRecording}
+                      studyConfig={studyConfig}
+                      summarizationPipeline={summarizationPipeline}
+                      openAiAvailable={openAiAvailable}
+                    />
+                  )
                   : <Center>No screen recording found for this study.</Center>}
               </Tabs.Panel>
               <Tabs.Panel style={{ overflow: 'auto' }} value="study-cross-clip" pt="xs">

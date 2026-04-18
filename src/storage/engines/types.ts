@@ -82,8 +82,16 @@ export type ScreenRecordingPromptLibrary = {
   prompts: ScreenRecordingPrompt[];
 };
 
+export type ScreenRecordingSummarizationPipeline = 'gemini' | 'gpt4o' | 'local';
+
 export type ScreenRecordingAnalysisSettings = {
-  useLocalModel: boolean;
+  /** Which server-side / client-side summarization path to use for screen recordings. */
+  summarizationPipeline: ScreenRecordingSummarizationPipeline;
+  /**
+   * Kept in sync when saving for backward compatibility with older stored settings objects.
+   * True when `summarizationPipeline === 'local'`.
+   */
+  useLocalModel?: boolean;
   updatedAt: string;
 };
 
@@ -263,6 +271,12 @@ export abstract class StorageEngine {
 
   // Optional: researcher-defined tags (full JSON array replaced on save).
   protected _getScreenRecordingTagsUrl?(task: string, participantId?: string): Promise<string | null>;
+
+  // Optional: OCR frames JSON sidecar (keyframes with extracted on-screen text).
+  protected _getScreenRecordingOcrFramesUrl?(task: string, participantId?: string): Promise<string | null>;
+
+  // Optional: multi-signal confusion score JSON (30s windows + fusion metadata).
+  protected _getScreenRecordingConfusionScoreUrl?(task: string, participantId?: string): Promise<string | null>;
 
   // Gets the transcript URL for the given task and participantId. (Optional - not all storage engines need to implement this, only if they generate transcripts).
   protected _getTranscriptUrl?(task: string, participantId?: string): Promise<string | null>;
@@ -1263,6 +1277,60 @@ export abstract class StorageEngine {
     ).catch(() => {});
   }
 
+  async getScreenRecordingOcrFrames(
+    task: string,
+    participantId: string,
+  ) {
+    if (!this._getScreenRecordingOcrFramesUrl) {
+      return null;
+    }
+    const url = await this._getScreenRecordingOcrFramesUrl(task, participantId);
+    if (!url) {
+      return null;
+    }
+    return this.getAsset(url);
+  }
+
+  async saveScreenRecordingOcrFrames(
+    ocrBlob: Blob,
+    taskName: string,
+    participantId: string,
+  ) {
+    if (this.studyId === undefined) {
+      throw new Error('Study ID is not set');
+    }
+    const participantKey = `screenRecordingOcrFrames/${participantId}`;
+    await this._pushToStorage(participantKey, taskName, ocrBlob);
+    await this._cacheStorageObject(participantKey, taskName);
+  }
+
+  async getScreenRecordingConfusionScore(
+    task: string,
+    participantId: string,
+  ) {
+    if (!this._getScreenRecordingConfusionScoreUrl) {
+      return null;
+    }
+    const url = await this._getScreenRecordingConfusionScoreUrl(task, participantId);
+    if (!url) {
+      return null;
+    }
+    return this.getAsset(url);
+  }
+
+  async saveScreenRecordingConfusionScore(
+    blob: Blob,
+    taskName: string,
+    participantId: string,
+  ) {
+    if (this.studyId === undefined) {
+      throw new Error('Study ID is not set');
+    }
+    const participantKey = `screenRecordingConfusionScore/${participantId}`;
+    await this._pushToStorage(participantKey, taskName, blob);
+    await this._cacheStorageObject(participantKey, taskName);
+  }
+
   private _removeIndexEntriesForClip(
     events: StudyIndexedEvent[],
     participantId: string,
@@ -1360,11 +1428,19 @@ export abstract class StorageEngine {
     await this.verifyStudyDatabase();
     const raw = await this._getFromStorage('', 'screenRecordingAnalysisSettings');
     if (!raw || typeof raw !== 'object') {
-      return { useLocalModel: false, updatedAt: new Date(0).toISOString() };
+      return { summarizationPipeline: 'gemini', useLocalModel: false, updatedAt: new Date(0).toISOString() };
     }
-    const v = raw as Partial<ScreenRecordingAnalysisSettings>;
+    const v = raw as Partial<ScreenRecordingAnalysisSettings> & { useLocalModel?: boolean };
+    const { summarizationPipeline: storedPipeline, useLocalModel: legacyLocal } = v;
+    let summarizationPipeline: ScreenRecordingSummarizationPipeline = 'gemini';
+    if (storedPipeline === 'gemini' || storedPipeline === 'gpt4o' || storedPipeline === 'local') {
+      summarizationPipeline = storedPipeline;
+    } else if (legacyLocal) {
+      summarizationPipeline = 'local';
+    }
     return {
-      useLocalModel: Boolean(v.useLocalModel),
+      summarizationPipeline,
+      useLocalModel: summarizationPipeline === 'local',
       updatedAt: typeof v.updatedAt === 'string' ? v.updatedAt : new Date(0).toISOString(),
     };
   }
@@ -1373,7 +1449,11 @@ export abstract class StorageEngine {
     if (this.studyId === undefined) {
       throw new Error('Study ID is not set');
     }
-    await this._pushToStorage('', 'screenRecordingAnalysisSettings', next);
+    const payload: ScreenRecordingAnalysisSettings = {
+      ...next,
+      useLocalModel: next.summarizationPipeline === 'local',
+    };
+    await this._pushToStorage('', 'screenRecordingAnalysisSettings', payload);
     await this._cacheStorageObject('', 'screenRecordingAnalysisSettings');
   }
 
@@ -1468,6 +1548,12 @@ export abstract class StorageEngine {
       if (await this._directoryExists(`${sourceName}/screenRecordingTags`)) {
         await this._copyDirectory(`${sourceName}/screenRecordingTags`, `${targetName}/screenRecordingTags`);
       }
+      if (await this._directoryExists(`${sourceName}/screenRecordingOcrFrames`)) {
+        await this._copyDirectory(`${sourceName}/screenRecordingOcrFrames`, `${targetName}/screenRecordingOcrFrames`);
+      }
+      if (await this._directoryExists(`${sourceName}/screenRecordingConfusionScore`)) {
+        await this._copyDirectory(`${sourceName}/screenRecordingConfusionScore`, `${targetName}/screenRecordingConfusionScore`);
+      }
       await this._copyDirectory(sourceName, targetName);
       await this._copyRealtimeData(sourceName, targetName);
     }
@@ -1523,6 +1609,12 @@ export abstract class StorageEngine {
         }
         if (await this._directoryExists(`${deletionTarget}/screenRecordingTags`)) {
           await this._deleteDirectory(`${deletionTarget}/screenRecordingTags`);
+        }
+        if (await this._directoryExists(`${deletionTarget}/screenRecordingOcrFrames`)) {
+          await this._deleteDirectory(`${deletionTarget}/screenRecordingOcrFrames`);
+        }
+        if (await this._directoryExists(`${deletionTarget}/screenRecordingConfusionScore`)) {
+          await this._deleteDirectory(`${deletionTarget}/screenRecordingConfusionScore`);
         }
         await this._deleteDirectory(deletionTarget);
         await this._deleteRealtimeData(deletionTarget);
@@ -1609,6 +1701,18 @@ export abstract class StorageEngine {
         await this._copyDirectory(
           `${snapshotName}/screenRecordingTags`,
           `${originalName}/screenRecordingTags`,
+        );
+      }
+      if (await this._directoryExists(`${snapshotName}/screenRecordingOcrFrames`)) {
+        await this._copyDirectory(
+          `${snapshotName}/screenRecordingOcrFrames`,
+          `${originalName}/screenRecordingOcrFrames`,
+        );
+      }
+      if (await this._directoryExists(`${snapshotName}/screenRecordingConfusionScore`)) {
+        await this._copyDirectory(
+          `${snapshotName}/screenRecordingConfusionScore`,
+          `${originalName}/screenRecordingConfusionScore`,
         );
       }
       await this._copyDirectory(snapshotName, originalName);

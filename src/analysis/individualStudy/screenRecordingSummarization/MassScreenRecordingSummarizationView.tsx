@@ -17,7 +17,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 import type { ParticipantData } from '../../../parser/types';
 import { useStorageEngine } from '../../../storage/storageEngineHooks';
-import type { ScreenRecordingPromptLibrary } from '../../../storage/engines/types';
+import type { ScreenRecordingPromptLibrary, ScreenRecordingSummarizationPipeline } from '../../../storage/engines/types';
 
 type GeminiAnalyzeResponse = {
   summary?: string;
@@ -72,10 +72,12 @@ function getDefaultPrompt() {
 
 export function MassScreenRecordingSummarizationView({
   visibleParticipants,
-  useLocalModel,
+  summarizationPipeline = 'gemini',
+  openAiAvailable = false,
 }: {
   visibleParticipants: ParticipantData[];
-  useLocalModel?: boolean;
+  summarizationPipeline?: ScreenRecordingSummarizationPipeline;
+  openAiAvailable?: boolean;
 }) {
   const { storageEngine } = useStorageEngine();
 
@@ -178,6 +180,12 @@ export function MassScreenRecordingSummarizationView({
     return '/api/analyze-local';
   }, [geminiMassApiBase]);
 
+  const massApiAnalyzeGpt4vUrl = useMemo(() => {
+    const base = (geminiMassApiBase || '').replace(/\/$/, '');
+    if (base) return `${base}/api/analyze-gpt4v`;
+    return '/api/analyze-gpt4v';
+  }, [geminiMassApiBase]);
+
   const selectionToggle = (key: string, checked: boolean) => {
     setSelectedKeys((prev) => {
       const next = new Set(prev);
@@ -194,11 +202,23 @@ export function MassScreenRecordingSummarizationView({
   const clearSelection = () => setSelectedKeys(new Set());
 
   const analyzeInline = async (file: File) => {
-    if (useLocalModel) {
+    if (summarizationPipeline === 'local') {
       const fd = new FormData();
       fd.append('video', file);
       fd.append('prompt', prompt);
       const res = await fetch(massApiAnalyzeLocalUrl, { method: 'POST', body: fd });
+      const json = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+      if (!res.ok) {
+        return { summary: undefined, raw: { status: res.status, json } } as GeminiAnalyzeResponse;
+      }
+      const summary = typeof json.summary === 'string' ? json.summary : undefined;
+      return { summary, raw: json } as GeminiAnalyzeResponse;
+    }
+    if (summarizationPipeline === 'gpt4o') {
+      const fd = new FormData();
+      fd.append('video', file);
+      fd.append('prompt', prompt);
+      const res = await fetch(massApiAnalyzeGpt4vUrl, { method: 'POST', body: fd });
       const json = (await res.json().catch(() => ({}))) as Record<string, unknown>;
       if (!res.ok) {
         return { summary: undefined, raw: { status: res.status, json } } as GeminiAnalyzeResponse;
@@ -260,10 +280,15 @@ export function MassScreenRecordingSummarizationView({
     const fd = new FormData();
     fd.append('video', file, file.name);
     fd.append('prompt', prompt);
-    if (!useLocalModel) fd.append('model', effectiveModel);
+    if (summarizationPipeline === 'gemini') fd.append('model', effectiveModel);
+    const endpointUrl = summarizationPipeline === 'local'
+      ? massApiAnalyzeLocalUrl
+      : summarizationPipeline === 'gpt4o'
+        ? massApiAnalyzeGpt4vUrl
+        : massApiAnalyzeUrl;
     let res: Response;
     try {
-      res = await fetch(useLocalModel ? massApiAnalyzeLocalUrl : massApiAnalyzeUrl, { method: 'POST', body: fd });
+      res = await fetch(endpointUrl, { method: 'POST', body: fd });
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Network error';
       return {
@@ -288,8 +313,12 @@ export function MassScreenRecordingSummarizationView({
 
   const analyzeSelected = async () => {
     if (!storageEngine) return;
-    if (!apiKey) {
+    if (summarizationPipeline === 'gemini' && !apiKey) {
       setError('Missing VITE_GEMINI_API_KEY');
+      return;
+    }
+    if (summarizationPipeline === 'gpt4o' && !openAiAvailable) {
+      setError('GPT-4o vision requires OPENAI_API_KEY on the mass-api server (.env for yarn serve:mass-api).');
       return;
     }
     if (selectedCount === 0) return;
@@ -351,7 +380,10 @@ export function MassScreenRecordingSummarizationView({
           } else {
             const result = await analyzeInline(file);
             if (!result.summary) {
-              setResults((prev) => ({ ...prev, [itemKey]: { status: 'failed', error: 'No summary text from Gemini' } }));
+              setResults((prev) => ({
+                ...prev,
+                [itemKey]: { status: 'failed', error: 'No summary text returned for this clip' },
+              }));
               setProgress((p) => ({ ...p, done: p.done + 1 }));
               return;
             }
@@ -423,12 +455,28 @@ export function MassScreenRecordingSummarizationView({
           </Group>
         </Group>
 
-        {!apiKey && (
+        {summarizationPipeline === 'gemini' && !apiKey && (
           <Alert title="Missing API key" color="red" variant="light">
-            This needs
+            Gemini inline mode needs
             <code>VITE_GEMINI_API_KEY</code>
             {' '}
             set in your environment (Vite client env).
+          </Alert>
+        )}
+
+        {summarizationPipeline === 'gpt4o' && !openAiAvailable && (
+          <Alert title="GPT-4o unavailable" color="orange" variant="light">
+            The mass API reports no
+            {' '}
+            <code>OPENAI_API_KEY</code>
+            . Add it to the server
+            {' '}
+            <code>.env</code>
+            {' '}
+            and restart
+            {' '}
+            <code>yarn serve:mass-api</code>
+            .
           </Alert>
         )}
 
@@ -493,7 +541,7 @@ export function MassScreenRecordingSummarizationView({
           <Textarea
             minRows={3}
             autosize
-            label="Gemini prompt (applied to every selected recording)"
+            label="Prompt (applied to every selected recording)"
             value={prompt}
             onChange={(e) => setPrompt(e.currentTarget.value)}
             disabled={isRunning}
@@ -532,7 +580,12 @@ export function MassScreenRecordingSummarizationView({
               <Button
                 onClick={analyzeSelected}
                 loading={isRunning}
-                disabled={!apiKey || isRunning || storageEngine === undefined}
+                disabled={
+                  isRunning
+                  || storageEngine === undefined
+                  || (summarizationPipeline === 'gemini' && !apiKey)
+                  || (summarizationPipeline === 'gpt4o' && !openAiAvailable)
+                }
               >
                 Analyze selected
                 {' '}

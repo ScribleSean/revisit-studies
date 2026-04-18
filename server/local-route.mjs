@@ -4,84 +4,7 @@
  * Intended for privacy-preserving local-only analysis when Gemini cannot be used.
  * Requires an Ollama daemon on the same machine (default: http://127.0.0.1:11434).
  */
-import { spawn } from 'node:child_process';
-import { randomUUID } from 'node:crypto';
-import { writeFile, unlink } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
-import path from 'node:path';
-
-function extFromMime(mime) {
-  if (!mime || typeof mime !== 'string') return 'webm';
-  if (mime.includes('mp4')) return 'mp4';
-  if (mime.includes('quicktime')) return 'mov';
-  return 'webm';
-}
-
-function run(cmd, args, opts = {}) {
-  return new Promise((resolve, reject) => {
-    const child = spawn(cmd, args, { ...opts });
-    const out = [];
-    const err = [];
-    child.stdout.on('data', (c) => out.push(c));
-    child.stderr.on('data', (c) => err.push(c));
-    child.on('error', reject);
-    child.on('close', (code) => {
-      resolve({
-        code,
-        stdout: Buffer.concat(out),
-        stderr: Buffer.concat(err),
-      });
-    });
-  });
-}
-
-async function ffprobeDurationSeconds(videoPath) {
-  const res = await run('ffprobe', [
-    '-v',
-    'error',
-    '-show_entries',
-    'format=duration',
-    '-of',
-    'default=noprint_wrappers=1:nokey=1',
-    videoPath,
-  ]);
-  const text = res.stdout.toString('utf8').trim();
-  const n = Number(text);
-  return Number.isFinite(n) ? n : null;
-}
-
-async function extractJpegFrame(videoPath, seconds) {
-  const res = await run('ffmpeg', [
-    '-hide_banner',
-    '-loglevel',
-    'error',
-    '-ss',
-    String(seconds),
-    '-i',
-    videoPath,
-    '-frames:v',
-    '1',
-    '-f',
-    'image2pipe',
-    '-vcodec',
-    'mjpeg',
-    'pipe:1',
-  ]);
-  if (res.code !== 0 || !res.stdout || res.stdout.length === 0) {
-    const err = res.stderr.toString('utf8').slice(0, 1500);
-    throw new Error(`ffmpeg failed to extract frame: ${err || `exit=${res.code}`}`);
-  }
-  return res.stdout;
-}
-
-function sampleTimestamps(durationSeconds, n) {
-  const safeN = Math.max(1, Math.min(12, Math.floor(n)));
-  if (!Number.isFinite(durationSeconds) || durationSeconds <= 0) {
-    return Array.from({ length: safeN }, (_, i) => i);
-  }
-  // Spread across the clip; avoid exact endpoints.
-  return Array.from({ length: safeN }, (_, i) => ((i + 1) / (safeN + 1)) * durationSeconds);
-}
+import { cleanupFiles, extractJpegFrameBuffer, ffprobeDurationSeconds, sampleTimestamps, writeTempVideoFromUpload } from './frame-sampler.mjs';
 
 async function ollamaGenerate({ baseUrl, model, prompt, imagesBase64 }) {
   const url = `${baseUrl.replace(/\/$/, '')}/api/generate`;
@@ -134,12 +57,9 @@ export function registerLocalRoutes(app, upload) {
     const model = String(process.env.OLLAMA_VLM_MODEL || 'llava:7b');
     const prompt = typeof req.body.prompt === 'string' ? req.body.prompt : '';
     const frames = Number(process.env.MQP_LOCAL_FRAMES || 6);
-
-    const ext = extFromMime(req.file.mimetype);
-    const tmp = path.join(tmpdir(), `mqp-local-${randomUUID()}.${ext}`);
-
+    let tmp = '';
     try {
-      await writeFile(tmp, req.file.buffer);
+      tmp = await writeTempVideoFromUpload({ buffer: req.file.buffer, mimeType: req.file.mimetype, prefix: 'mqp-local' });
     } catch (e) {
       res.status(500).json({
         error: e instanceof Error ? e.message : 'Failed to write temp file',
@@ -151,7 +71,7 @@ export function registerLocalRoutes(app, upload) {
 
     try {
       const duration = await ffprobeDurationSeconds(tmp);
-      const times = sampleTimestamps(duration ?? 0, frames);
+      const times = sampleTimestamps(duration ?? 0, frames, 12);
 
       const framePrompt = [
         'You are analyzing a usability study screen recording.',
@@ -161,7 +81,7 @@ export function registerLocalRoutes(app, upload) {
 
       const descriptions = await Promise.all(
         times.map(async (t) => {
-          const jpeg = await extractJpegFrame(tmp, t);
+          const jpeg = await extractJpegFrameBuffer(tmp, t);
           const base64 = jpeg.toString('base64');
           const text = await ollamaGenerate({
             baseUrl,
@@ -209,7 +129,7 @@ export function registerLocalRoutes(app, upload) {
         durationMs: Date.now() - started,
       });
     } finally {
-      await unlink(tmp).catch(() => {});
+      await cleanupFiles([tmp].filter(Boolean));
     }
   });
 }

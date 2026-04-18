@@ -507,6 +507,28 @@ export class SupabaseStorageEngine extends CloudStorageEngine {
     return null;
   }
 
+  protected async _getScreenRecordingOcrFramesUrl(task: string, participantId?: string) {
+    await this.verifyStudyDatabase();
+    const id = participantId || this.currentParticipantId;
+    if (!id) return null;
+
+    const blob = await this._getFromStorage(`/screenRecordingOcrFrames/${id}`, task);
+    if (blob) return URL.createObjectURL(blob);
+
+    return null;
+  }
+
+  protected async _getScreenRecordingConfusionScoreUrl(task: string, participantId?: string) {
+    await this.verifyStudyDatabase();
+    const id = participantId || this.currentParticipantId;
+    if (!id) return null;
+
+    const blob = await this._getFromStorage(`/screenRecordingConfusionScore/${id}`, task);
+    if (blob) return URL.createObjectURL(blob);
+
+    return null;
+  }
+
   protected async _testingReset(studyId: string) {
     // Delete all rows with studyId matching the studyId
     const { error } = await this.supabase
