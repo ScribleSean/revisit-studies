@@ -1,0 +1,12 @@
+{
+  "clipId": "clip-03",
+  "humanSummary": "Third synthetic clip with audio for multi-clip aggregation in reports.",
+  "humanEvents": [
+    { "type": "reading", "timestamp": 2.0, "evidence": "Stable screen reading (synthetic label)" },
+    { "type": "confused_transition", "timestamp": 6.0, "evidence": "Cut then silence (synthetic label)" }
+  ],
+  "humanTags": [],
+  "raterId": "sarackal",
+  "clipDurationSec": 10,
+  "taskDescription": "Synthetic lavfi testsrc + sine audio (10s)."
+}

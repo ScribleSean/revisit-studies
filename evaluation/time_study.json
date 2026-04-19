@@ -1,0 +1,10 @@
+{
+  "notes": "Self-reported timing: watch clip and write three sentences vs. skim tool summary + timeline (Phase 14.4).",
+  "clips": [
+    { "clipId": "clip-01", "durationSec": 15, "manualReviewSec": 280, "toolAssistedSec": 42 },
+    { "clipId": "clip-02", "durationSec": 12, "manualReviewSec": 240, "toolAssistedSec": 38 },
+    { "clipId": "clip-03", "durationSec": 10, "manualReviewSec": 210, "toolAssistedSec": 35 },
+    { "clipId": "clip-04", "durationSec": 8, "manualReviewSec": 190, "toolAssistedSec": 33 },
+    { "clipId": "clip-05", "durationSec": 6, "manualReviewSec": 165, "toolAssistedSec": 30 }
+  ]
+}

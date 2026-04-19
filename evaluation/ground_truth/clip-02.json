@@ -1,0 +1,12 @@
+{
+  "clipId": "clip-02",
+  "humanSummary": "Second synthetic clip with audio; placeholder human labels for event-matching smoke tests.",
+  "humanEvents": [
+    { "type": "confusion_word", "timestamp": 3.5, "evidence": "matched: wait" },
+    { "type": "hesitation", "timestamp": 8.0, "evidence": "Mid-clip pause (synthetic)" }
+  ],
+  "humanTags": [],
+  "raterId": "sarackal",
+  "clipDurationSec": 12,
+  "taskDescription": "Synthetic lavfi testsrc + sine audio (12s)."
+}

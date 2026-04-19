@@ -1,36 +1,34 @@
 ## Evaluation harness
 
-This folder holds a lightweight evaluation workflow for screen-recording analysis.
+Head-to-head comparison of four analysis pipelines (Phase 14), plus OCR and confusion-score fusion on every clip.
 
 ### Folder layout
 
-- `evaluation/corpus/`: raw video files (`.webm`, `.mp4`, etc). **Not committed**.
+- `evaluation/corpus/`: video files named `clip-01.webm`, … (committed synthetic clips; add your own locally if needed).
 - `evaluation/ground_truth/`: one JSON file per clip id (committed).
-- `evaluation/results/<runId>/`: generated outputs (mostly ignored by git).
-  - `manifest.json`: metadata about a run (**committed**).
-  - `report.md`: human-readable report (**committed**).
+- `evaluation/human_scores.json`: manual 1–3 ratings for Table 1 (committed template).
+- `evaluation/time_study.json`: manual vs tool-assisted review times (Phase 14.4).
+- `evaluation/results/<runId>/`: generated per-clip JSON + `manifest.json` (see `.gitignore`; `test-01` is committed as a fixture when present).
 
 ### Ground truth format
 
-Create `evaluation/ground_truth/<clip-id>.json` shaped like:
+Each `evaluation/ground_truth/<clip-id>.json` includes:
 
-- `humanSummary`: 1–3 sentences
-- `humanEvents`: array of `{ type, timestamp, evidence? }`
-- `humanTags`: array of `{ id, timestamp, label }`
-- `raterId`: string
+- `humanSummary`, `humanEvents` (`type`, `timestamp`, `evidence?`), `humanTags`, `raterId`
+- Optional: `clipDurationSec`, `taskDescription`
 
-See `evaluation/ground_truth/sample-clip.json` for an example.
-
-### Running
-
-1. Add videos under `evaluation/corpus/` (e.g. `evaluation/corpus/sample-clip.webm`).
-2. Add matching ground-truth JSON under `evaluation/ground_truth/`.
-3. Run the harness:
+### Commands
 
 ```bash
-node evaluation/run.mjs --runId "<run-id>"
-node evaluation/report.mjs "<run-id>"
+# List corpus + health (no API calls to pipelines)
+node evaluation/run.mjs --dry-run
+
+# Full run (requires `yarn serve:mass-api`; pipelines skip cleanly if keys/services missing)
+node evaluation/run.mjs --runId "my-run-01"
+node evaluation/run.mjs --runId "my-run-01" --mass-api-url http://127.0.0.1:3001
+
+# Markdown report (four tables + time savings)
+node evaluation/report.mjs "my-run-01"
 ```
 
-The runner records per-clip outputs and latency. The report generator compares outputs vs ground truth and computes event precision/recall with a ±2s tolerance.
-
+Event matching in reports uses **±2 seconds** and **type equality**, consistent with earlier phases.

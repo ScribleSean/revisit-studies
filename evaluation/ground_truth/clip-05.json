@@ -1,0 +1,9 @@
+{
+  "clipId": "clip-05",
+  "humanSummary": "Short silent synthetic clip for minimum-duration edge cases.",
+  "humanEvents": [],
+  "humanTags": [],
+  "raterId": "sarackal",
+  "clipDurationSec": 6,
+  "taskDescription": "Synthetic lavfi testsrc, no audio (6s)."
+}

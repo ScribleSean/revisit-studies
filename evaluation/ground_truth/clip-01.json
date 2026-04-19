@@ -1,0 +1,12 @@
+{
+  "clipId": "clip-01",
+  "humanSummary": "Synthetic color test pattern with continuous tone; used as a short sanity clip for the evaluation harness.",
+  "humanEvents": [
+    { "type": "hesitation", "timestamp": 4.0, "evidence": "Synthetic pause marker near start" },
+    { "type": "scene_change", "timestamp": 10.0, "evidence": "Pattern transition (synthetic)" }
+  ],
+  "humanTags": [],
+  "raterId": "sarackal",
+  "clipDurationSec": 15,
+  "taskDescription": "Synthetic lavfi testsrc + sine audio (15s)."
+}

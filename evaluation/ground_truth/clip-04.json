@@ -1,0 +1,11 @@
+{
+  "clipId": "clip-04",
+  "humanSummary": "Silent synthetic clip to exercise graceful fallbacks when Whisper has no speech.",
+  "humanEvents": [
+    { "type": "scene_change", "timestamp": 3.0, "evidence": "Synthetic scene marker" }
+  ],
+  "humanTags": [],
+  "raterId": "sarackal",
+  "clipDurationSec": 8,
+  "taskDescription": "Synthetic lavfi testsrc, no audio track (8s)."
+}
