@@ -1,0 +1,13 @@
+{
+  "runId": "test-01",
+  "startedAt": "2026-04-25T23:41:46.302Z",
+  "finishedAt": "2026-04-25T23:41:46.330Z",
+  "massApiBaseUrl": "http://127.0.0.1:3001",
+  "modelsRun": [
+    "A_gemini_files",
+    "B_gpt4o",
+    "C_ollama_local",
+    "D_heuristic_timeline"
+  ],
+  "errors": []
+}

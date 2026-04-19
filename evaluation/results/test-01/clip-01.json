@@ -1,0 +1,39 @@
+{
+  "clipId": "clip-01",
+  "videoFile": "evaluation/corpus/clip-01.webm",
+  "groundTruthSha256": "c677ab7248b5498745f8a984125245eca1cbc4dbbc1160583cacb4f13809ef11",
+  "pipelines": [
+    {
+      "pipeline": "A_gemini_files",
+      "label": "Gemini (Files API)",
+      "status": "skipped",
+      "reason": "Mass API unreachable (start yarn serve:mass-api)"
+    },
+    {
+      "pipeline": "B_gpt4o",
+      "label": "GPT-4o vision",
+      "status": "skipped",
+      "reason": "Mass API unreachable (start yarn serve:mass-api)"
+    },
+    {
+      "pipeline": "C_ollama_local",
+      "label": "LLaVA / Ollama (local)",
+      "status": "skipped",
+      "reason": "Mass API unreachable (start yarn serve:mass-api)"
+    },
+    {
+      "pipeline": "D_heuristic_timeline",
+      "label": "Heuristic (Whisper + PySceneDetect)",
+      "status": "skipped",
+      "reason": "Mass API unreachable (start yarn serve:mass-api)"
+    }
+  ],
+  "ocr": {
+    "status": "skipped",
+    "reason": "Mass API unreachable"
+  },
+  "confusionScore": {
+    "status": "skipped",
+    "reason": "Mass API unreachable"
+  }
+}
