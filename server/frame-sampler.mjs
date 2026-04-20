@@ -64,6 +64,12 @@ export async function extractJpegFrameBuffer(videoPath, seconds) {
     videoPath,
     '-frames:v',
     '1',
+    // Some sources trip ffmpeg's MJPEG full-range constraints; allow unofficial compliance
+    // and force a widely-supported JPEG pixel format.
+    '-strict',
+    '-2',
+    '-pix_fmt',
+    'yuvj420p',
     '-f',
     'image2pipe',
     '-vcodec',

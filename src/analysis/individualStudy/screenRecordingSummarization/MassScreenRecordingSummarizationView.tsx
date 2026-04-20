@@ -403,7 +403,13 @@ export function MassScreenRecordingSummarizationView({
 
           const videoObjectUrl = await storageEngine.getScreenRecording(item.identifier, item.participantId);
           if (!videoObjectUrl) {
-            setResults((prev) => ({ ...prev, [itemKey]: { status: 'failed' } }));
+            setResults((prev) => ({
+              ...prev,
+              [itemKey]: {
+                status: 'skipped',
+                error: `ScreenRecording for task ${item.identifier} and participant ${item.participantId} not found`,
+              },
+            }));
             setProgress((p) => ({ ...p, done: p.done + 1 }));
             return;
           }
@@ -431,9 +437,17 @@ export function MassScreenRecordingSummarizationView({
           } else {
             const result = await analyzeInline(file);
             if (!result.summary) {
+              const raw = result.raw as { status?: unknown; json?: unknown } | undefined;
+              const status = raw?.status;
+              const json = raw?.json as { error?: unknown; code?: unknown } | undefined;
+              const errMsg = typeof json?.error === 'string'
+                ? json.error
+                : status
+                  ? `Request failed (HTTP ${status})`
+                  : 'No summary text returned for this clip';
               setResults((prev) => ({
                 ...prev,
-                [itemKey]: { status: 'failed', error: 'No summary text returned for this clip' },
+                [itemKey]: { status: 'failed', error: errMsg },
               }));
               setProgress((p) => ({ ...p, done: p.done + 1 }));
               return;

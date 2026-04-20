@@ -25,6 +25,16 @@ from pathlib import Path
 import subprocess
 
 DEFAULT_CONFUSION_PHRASES = [
+    "wait",
+    "hold on",
+    "huh",
+    "what",
+    "why",
+    "where is",
+    "how do i",
+    "oops",
+    "i messed up",
+    "that's weird",
     "confused",
     "unclear",
     "don't understand",
@@ -38,6 +48,45 @@ DEFAULT_CONFUSION_PHRASES = [
     "lost",
     "unsure",
 ]
+
+
+def _normalize_word(w: str) -> str:
+    return "".join(ch for ch in (w or "").lower() if ch.isalnum() or ch.isspace()).strip()
+
+
+def _phrase_word_times(seg: dict, phrase: str) -> float | None:
+    """
+    Best-effort alignment of a matched phrase to word timestamps.
+    Returns the start time of the first matching word sequence, else None.
+    """
+    words = seg.get("words") or []
+    if not words:
+        return None
+    toks = [_normalize_word(str(w.get("word", ""))) for w in words]
+    times: list[float] = []
+    for w in words:
+        try:
+            times.append(float(w.get("start", 0)))
+        except (TypeError, ValueError):
+            times.append(0.0)
+
+    phrase_toks = [t for t in _normalize_word(phrase).split() if t]
+    if not phrase_toks:
+        return None
+
+    # Single-word match: return earliest word time.
+    if len(phrase_toks) == 1:
+        target = phrase_toks[0]
+        for i, tok in enumerate(toks):
+            if tok == target:
+                return times[i]
+        return None
+
+    # Multi-word: sliding window.
+    for i in range(0, max(0, len(toks) - len(phrase_toks) + 1)):
+        if toks[i : i + len(phrase_toks)] == phrase_toks:
+            return times[i]
+    return None
 
 
 def has_audio_stream(video_path: Path) -> bool:
@@ -90,10 +139,11 @@ def hesitation_confusion_events(segments: list[dict], confusion_phrases: list[st
     """Hesitation + confusion_word from Whisper segments (no model load)."""
     events: list[dict] = []
 
-    # Hesitation: pause > 2s between Whisper segments (same rule as analyze_revisit_video.py)
+    # Hesitation: pause between Whisper segments (tunable; default is slightly more sensitive than Phase 4).
+    hesitation_gap_sec = float(os.environ.get("MQP_HESITATION_GAP_SEC", "1.5"))
     for i in range(len(segments) - 1):
         gap = float(segments[i + 1]["start"]) - float(segments[i]["end"])
-        if gap > 2.0:
+        if gap > hesitation_gap_sec:
             ts = float(segments[i]["end"])
             events.append(
                 {
@@ -103,7 +153,7 @@ def hesitation_confusion_events(segments: list[dict], confusion_phrases: list[st
                 }
             )
 
-    # Confusion markers: phrase hits tied to segment start (or word time when available)
+    # Confusion markers: phrase hits tied to word-level start when possible.
     for seg in segments:
         text = (seg.get("text") or "").lower()
         if not text.strip():
@@ -115,9 +165,11 @@ def hesitation_confusion_events(segments: list[dict], confusion_phrases: list[st
         if not matched:
             continue
         ts = float(seg.get("start", 0))
-        words = seg.get("words") or []
-        if words:
-            ts = float(words[0].get("start", ts))
+        # Prefer earliest aligned phrase start time.
+        for phrase in matched:
+            t0 = _phrase_word_times(seg, phrase)
+            if t0 is not None:
+                ts = min(ts, float(t0))
         events.append(
             {
                 "type": "confusion_word",

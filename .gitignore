@@ -56,6 +56,9 @@ env
 __pycache__/
 *.pyc
 
+# Local mass-api cache files (development-only)
+server/cache/
+
 # Evaluation harness outputs (Phase 8 / 14)
 # Synthetic committed clips: evaluation/corpus/clip-*.webm (+ README). Ignore ad-hoc uploads.
 evaluation/corpus/**

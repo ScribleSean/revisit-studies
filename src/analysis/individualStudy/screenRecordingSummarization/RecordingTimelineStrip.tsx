@@ -7,6 +7,14 @@ import type { RecordingTag } from './recordingTagTypes';
 import { formatRecordingTime } from './recordingTagTypes';
 import type { TimelineEvent, TimelineEventType } from './timelineEventTypes';
 
+function clampSeek(t: number, durationSeconds: number) {
+  const d = Number.isFinite(durationSeconds) && durationSeconds > 0 ? durationSeconds : 0;
+  const x = Number.isFinite(t) ? t : 0;
+  if (d <= 0) return 0;
+  // Avoid seeking exactly to duration (some browsers clamp strangely at EOF).
+  return Math.min(Math.max(0, x), Math.max(0, d - 0.01));
+}
+
 const LEGEND: ReadonlyArray<{ type: TimelineEventType; label: string }> = [
   { type: 'hesitation', label: 'Hesitation' },
   { type: 'confusion_word', label: 'Confusion phrase' },
@@ -133,15 +141,16 @@ export function RecordingTimelineStrip({
         <Stack gap={4}>
           <Box style={TRACK_STYLE}>
             {events.map((e, i) => {
-              const leftPct = Math.min(100, Math.max(0, (e.timestamp / durationSeconds) * 100));
+              const t = clampSeek(e.timestamp, durationSeconds);
+              const leftPct = Math.min(100, Math.max(0, (t / durationSeconds) * 100));
               const g = Boolean(eventGrounded?.[i]);
-              const tip = `${e.type}: ${e.evidence || ''}${g ? ' · grounded on OCR' : ''}`;
+              const tip = `${formatRecordingTime(t)} — ${e.type}: ${e.evidence || ''}${g ? ' · grounded on OCR' : ''}`;
               return (
                 <Tooltip key={`${e.type}-${i}-${e.timestamp}`} label={tip} withArrow>
                   <button
                     type="button"
-                    aria-label={`Seek to ${e.type} at ${e.timestamp.toFixed(1)}s`}
-                    onClick={() => onSeek(e.timestamp)}
+                    aria-label={`Seek to ${e.type} at ${t.toFixed(1)}s`}
+                    onClick={() => onSeek(t)}
                     style={autoEventMarkerStyle(e.type, leftPct, g)}
                   />
                 </Tooltip>
@@ -213,16 +222,19 @@ export function RecordingTimelineStrip({
           </Text>
           <Box style={TRACK_STYLE}>
             {ocrList.map((fr, i) => {
-              const leftPct = Math.min(100, Math.max(0, (fr.timestampSec / durationSeconds) * 100));
+              const t = clampSeek(fr.timestampSec, durationSeconds);
+              const leftPct = Math.min(100, Math.max(0, (t / durationSeconds) * 100));
               const g = Boolean(ocrFrameGrounded?.[i]);
               const preview = (fr.text || '').slice(0, 100);
-              const tip = preview ? `${preview}${fr.text.length > 100 ? '…' : ''}${g ? ' · grounded' : ''}` : '(no text)';
+              const tip = preview
+                ? `${formatRecordingTime(t)} — ${preview}${fr.text.length > 100 ? '…' : ''}${g ? ' · grounded' : ''}`
+                : `${formatRecordingTime(t)} — (no text)`;
               return (
                 <Tooltip key={`ocr-${i}-${fr.timestampSec}`} label={tip} withArrow multiline w={320}>
                   <button
                     type="button"
-                    aria-label={`Seek to OCR sample at ${fr.timestampSec.toFixed(1)}s`}
-                    onClick={() => onSeek(fr.timestampSec)}
+                    aria-label={`Seek to OCR sample at ${t.toFixed(1)}s`}
+                    onClick={() => onSeek(t)}
                     style={{
                       position: 'absolute',
                       left: `${leftPct}%`,

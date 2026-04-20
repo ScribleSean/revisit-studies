@@ -4,6 +4,7 @@ import {
   Button,
   Card,
   FileInput,
+  Group,
   LoadingOverlay,
   Select,
   Stack,
@@ -173,9 +174,9 @@ function computeOcrGroundingMask(
 function GroupRow({ children }: { children: ReactNode }) {
   return (
     <Box>
-      <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+      <Group gap="xs" wrap="wrap" justify="flex-start">
         {children}
-      </div>
+      </Group>
     </Box>
   );
 }
@@ -877,87 +878,6 @@ export function ScreenRecordingSummarizationView({
 
         <Card withBorder shadow="sm" padding="md">
           <Stack gap="sm">
-            <Text size="sm" color="dimmed">
-              Upload a single screen recording and get a short summary below (pipeline is chosen in the header:
-              Gemini, GPT-4o vision, or local Ollama). This one-off run is not persisted to the study.
-            </Text>
-
-            {summarizationPipeline === 'gemini' && !apiKey && (
-              <Alert title="Missing API key" color="red" variant="light" icon={<Text>!</Text>}>
-                Gemini inline mode needs
-                <code>VITE_GEMINI_API_KEY</code>
-                {' '}
-                set in your environment (Vite client env).
-              </Alert>
-            )}
-
-            {summarizationPipeline === 'gpt4o' && !openAiAvailable && (
-              <Alert title="GPT-4o unavailable" color="orange" variant="light" icon={<Text>!</Text>}>
-                The mass API server reports no
-                {' '}
-                <code>OPENAI_API_KEY</code>
-                . Add it to
-                {' '}
-                <code>.env</code>
-                {' '}
-                for
-                {' '}
-                <code>yarn serve:mass-api</code>
-                , then refresh this page.
-              </Alert>
-            )}
-
-            <Stack gap="sm">
-              <FileInput
-                accept="video/*"
-                disabled={isAnalyzing}
-                placeholder="Choose a video file"
-                onChange={(selected) => {
-                  const s = selected as unknown;
-                  let file: File | null = null;
-                  if (s instanceof File) file = s;
-                  else if (Array.isArray(s) && s[0] instanceof File) file = s[0];
-                  else file = null;
-                  setVideoFile(file);
-                }}
-              />
-
-              {videoUrl && (
-                <Box>
-                  <video src={videoUrl} controls style={{ width: '100%', borderRadius: 8, background: 'black' }} />
-                  <Text size="sm" color="dimmed" mt="xs">
-                    {videoFile?.name}
-                  </Text>
-                </Box>
-              )}
-
-              {videoFile && !canInlineUpload && (
-                <Alert color="orange" variant="light">
-                  File is too large for inline upload (&gt; 20MB). This tab will send the clip to
-                  {' '}
-                  <code>{largeUploadEndpointLabel}</code>
-                  {' '}
-                  (run
-                  {' '}
-                  <code>yarn serve:mass-api</code>
-                  ).
-                </Alert>
-              )}
-
-              <GroupRow>
-                <Button
-                  onClick={handleAnalyze}
-                  disabled={analyzeSingleClipDisabled}
-                >
-                  Analyze video
-                </Button>
-              </GroupRow>
-            </Stack>
-          </Stack>
-        </Card>
-
-        <Card withBorder shadow="sm" padding="md">
-          <Stack gap="sm">
             <Title order={5}>Existing summaries for saved recordings</Title>
 
             {visibleParticipants.length === 0 ? (
@@ -1006,6 +926,8 @@ export function ScreenRecordingSummarizationView({
                         controls
                         style={{ width: '100%', borderRadius: 8, background: 'black' }}
                         onLoadedMetadata={(e) => setVideoDuration(e.currentTarget.duration || 0)}
+                        onLoadedData={(e) => setVideoDuration(e.currentTarget.duration || 0)}
+                        onDurationChange={(e) => setVideoDuration(e.currentTarget.duration || 0)}
                       />
                       <RecordingTimelineStrip
                         events={storedTimelineEvents}
@@ -1176,6 +1098,94 @@ export function ScreenRecordingSummarizationView({
                 </Box>
               </>
             )}
+          </Stack>
+        </Card>
+
+        <Card withBorder shadow="sm" padding="md">
+          <Stack gap="sm">
+            <Text size="sm" color="dimmed">
+              Upload a single screen recording and get a short summary below (pipeline is chosen in the header:
+              Gemini, GPT-4o vision, or local Ollama). This one-off run is not persisted to the study.
+            </Text>
+
+            {summarizationPipeline === 'gemini' && !apiKey && (
+              <Alert title="Missing API key" color="red" variant="light" icon={<Text>!</Text>}>
+                Gemini inline mode needs
+                <code>VITE_GEMINI_API_KEY</code>
+                {' '}
+                set in your environment (Vite client env).
+              </Alert>
+            )}
+
+            {summarizationPipeline === 'gpt4o' && !openAiAvailable && (
+              <Alert title="GPT-4o unavailable" color="orange" variant="light" icon={<Text>!</Text>}>
+                The mass API server reports no
+                {' '}
+                <code>OPENAI_API_KEY</code>
+                . Add it to
+                {' '}
+                <code>.env</code>
+                {' '}
+                for
+                {' '}
+                <code>yarn serve:mass-api</code>
+                , then refresh this page.
+              </Alert>
+            )}
+
+            <Stack gap="sm">
+              <FileInput
+                accept="video/*"
+                disabled={isAnalyzing}
+                placeholder="Choose a video file"
+                onChange={(selected) => {
+                  const s = selected as unknown;
+                  let file: File | null = null;
+                  if (s instanceof File) file = s;
+                  else if (Array.isArray(s) && s[0] instanceof File) file = s[0];
+                  else file = null;
+                  setVideoFile(file);
+                }}
+              />
+
+              {videoUrl && (
+                <Box>
+                  <video
+                    src={videoUrl}
+                    controls
+                    style={{ width: '100%', borderRadius: 8, background: 'black' }}
+                    onLoadedMetadata={(e) => setVideoDuration(e.currentTarget.duration || 0)}
+                    onLoadedData={(e) => setVideoDuration(e.currentTarget.duration || 0)}
+                    onDurationChange={(e) => setVideoDuration(e.currentTarget.duration || 0)}
+                  />
+                  <Text size="sm" color="dimmed" mt="xs">
+                    {videoFile?.name}
+                  </Text>
+                </Box>
+              )}
+
+              {videoFile && !canInlineUpload && (
+                <Alert color="orange" variant="light">
+                  File is too large for inline upload (&gt; 20MB). This tab will send the clip to
+                  {' '}
+                  <code>{largeUploadEndpointLabel}</code>
+                  {' '}
+                  (run
+                  {' '}
+                  <code>yarn serve:mass-api</code>
+                  ).
+                </Alert>
+              )}
+
+              <GroupRow>
+                <Button
+                  onClick={handleAnalyze}
+                  disabled={analyzeSingleClipDisabled}
+                >
+                  Analyze video
+                </Button>
+              </GroupRow>
+            </Stack>
           </Stack>
         </Card>
 
