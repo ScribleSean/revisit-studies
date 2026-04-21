@@ -43,6 +43,10 @@ export default defineConfig(({ command, mode }) => {
           target: `http://127.0.0.1:${massApiPort}`,
           changeOrigin: true,
         },
+        '/api/embed-summary': {
+          target: `http://127.0.0.1:${massApiPort}`,
+          changeOrigin: true,
+        },
       },
     },
     resolve: {

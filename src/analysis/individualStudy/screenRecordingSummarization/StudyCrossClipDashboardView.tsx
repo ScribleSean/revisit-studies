@@ -6,9 +6,11 @@ import {
   Card,
   Group,
   LoadingOverlay,
+  Paper,
   Stack,
   Table,
   Text,
+  TextInput,
   Title,
   Tooltip,
 } from '@mantine/core';
@@ -45,15 +47,81 @@ function maxCount(v: Record<string, Record<string, number>>) {
   return m;
 }
 
+type RecordingListItem = { participantId: string; identifier: string; label: string };
+
+function cosineSimilarity(a: number[], b: number[]) {
+  const n = Math.min(a.length, b.length);
+  if (n === 0) return 0;
+  let dot = 0;
+  let na = 0;
+  let nb = 0;
+  for (let i = 0; i < n; i += 1) {
+    dot += a[i] * b[i];
+    na += a[i] * a[i];
+    nb += b[i] * b[i];
+  }
+  const d = Math.sqrt(na) * Math.sqrt(nb);
+  return d === 0 ? 0 : dot / d;
+}
+
+function firstTwoSentences(text: string) {
+  const t = text.replace(/\s+/g, ' ').trim();
+  if (!t) return '';
+  const parts = t.split(/(?<=[.!?])\s+/).filter(Boolean);
+  if (parts.length <= 2) return parts.join(' ');
+  return `${parts[0]} ${parts[1]}`.trim();
+}
+
 export function StudyCrossClipDashboardView({
   visibleParticipants,
+  studyId,
+  onOpenClipInSummarizationTab,
 }: {
   visibleParticipants: ParticipantData[];
+  studyId: string;
+  onOpenClipInSummarizationTab: (participantId: string, taskId: string) => void;
 }) {
   const { storageEngine } = useStorageEngine();
   const [index, setIndex] = useState<StudyEventsIndex | null>(null);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+
+  const [semanticQuery, setSemanticQuery] = useState('');
+  const [semanticLoading, setSemanticLoading] = useState(false);
+  const [semanticErr, setSemanticErr] = useState<string | null>(null);
+  const [semanticHits, setSemanticHits] = useState<
+    Array<{ participantId: string; identifier: string; similarity: number; preview: string }>
+  >([]);
+  const [semanticHasRun, setSemanticHasRun] = useState(false);
+
+  const embedApiUrl = useMemo(() => {
+    const env = import.meta.env as unknown as { VITE_GEMINI_MASS_API_URL?: string };
+    const base = (env.VITE_GEMINI_MASS_API_URL || '').replace(/\/$/, '');
+    if (base) return `${base}/api/embed-summary`;
+    return '/api/embed-summary';
+  }, []);
+
+  const recordingItems = useMemo(() => {
+    const items: RecordingListItem[] = [];
+    for (const participant of visibleParticipants) {
+      for (const a of Object.values(participant.answers)) {
+        if (a.endTime > 0) {
+          items.push({
+            participantId: participant.participantId,
+            identifier: `${a.componentName}_${a.trialOrder}`,
+            label: `${participant.participantId} · ${a.componentName} (trial ${a.trialOrder})`,
+          });
+        }
+      }
+    }
+    const seen = new Set<string>();
+    return items.filter((i) => {
+      const k = `${i.participantId}::${i.identifier}`;
+      if (seen.has(k)) return false;
+      seen.add(k);
+      return true;
+    });
+  }, [visibleParticipants]);
 
   const [preview, setPreview] = useState<{ participantId: string; taskId: string; seek: number } | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -91,6 +159,73 @@ export function StudyCrossClipDashboardView({
       setLoading(false);
     }
   }, [storageEngine, visibleParticipants]);
+
+  const runSemanticSearch = useCallback(async () => {
+    if (!storageEngine || !semanticQuery.trim()) return;
+    setSemanticLoading(true);
+    setSemanticErr(null);
+    setSemanticHits([]);
+    setSemanticHasRun(true);
+    try {
+      const qRes = await fetch(embedApiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: semanticQuery.trim() }),
+      });
+      const qJson = (await qRes.json().catch(() => ({}))) as { embedding?: number[]; error?: string };
+      if (!qRes.ok || !Array.isArray(qJson.embedding)) {
+        setSemanticErr(typeof qJson.error === 'string' ? qJson.error : `Embedding failed (HTTP ${qRes.status})`);
+        return;
+      }
+      const qEmb = qJson.embedding;
+
+      const rows = await Promise.all(
+        recordingItems.map(async (item) => {
+          const embUrl = await storageEngine.getScreenRecordingEmbedding(item.identifier, item.participantId);
+          if (!embUrl) return null;
+          const embRes = await fetch(embUrl);
+          const embBlob = await embRes.blob();
+          URL.revokeObjectURL(embUrl);
+          let parsed: { embedding?: number[] };
+          try {
+            parsed = JSON.parse(await embBlob.text()) as { embedding?: number[] };
+          } catch {
+            return null;
+          }
+          if (!Array.isArray(parsed.embedding)) return null;
+
+          let summaryPreview = '';
+          const summaryUrl = await storageEngine.getScreenRecordingSummary(item.identifier, item.participantId);
+          if (summaryUrl) {
+            const sBlob = await (await fetch(summaryUrl)).blob();
+            URL.revokeObjectURL(summaryUrl);
+            const sText = await sBlob.text();
+            try {
+              const o = JSON.parse(sText) as { summary?: string };
+              summaryPreview = firstTwoSentences(typeof o.summary === 'string' ? o.summary : sText);
+            } catch {
+              summaryPreview = firstTwoSentences(sText);
+            }
+          }
+
+          return {
+            participantId: item.participantId,
+            identifier: item.identifier,
+            similarity: cosineSimilarity(qEmb, parsed.embedding),
+            preview: summaryPreview || '(no saved summary)',
+          };
+        }),
+      );
+      const scored = rows.filter((r): r is NonNullable<(typeof rows)[number]> => r !== null);
+
+      scored.sort((a, b) => b.similarity - a.similarity);
+      setSemanticHits(scored.slice(0, 5));
+    } catch (e) {
+      setSemanticErr(e instanceof Error ? e.message : 'Semantic search failed');
+    } finally {
+      setSemanticLoading(false);
+    }
+  }, [storageEngine, semanticQuery, embedApiUrl, recordingItems]);
 
   const exportMarkdown = useCallback(async () => {
     if (!storageEngine) return;
@@ -216,6 +351,93 @@ export function StudyCrossClipDashboardView({
             {err}
           </Alert>
         )}
+
+        <Card withBorder shadow="sm" padding="md">
+          <Stack gap="xs">
+            <Text fw={700}>Semantic search (summary embeddings)</Text>
+            <Text size="sm" c="dimmed">
+              Requires
+              {' '}
+              <code>yarn serve:mass-api</code>
+              {' '}
+              with Python
+              {' '}
+              <code>sentence-transformers</code>
+              {' '}
+              (
+              <code>pip install -r scripts/requirements-embed.txt</code>
+              ). Clips need a saved summary and a background embedding (saved after mass summarization).
+            </Text>
+            <Group align="flex-end" wrap="nowrap">
+              <TextInput
+                style={{ flex: 1 }}
+                label="Query"
+                placeholder="e.g. participant struggled with the filter"
+                value={semanticQuery}
+                onChange={(e) => setSemanticQuery(e.currentTarget.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    runSemanticSearch().catch(() => undefined);
+                  }
+                }}
+                disabled={!storageEngine || semanticLoading}
+              />
+              <Button
+                loading={semanticLoading}
+                disabled={!storageEngine || !semanticQuery.trim()}
+                onClick={() => runSemanticSearch().catch(() => undefined)}
+              >
+                Search
+              </Button>
+            </Group>
+            {semanticErr && (
+              <Alert color="red" variant="light">
+                {semanticErr}
+              </Alert>
+            )}
+            {semanticHasRun && !semanticLoading && !semanticErr && semanticHits.length === 0 && (
+              <Text size="sm" c="dimmed">
+                No embeddings matched (run mass summarization with persistence on, or install embed dependencies on the mass API host).
+              </Text>
+            )}
+            {semanticHits.length > 0 && (
+              <Stack gap="xs">
+                {semanticHits.map((h) => (
+                  <Paper key={`${h.participantId}::${h.identifier}`} withBorder p="sm" shadow="xs">
+                    <Group justify="space-between" align="flex-start">
+                      <Box style={{ flex: 1 }}>
+                        <Text size="sm" fw={600}>
+                          {h.participantId}
+                          {' '}
+                          ·
+                          {' '}
+                          {h.identifier}
+                        </Text>
+                        <Text size="xs" c="dimmed">
+                          similarity
+                          {' '}
+                          {h.similarity.toFixed(3)}
+                        </Text>
+                        <Text size="sm" mt={6}>
+                          {h.preview}
+                        </Text>
+                      </Box>
+                      <Button
+                        size="xs"
+                        variant="light"
+                        disabled={!studyId}
+                        onClick={() => onOpenClipInSummarizationTab(h.participantId, h.identifier)}
+                      >
+                        Open clip
+                      </Button>
+                    </Group>
+                  </Paper>
+                ))}
+              </Stack>
+            )}
+          </Stack>
+        </Card>
 
         {!index && (
           <Alert color="blue" variant="light">

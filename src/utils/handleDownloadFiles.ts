@@ -221,6 +221,16 @@ async function downloadParticipantsScreenRecording({
       URL.revokeObjectURL(confusionUrl);
     }
 
+    const embeddingUrl = await storageEngine.getScreenRecordingEmbedding(identifier, participantId);
+    if (embeddingUrl) {
+      const embeddingBlob = await (await fetch(embeddingUrl)).blob();
+      screenRecordingZip.file(
+        `${namePrefix}_${participantId}_${identifier}_screenRecording_embedding.json`,
+        embeddingBlob,
+      );
+      URL.revokeObjectURL(embeddingUrl);
+    }
+
     if (!zip) {
       downloadZip(screenRecordingZip, `${namePrefix}_${participantId}_${identifier}_screenRecording.zip`);
     }

@@ -14,6 +14,7 @@ import { registerLocalRoutes } from './local-route.mjs';
 import { registerOcrRoutes } from './ocr-route.mjs';
 import { registerGpt4vRoutes } from './gpt4v-route.mjs';
 import { registerConfusionScoreRoutes } from './confusion-score-route.mjs';
+import { registerEmbedSummaryRoutes } from './embed-summary-route.mjs';
 import { readJsonCache, sha256Hex, writeJsonCache } from './cache.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -205,6 +206,9 @@ registerOcrRoutes(app, upload);
 registerGpt4vRoutes(app, upload);
 registerConfusionScoreRoutes(app, upload);
 
+const jsonBodyParser = express.json({ limit: '512kb' });
+registerEmbedSummaryRoutes(app, jsonBodyParser);
+
 // eslint-disable-next-line no-unused-vars
 app.use((err, _req, res, _next) => {
   if (err instanceof multer.MulterError && err.code === 'LIMIT_FILE_SIZE') {
@@ -223,6 +227,6 @@ app.use((err, _req, res, _next) => {
 app.listen(PORT, '127.0.0.1', () => {
   // eslint-disable-next-line no-console
   console.log(
-    `[mqp] API http://127.0.0.1:${PORT} — POST /api/analyze-large, POST /api/analyze-local, POST /api/analyze-gpt4v, POST /api/analyze-timeline, POST /api/extract-ocr, POST /api/confusion-score, GET /api/health`,
+    `[mqp] API http://127.0.0.1:${PORT} — POST /api/analyze-large, POST /api/analyze-local, POST /api/analyze-gpt4v, POST /api/analyze-timeline, POST /api/extract-ocr, POST /api/confusion-score, POST /api/embed-summary, GET /api/health`,
   );
 });

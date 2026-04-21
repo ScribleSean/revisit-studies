@@ -17,7 +17,11 @@ import { useEffect, useMemo, useState } from 'react';
 
 import type { ParticipantData } from '../../../parser/types';
 import { useStorageEngine } from '../../../storage/storageEngineHooks';
-import type { ScreenRecordingPromptLibrary, ScreenRecordingSummarizationPipeline } from '../../../storage/engines/types';
+import type {
+  ScreenRecordingPromptLibrary,
+  ScreenRecordingSummarizationPipeline,
+  StorageEngine,
+} from '../../../storage/engines/types';
 
 type GeminiAnalyzeResponse = {
   summary?: string;
@@ -70,6 +74,47 @@ function getDefaultPrompt() {
   ].join(' ');
 }
 
+async function persistSummaryEmbeddingBestEffort(params: {
+  embedApiUrl: string;
+  storageEngine: StorageEngine;
+  summaryText: string;
+  identifier: string;
+  participantId: string;
+}) {
+  const text = params.summaryText.trim();
+  if (!text) return;
+  try {
+    const res = await fetch(params.embedApiUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text }),
+    });
+    const json = (await res.json().catch(() => ({}))) as {
+      embedding?: number[];
+      model?: string;
+      durationMs?: number;
+    };
+    if (!res.ok || !Array.isArray(json.embedding)) return;
+    const payload = JSON.stringify(
+      {
+        embedding: json.embedding,
+        model: json.model,
+        embedDurationMs: json.durationMs,
+        generatedAt: new Date().toISOString(),
+      },
+      null,
+      2,
+    );
+    await params.storageEngine.saveScreenRecordingEmbedding(
+      new Blob([payload], { type: 'application/json' }),
+      params.identifier,
+      params.participantId,
+    );
+  } catch {
+    /* optional enrichment */
+  }
+}
+
 export function MassScreenRecordingSummarizationView({
   visibleParticipants,
   summarizationPipeline = 'gemini',
@@ -98,6 +143,12 @@ export function MassScreenRecordingSummarizationView({
   const [saveNameDraft, setSaveNameDraft] = useState('');
 
   const maxInlineBytes = 20 * 1024 * 1024;
+
+  const embedApiUrl = useMemo(() => {
+    const base = (env.VITE_GEMINI_MASS_API_URL || '').replace(/\/$/, '');
+    if (base) return `${base}/api/embed-summary`;
+    return '/api/embed-summary';
+  }, [env.VITE_GEMINI_MASS_API_URL]);
 
   useEffect(() => {
     let cancelled = false;
@@ -402,6 +453,13 @@ export function MassScreenRecordingSummarizationView({
               model: persistedModel,
             }, null, 2)], { type: 'application/json' });
             await storageEngine.saveScreenRecordingSummary(summaryBlob, item.identifier, item.participantId);
+            persistSummaryEmbeddingBestEffort({
+              embedApiUrl,
+              storageEngine,
+              summaryText,
+              identifier: item.identifier,
+              participantId: item.participantId,
+            }).catch(() => undefined);
           }
 
           setProgress((p) => ({ ...p, done: p.done + 1 }));

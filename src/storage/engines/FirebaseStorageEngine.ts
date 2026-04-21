@@ -593,6 +593,25 @@ export class FirebaseStorageEngine extends CloudStorageEngine {
     }
   }
 
+  protected async _getScreenRecordingEmbeddingUrl(
+    task: string,
+    participantId?: string,
+  ): Promise<string | null> {
+    const storage = getStorage();
+    if (!participantId) return null;
+
+    const refPath = ref(
+      storage,
+      `${this.collectionPrefix}${this.studyId}/screenRecordingEmbedding/${participantId}_${task}`,
+    );
+    try {
+      return await getDownloadURL(refPath);
+    } catch {
+      console.warn(`ScreenRecording embedding for task ${task} and participant ${participantId} not found.`);
+      return null;
+    }
+  }
+
   protected async _getTranscriptUrl(
     task: string,
     participantId: string,

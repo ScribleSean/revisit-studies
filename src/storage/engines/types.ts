@@ -278,6 +278,9 @@ export abstract class StorageEngine {
   // Optional: multi-signal confusion score JSON (30s windows + fusion metadata).
   protected _getScreenRecordingConfusionScoreUrl?(task: string, participantId?: string): Promise<string | null>;
 
+  // Optional: summary text embedding JSON (vector + model id) for semantic search.
+  protected _getScreenRecordingEmbeddingUrl?(task: string, participantId?: string): Promise<string | null>;
+
   // Gets the transcript URL for the given task and participantId. (Optional - not all storage engines need to implement this, only if they generate transcripts).
   protected _getTranscriptUrl?(task: string, participantId?: string): Promise<string | null>;
 
@@ -1331,6 +1334,33 @@ export abstract class StorageEngine {
     await this._cacheStorageObject(participantKey, taskName);
   }
 
+  async getScreenRecordingEmbedding(
+    task: string,
+    participantId: string,
+  ) {
+    if (!this._getScreenRecordingEmbeddingUrl) {
+      return null;
+    }
+    const url = await this._getScreenRecordingEmbeddingUrl(task, participantId);
+    if (!url) {
+      return null;
+    }
+    return this.getAsset(url);
+  }
+
+  async saveScreenRecordingEmbedding(
+    blob: Blob,
+    taskName: string,
+    participantId: string,
+  ) {
+    if (this.studyId === undefined) {
+      throw new Error('Study ID is not set');
+    }
+    const participantKey = `screenRecordingEmbedding/${participantId}`;
+    await this._pushToStorage(participantKey, taskName, blob);
+    await this._cacheStorageObject(participantKey, taskName);
+  }
+
   private _removeIndexEntriesForClip(
     events: StudyIndexedEvent[],
     participantId: string,
@@ -1554,6 +1584,9 @@ export abstract class StorageEngine {
       if (await this._directoryExists(`${sourceName}/screenRecordingConfusionScore`)) {
         await this._copyDirectory(`${sourceName}/screenRecordingConfusionScore`, `${targetName}/screenRecordingConfusionScore`);
       }
+      if (await this._directoryExists(`${sourceName}/screenRecordingEmbedding`)) {
+        await this._copyDirectory(`${sourceName}/screenRecordingEmbedding`, `${targetName}/screenRecordingEmbedding`);
+      }
       await this._copyDirectory(sourceName, targetName);
       await this._copyRealtimeData(sourceName, targetName);
     }
@@ -1615,6 +1648,9 @@ export abstract class StorageEngine {
         }
         if (await this._directoryExists(`${deletionTarget}/screenRecordingConfusionScore`)) {
           await this._deleteDirectory(`${deletionTarget}/screenRecordingConfusionScore`);
+        }
+        if (await this._directoryExists(`${deletionTarget}/screenRecordingEmbedding`)) {
+          await this._deleteDirectory(`${deletionTarget}/screenRecordingEmbedding`);
         }
         await this._deleteDirectory(deletionTarget);
         await this._deleteRealtimeData(deletionTarget);
@@ -1713,6 +1749,12 @@ export abstract class StorageEngine {
         await this._copyDirectory(
           `${snapshotName}/screenRecordingConfusionScore`,
           `${originalName}/screenRecordingConfusionScore`,
+        );
+      }
+      if (await this._directoryExists(`${snapshotName}/screenRecordingEmbedding`)) {
+        await this._copyDirectory(
+          `${snapshotName}/screenRecordingEmbedding`,
+          `${originalName}/screenRecordingEmbedding`,
         );
       }
       await this._copyDirectory(snapshotName, originalName);

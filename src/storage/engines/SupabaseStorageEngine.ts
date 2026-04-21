@@ -529,6 +529,17 @@ export class SupabaseStorageEngine extends CloudStorageEngine {
     return null;
   }
 
+  protected async _getScreenRecordingEmbeddingUrl(task: string, participantId?: string) {
+    await this.verifyStudyDatabase();
+    const id = participantId || this.currentParticipantId;
+    if (!id) return null;
+
+    const blob = await this._getFromStorage(`/screenRecordingEmbedding/${id}`, task);
+    if (blob) return URL.createObjectURL(blob);
+
+    return null;
+  }
+
   protected async _testingReset(studyId: string) {
     // Delete all rows with studyId matching the studyId
     const { error } = await this.supabase

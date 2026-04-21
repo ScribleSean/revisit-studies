@@ -134,6 +134,42 @@ function parsePossibleStoredSummary(text: string): string | null {
   }
 }
 
+function parseMatchedPhrasesFromEvidence(evidence: string): string[] {
+  const m = evidence.trim().toLowerCase().match(/matched:\s*(.+)$/i);
+  if (!m) return [];
+  return m[1].split(',').map((p) => p.trim()).filter(Boolean);
+}
+
+function computeOcrGroundingMask(
+  events: TimelineEvent[],
+  ocrFrames: Array<{ timestampSec: number; text: string }>,
+): { eventGrounded: boolean[]; ocrGrounded: boolean[] } {
+  const eventGrounded = events.map((e) => {
+    if (e.type !== 'confusion_word') return false;
+    const phrases = parseMatchedPhrasesFromEvidence(e.evidence || '');
+    if (phrases.length === 0) return false;
+    for (const fr of ocrFrames) {
+      if (Math.abs(fr.timestampSec - e.timestamp) <= 3) {
+        const blob = (fr.text || '').toLowerCase();
+        if (phrases.some((p) => p && blob.includes(p.toLowerCase()))) return true;
+      }
+    }
+    return false;
+  });
+  const ocrGrounded = ocrFrames.map((fr) => {
+    for (let i = 0; i < events.length; i += 1) {
+      const e = events[i];
+      if (e.type === 'confusion_word' && Math.abs(fr.timestampSec - e.timestamp) <= 3) {
+        const phrases = parseMatchedPhrasesFromEvidence(e.evidence || '');
+        const blob = (fr.text || '').toLowerCase();
+        if (phrases.some((p) => p && blob.includes(p.toLowerCase()))) return true;
+      }
+    }
+    return false;
+  });
+  return { eventGrounded, ocrGrounded };
+}
+
 function GroupRow({ children }: { children: ReactNode }) {
   return (
     <Box>
@@ -148,11 +184,16 @@ export function ScreenRecordingSummarizationView({
   studyConfig,
   summarizationPipeline = 'gemini',
   openAiAvailable = false,
+  preferredStoredSelection = null,
+  onPreferredStoredSelectionApplied,
 }: {
   visibleParticipants: ParticipantData[];
   studyConfig?: StudyConfig;
   summarizationPipeline?: ScreenRecordingSummarizationPipeline;
   openAiAvailable?: boolean;
+  /** When set, selects this participant + recording once (e.g. jump from cross-clip dashboard). */
+  preferredStoredSelection?: { participantId: string; identifier: string } | null;
+  onPreferredStoredSelectionApplied?: () => void;
 }) {
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
@@ -214,6 +255,13 @@ export function ScreenRecordingSummarizationView({
     }
   }, [storedParticipantId, storedParticipantIds]);
 
+  useEffect(() => {
+    if (!preferredStoredSelection) return;
+    setStoredParticipantId(preferredStoredSelection.participantId);
+    setStoredRecordingIdentifier(preferredStoredSelection.identifier);
+    onPreferredStoredSelectionApplied?.();
+  }, [preferredStoredSelection, onPreferredStoredSelectionApplied]);
+
   const envVars = import.meta.env as unknown as {
     VITE_GEMINI_API_KEY?: string;
     VITE_GEMINI_VIDEO_MODEL?: string;
@@ -247,6 +295,23 @@ export function ScreenRecordingSummarizationView({
     const cleaned = raw.map((w) => (typeof w === 'string' ? w.trim() : '')).filter(Boolean);
     return cleaned.length > 0 ? cleaned : null;
   }, [studyConfig]);
+
+  const ocrStripFrames = useMemo(
+    () => storedOcrFrames.map((f) => ({ timestampSec: f.timestampSec, text: f.text })),
+    [storedOcrFrames],
+  );
+
+  const { ocrEventGrounded, ocrFrameGrounded } = useMemo(() => {
+    if (storedOcrFrames.length === 0 || storedTimelineEvents.length === 0) {
+      return {
+        ocrEventGrounded: undefined as boolean[] | undefined,
+        ocrFrameGrounded: undefined as boolean[] | undefined,
+      };
+    }
+    const frames = storedOcrFrames.map((f) => ({ timestampSec: f.timestampSec, text: f.text }));
+    const m = computeOcrGroundingMask(storedTimelineEvents, frames);
+    return { ocrEventGrounded: m.eventGrounded, ocrFrameGrounded: m.ocrGrounded };
+  }, [storedTimelineEvents, storedOcrFrames]);
 
   const analyzeLargeApiUrl = useMemo(() => {
     const base = (geminiMassApiBase || '').replace(/\/$/, '');
@@ -952,6 +1017,9 @@ export function ScreenRecordingSummarizationView({
                             el.currentTime = t;
                           }
                         }}
+                        ocrFrames={ocrStripFrames.length > 0 ? ocrStripFrames : undefined}
+                        eventGrounded={ocrEventGrounded}
+                        ocrFrameGrounded={ocrFrameGrounded}
                       />
                       {storedConfusionScore && storedConfusionScore.windows.length > 0 && (
                         <Box mt="sm">

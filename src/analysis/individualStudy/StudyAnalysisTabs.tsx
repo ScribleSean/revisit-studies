@@ -89,6 +89,8 @@ export function StudyAnalysisTabs({ globalConfig }: { globalConfig: GlobalConfig
   const [ref, { width }] = useResizeObserver();
   const [summarizationPipeline, setSummarizationPipeline] = useState<ScreenRecordingSummarizationPipeline>('gemini');
   const [openAiAvailable, setOpenAiAvailable] = useState(false);
+  const [summarizationJump, setSummarizationJump] = useState<{ participantId: string; identifier: string } | null>(null);
+  const clearSummarizationJump = useCallback(() => setSummarizationJump(null), []);
 
   const massApiHealthUrl = useMemo(() => {
     const env = import.meta.env as unknown as { VITE_GEMINI_MASS_API_URL?: string };
@@ -572,12 +574,27 @@ export function StudyAnalysisTabs({ globalConfig }: { globalConfig: GlobalConfig
                       studyConfig={studyConfig}
                       summarizationPipeline={summarizationPipeline}
                       openAiAvailable={openAiAvailable}
+                      preferredStoredSelection={summarizationJump}
+                      onPreferredStoredSelectionApplied={clearSummarizationJump}
                     />
                   )
                   : <Center>No screen recording found for this study.</Center>}
               </Tabs.Panel>
               <Tabs.Panel style={{ overflow: 'auto' }} value="study-cross-clip" pt="xs">
-                {hasScreenRecording ? <StudyCrossClipDashboardView visibleParticipants={participantsForScreenRecording} /> : <Center>No screen recording found for this study.</Center>}
+                {hasScreenRecording ? (
+                  <StudyCrossClipDashboardView
+                    visibleParticipants={participantsForScreenRecording}
+                    studyId={studyId ?? ''}
+                    onOpenClipInSummarizationTab={(participantId, taskId) => {
+                      setSummarizationJump({ participantId, identifier: taskId });
+                      if (studyId) {
+                        navigate(`/analysis/stats/${studyId}/screen-recording-summarization`);
+                      }
+                    }}
+                  />
+                ) : (
+                  <Center>No screen recording found for this study.</Center>
+                )}
               </Tabs.Panel>
               {storageEngine?.getEngine() === 'firebase' && (
                 <Tabs.Panel style={{ overflow: 'auto' }} value="live-monitor" pt="xs">

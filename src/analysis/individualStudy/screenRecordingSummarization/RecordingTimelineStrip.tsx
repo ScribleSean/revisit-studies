@@ -25,15 +25,19 @@ function markerColor(t: TimelineEventType): string {
   return '#fab005';
 }
 
-function autoEventMarkerStyle(t: TimelineEventType, leftPct: number): CSSProperties {
+function autoEventMarkerStyle(
+  t: TimelineEventType,
+  leftPct: number,
+  grounded?: boolean,
+): CSSProperties {
   const common: CSSProperties = {
     position: 'absolute',
     left: `${leftPct}%`,
     background: markerColor(t),
-    border: '2px solid #fff',
+    border: grounded ? '2px solid #e67700' : '2px solid #fff',
     padding: 0,
     cursor: 'pointer',
-    boxShadow: '0 0 0 1px rgba(0,0,0,0.15)',
+    boxShadow: grounded ? '0 0 0 2px rgba(230,119,0,0.85)' : '0 0 0 1px rgba(0,0,0,0.15)',
   };
   if (t === 'reading') {
     return {
@@ -89,25 +93,37 @@ const TRACK_STYLE = {
   borderRadius: 6,
 };
 
+export type OcrFrameStrip = { timestampSec: number; text: string };
+
 export function RecordingTimelineStrip({
   events,
   tags,
   durationSeconds,
   onSeek,
+  ocrFrames,
+  eventGrounded,
+  ocrFrameGrounded,
 }: {
   events: TimelineEvent[];
   tags?: RecordingTag[];
   durationSeconds: number;
   onSeek: (seconds: number) => void;
+  ocrFrames?: OcrFrameStrip[];
+  /** Parallel to `events`: OCR–transcript grounding (same 3s window + phrase in OCR text). */
+  eventGrounded?: boolean[];
+  /** Parallel to `ocrFrames`. */
+  ocrFrameGrounded?: boolean[];
 }) {
   if (durationSeconds <= 0) {
     return null;
   }
 
   const tagList = tags ?? [];
+  const ocrList = ocrFrames ?? [];
   const showEvents = events.length > 0;
   const showTags = tagList.length > 0;
-  if (!showEvents && !showTags) {
+  const showOcr = ocrList.length > 0;
+  if (!showEvents && !showTags && !showOcr) {
     return null;
   }
 
@@ -118,13 +134,15 @@ export function RecordingTimelineStrip({
           <Box style={TRACK_STYLE}>
             {events.map((e, i) => {
               const leftPct = Math.min(100, Math.max(0, (e.timestamp / durationSeconds) * 100));
+              const g = Boolean(eventGrounded?.[i]);
+              const tip = `${e.type}: ${e.evidence || ''}${g ? ' · grounded on OCR' : ''}`;
               return (
-                <Tooltip key={`${e.type}-${i}-${e.timestamp}`} label={`${e.type}: ${e.evidence}`} withArrow>
+                <Tooltip key={`${e.type}-${i}-${e.timestamp}`} label={tip} withArrow>
                   <button
                     type="button"
                     aria-label={`Seek to ${e.type} at ${e.timestamp.toFixed(1)}s`}
                     onClick={() => onSeek(e.timestamp)}
-                    style={autoEventMarkerStyle(e.type, leftPct)}
+                    style={autoEventMarkerStyle(e.type, leftPct, g)}
                   />
                 </Tooltip>
               );
@@ -139,6 +157,20 @@ export function RecordingTimelineStrip({
                 </Text>
               </Group>
             ))}
+            <Group gap={6} wrap="nowrap">
+              <Box
+                style={{
+                  width: 10,
+                  height: 10,
+                  borderRadius: '50%',
+                  background: '#868e96',
+                  border: '2px solid #e67700',
+                }}
+              />
+              <Text size="xs" c="dimmed">
+                Gold ring = OCR-grounded confusion phrase
+              </Text>
+            </Group>
           </Group>
         </Stack>
       )}
@@ -172,6 +204,45 @@ export function RecordingTimelineStrip({
             );
           })}
         </Box>
+      )}
+
+      {showOcr && (
+        <Stack gap={4}>
+          <Text size="xs" fw={600}>
+            On-screen text timeline
+          </Text>
+          <Box style={TRACK_STYLE}>
+            {ocrList.map((fr, i) => {
+              const leftPct = Math.min(100, Math.max(0, (fr.timestampSec / durationSeconds) * 100));
+              const g = Boolean(ocrFrameGrounded?.[i]);
+              const preview = (fr.text || '').slice(0, 100);
+              const tip = preview ? `${preview}${fr.text.length > 100 ? '…' : ''}${g ? ' · grounded' : ''}` : '(no text)';
+              return (
+                <Tooltip key={`ocr-${i}-${fr.timestampSec}`} label={tip} withArrow multiline w={320}>
+                  <button
+                    type="button"
+                    aria-label={`Seek to OCR sample at ${fr.timestampSec.toFixed(1)}s`}
+                    onClick={() => onSeek(fr.timestampSec)}
+                    style={{
+                      position: 'absolute',
+                      left: `${leftPct}%`,
+                      transform: 'translateX(-50%)',
+                      width: 8,
+                      height: 8,
+                      borderRadius: '50%',
+                      background: '#495057',
+                      border: g ? '2px solid #e67700' : '2px solid #fff',
+                      padding: 0,
+                      cursor: 'pointer',
+                      top: 10,
+                      boxShadow: g ? '0 0 0 2px rgba(230,119,0,0.85)' : '0 0 0 1px rgba(0,0,0,0.15)',
+                    }}
+                  />
+                </Tooltip>
+              );
+            })}
+          </Box>
+        </Stack>
       )}
     </Stack>
   );

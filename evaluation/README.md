@@ -32,3 +32,7 @@ node evaluation/report.mjs "my-run-01"
 ```
 
 Event matching in reports uses **±2 seconds** and **type equality**, consistent with earlier phases.
+
+### Semantic embeddings (dashboard)
+
+Cross-clip semantic search calls **`POST /api/embed-summary`** on the mass API. Install **`sentence-transformers`** into the repo **`.venv`** (`yarn setup:embed-python` or `pip install -r scripts/requirements-embed.txt`), then run **`yarn serve:mass-api`**. Embeddings are stored per clip after **mass** summarization with persistence enabled.

@@ -1,0 +1,2 @@
+# CPU sentence embeddings for POST /api/embed-summary (see scripts/mqp_embed.py)
+sentence-transformers>=2.2.0
