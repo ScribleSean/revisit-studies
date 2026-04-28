@@ -80,9 +80,11 @@ export function GlobalConfigParser() {
   // Enable by setting VITE_USE_HASH_ROUTER=true at build time.
   const useHashRouter = (import.meta.env as unknown as { VITE_USE_HASH_ROUTER?: string }).VITE_USE_HASH_ROUTER === 'true';
   const Router = useHashRouter ? HashRouter : BrowserRouter;
+  // HashRouter uses `location.pathname === '/'` (routes live in `location.hash`), so a non-root basename breaks routing.
+  const routerBasename = useHashRouter ? '/' : PREFIX;
 
   return globalConfig ? (
-    <Router basename={PREFIX}>
+    <Router basename={routerBasename}>
       <AuthProvider>
         <ModalsProvider>
           <Routes>
