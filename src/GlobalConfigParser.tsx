@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
-import { BrowserRouter, Route, Routes } from 'react-router';
+import {
+  BrowserRouter, HashRouter, Route, Routes,
+} from 'react-router';
 import { ModalsProvider } from '@mantine/modals';
 import { AppShell } from '@mantine/core';
 import { ConfigSwitcher } from './components/ConfigSwitcher';
@@ -74,8 +76,13 @@ export function GlobalConfigParser() {
     return false;
   };
 
+  // GitHub Pages does not support SPA deep-link rewrites by default. HashRouter avoids 404s.
+  // Enable by setting VITE_USE_HASH_ROUTER=true at build time.
+  const useHashRouter = (import.meta.env as unknown as { VITE_USE_HASH_ROUTER?: string }).VITE_USE_HASH_ROUTER === 'true';
+  const Router = useHashRouter ? HashRouter : BrowserRouter;
+
   return globalConfig ? (
-    <BrowserRouter basename={PREFIX}>
+    <Router basename={PREFIX}>
       <AuthProvider>
         <ModalsProvider>
           <Routes>
@@ -186,6 +193,6 @@ export function GlobalConfigParser() {
           </Routes>
         </ModalsProvider>
       </AuthProvider>
-    </BrowserRouter>
+    </Router>
   ) : null;
 }

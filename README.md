@@ -23,6 +23,19 @@ To run this demo experiment locally, you will need to install Node.js on your co
 * To run locally, run `yarn serve`.
 * Go to [http://localhost:8080](http://localhost:8080) to view it in your browser. The page will reload when you make changes.
 
+## Deploy to GitHub Pages
+
+This repo includes a GitHub Pages workflow at `.github/workflows/deploy-pages.yml`.
+
+- **What it does**: builds the Vite app and deploys the `dist/` folder to Pages.
+- **Routing**: GitHub Pages does not support SPA deep-link rewrites by default, so the workflow sets `VITE_USE_HASH_ROUTER=true` to use hash routing.
+- **Base path**: the workflow sets `VITE_BASE_PATH=/<repo-name>/` so assets load correctly.
+
+After the workflow exists on your default branch:
+
+- In GitHub, go to **Settings → Pages** and set **Build and deployment → Source** to **GitHub Actions**.
+- Push to `main` (or run the workflow manually via **Actions**) to deploy.
+
 ## Adding Tests
 
 This repo uses two test types:
