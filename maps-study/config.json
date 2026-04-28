@@ -1,0 +1,786 @@
+{
+  "$schema": "https://raw.githubusercontent.com/revisit-studies/study/v2.3.2/src/parser/StudyConfigSchema.json",
+  "studyMetadata": {
+    "title": "How well can you read different map types?",
+    "version": "pilot",
+    "authors": ["WPI"],
+    "date": "2023-04-28",
+    "description": "Univariate and Bivariate comparison study",
+    "organizations": ["WPI", "University of Colorado Boulder"]
+  },
+  "uiConfig": {
+    "contactEmail": "contact@revisit.dev",
+    "helpTextPath": "maps-study/assets/help.md",
+    "logoPath": "revisitAssets/revisitLogoSquare.svg",
+    "withProgressBar": true,
+    "autoDownloadStudy": false,
+    "withSidebar": false,
+    "urlParticipantIdParam": "PROLIFIC_PID",
+    "recordAudio": true,
+    "recordScreen": true,
+    "studyEndMsg": "**Thank you for completing the study. You may click this link and return to Prolific**: [https://app.prolific.com/submissions/complete?cc=C1I69EG9](https://app.prolific.com/submissions/complete?cc=C1I69EG9)"
+  },
+  "studyRules": {
+    "display": {
+      "minHeight": 500,
+      "minWidth": 1280
+    }
+  },
+  "importedLibraries": ["screen-recording", "color-blindness"],
+  "components": {
+    "introduction": {
+      "type": "markdown",
+      "path": "maps-study/assets/introduction.md",
+      "response": []
+    },
+    "introduction-1": {
+      "type": "markdown",
+      "path": "maps-study/assets/introduction-1.md",
+      "response": []
+    },
+    "main-intro": {
+      "type": "markdown",
+      "path": "maps-study/assets/main-intro.md",
+      "response": [
+        {
+          "id": "prolificId",
+          "prompt": "Please enter your Prolific ID",
+          "location": "belowStimulus",
+          "type": "shortText",
+          "placeholder": "Prolific ID",
+          "paramCapture": "PROLIFIC_PID"
+        }
+      ],
+      "recordAudio": false,
+      "recordScreen": false
+    },
+    "poststudy-consent": {
+      "type": "markdown",
+      "path": "maps-study/assets/post-consent.md",
+      "response": [
+        {
+          "id": "consent",
+          "prompt": "",
+          "location": "belowStimulus",
+          "type": "radio",
+          "withOther": false,
+          "options": [
+            "Agree ✅ : I consent to having clips and audio of my exploration shared.",
+            "Disagree ❌ : I do not consent to having clips and audio of my exploration shared."
+          ]
+        }
+      ],
+      "recordAudio": false,
+      "recordScreen": false
+    },
+    "help": {
+      "type": "markdown",
+      "path": "maps-study/assets/help.md",
+      "response": []
+    },
+    "help-1": {
+      "type": "markdown",
+      "path": "maps-study/assets/help-1.md",
+      "response": []
+    },
+    "univariate-1": {
+      "description": "",
+      "instruction": "The maps show two percentages: \n\n 🩺 The percentage of people in a given county who are on Medicaid and <br/> 🗳️ The percentage of people who voted for Donald Trump in the 2024 US presidential elections. \n\n  <b>Task</b>: ✅ Select 5 counties with **low** Medicaid participation rates and **high** Trump 2024 Vote Share. \n\n <b>Note:</b> Click on the map to ✅ select or ❌ de-select a county. \n\n <mark>**Please answer the question out loud 🗣️, as well as verbalize any insights, questions or challenges you have while 🔎 exploring the map.**</mark>",
+      "type": "react-component",
+      "path": "maps-study/assets/Univariate.tsx",
+      "parameters": {
+        "dataPath": "maps-study/assets/medicaid-trump.csv",
+        "columnA": "voter_rate",
+        "columnB": "medicaid_rate",
+        "columnAFormat": "percentage",
+        "columnBFormat": "percentage",
+        "columnAScale": "linear",
+        "columnBScale": "linear",
+        "draw": false,
+        "countySelections": true,
+        "taskid": "selectedCounties"
+      },
+      "response": [
+        {
+          "id": "selectedCounties",
+          "prompt": "You selected the following counties: ",
+          "location": "belowStimulus",
+          "type": "reactive",
+          "hidden": true
+        },
+        {
+          "id": "thinkaloud",
+          "prompt": "Have you verbalized your thoughts?",
+          "location": "belowStimulus",
+          "type": "reactive",
+          "hidden": true
+        }
+      ],
+      "nextButtonLocation": "sidebar",
+      "instructionLocation": "aboveStimulus"
+    },
+    "univariate-2": {
+      "description": "",
+      "instruction": "The maps show two percentages: \n\n 🩺 The percentage of people in a given county who are on Medicaid and <br/> 🗳️ The percentage of people who voted for Donald Trump in the 2024 US presidential elections. \n\n  <b>Task</b>: ✅ Select 5 counties with **higher than average** Medicaid participation rates and  **low** Trump 2024 Vote Share. \n\n <b>Note:</b> Click on the map to ✅ select or ❌ de-select a county. \n\n <mark>**Please answer the question out loud 🗣️, as well as verbalize any insights, questions or challenges you have while 🔎 exploring the map.**</mark>",
+      "type": "react-component",
+      "path": "maps-study/assets/Univariate.tsx",
+      "parameters": {
+        "dataPath": "maps-study/assets/medicaid-trump.csv",
+        "columnA": "voter_rate",
+        "columnB": "medicaid_rate",
+        "columnAFormat": "percentage",
+        "columnBFormat": "percentage",
+        "columnAScale": "linear",
+        "columnBScale": "linear",
+        "draw": false,
+        "countySelections": true,
+        "taskid": "selectedCounties"
+      },
+      "response": [
+        {
+          "id": "selectedCounties",
+          "prompt": "You selected the following counties: ",
+          "location": "belowStimulus",
+          "type": "reactive",
+          "hidden": true
+        },
+        {
+          "id": "thinkaloud",
+          "prompt": "Have you verbalized your thoughts?",
+          "location": "belowStimulus",
+          "type": "reactive",
+          "hidden": true
+        }
+      ],
+      "nextButtonLocation": "sidebar",
+      "instructionLocation": "aboveStimulus"
+    },
+    "univariate-2g": {
+      "description": "",
+      "instruction": "The maps show the population distribution of 🐐 goats and 🐏 sheep by county. \n\n  <b>Task</b>: ✅ Select 5 counties where sheep are **many** and goats are **few**. \n\n <b>Note:</b> Click on the map to ✅ select or ❌ de-select a county. \n\n <mark>**Please answer the question out loud 🗣️, as well as verbalize any insights, questions or challenges you have while 🔎 exploring the map.**</mark>",
+      "type": "react-component",
+      "path": "maps-study/assets/Univariate_G.tsx",
+      "parameters": {
+        "dataPath": "maps-study/assets/sheeplandia.csv",
+        "columnA": "goats",
+        "columnB": "sheep",
+        "columnAFormat": "thousands-separator",
+        "columnBFormat": "thousands-separator",
+        "columnAScale": "linear",
+        "columnBScale": "linear",
+        "draw": false,
+        "countySelections": true,
+        "taskid": "selectedCounties"
+      },
+      "response": [
+        {
+          "id": "selectedCounties",
+          "prompt": "You selected the following counties: ",
+          "location": "belowStimulus",
+          "type": "reactive",
+          "hidden": true
+        },
+        {
+          "id": "thinkaloud",
+          "prompt": "Have you verbalized your thoughts?",
+          "location": "belowStimulus",
+          "type": "reactive",
+          "hidden": true
+        }
+      ],
+      "nextButtonLocation": "sidebar",
+      "instructionLocation": "aboveStimulus"
+    },
+    "univariate-3": {
+      "description": "",
+      "instruction": "The maps show two percentages: \n\n 🩺 The percentage of people in a given county who are on Medicaid and <br/> 🗳️ The percentage of people who voted for Donald Trump in the 2024 US presidential elections. \n\n <b>Task</b>: 🔄 Compare how the marked regions X and Y differ in Medicaid participation rates and Trump vote share. \n\n <mark><b>Please answer the question out loud 🗣️, as well as verbalize any insights, questions or challenges you encounter while 🔎 exploring the map.</b></mark>",
+      "type": "react-component",
+      "path": "maps-study/assets/Univariate.tsx",
+      "parameters": {
+        "dataPath": "maps-study/assets/medicaid-trump.csv",
+        "columnA": "voter_rate",
+        "columnB": "medicaid_rate",
+        "columnAFormat": "percentage",
+        "columnBFormat": "percentage",
+        "columnAScale": "linear",
+        "columnBScale": "linear",
+        "draw": false,
+        "countySelections": false,
+        "taskid": "uNarrate-3"
+      },
+      "response": [
+        {
+          "id": "thinkaloud",
+          "prompt": "Have you verbalized your thoughts?",
+          "location": "belowStimulus",
+          "type": "reactive",
+          "hidden": true
+        }
+      ],
+      "nextButtonLocation": "sidebar",
+      "instructionLocation": "aboveStimulus"
+    },
+    "univariate-3g": {
+      "description": "",
+      "instruction": "The maps show the population distribution of 🐐 goats and 🐏 sheep by county. \n\n <b>Task</b>: 🔄 Compare the differences in goats and sheep between between regions X and Y. \n\n <mark><b>Please answer the question out loud 🗣️, as well as verbalize any insights, questions or challenges you encounter while 🔎 exploring the map.</b></mark>",
+      "type": "react-component",
+      "path": "maps-study/assets/Univariate_G.tsx",
+      "parameters": {
+        "dataPath": "maps-study/assets/sheeplandia.csv",
+        "columnA": "goats",
+        "columnB": "sheep",
+        "columnAFormat": "thousands-separator",
+        "columnBFormat": "thousands-separator",
+        "columnAScale": "linear",
+        "columnBScale": "linear",
+        "draw": false,
+        "countySelections": false,
+        "taskid": "uNarrate-3"
+      },
+      "response": [
+        {
+          "id": "thinkaloud",
+          "prompt": "Have you verbalized your thoughts?",
+          "location": "belowStimulus",
+          "type": "reactive",
+          "hidden": true
+        }
+      ],
+      "nextButtonLocation": "sidebar",
+      "instructionLocation": "aboveStimulus"
+    },
+    "univariate-4": {
+      "description": "",
+      "instruction": "The maps show two percentages: \n\n 🩺 The percentage of people in a given county who are on Medicaid and <br/> 🗳️ The percentage of people who voted for Donald Trump in the 2024 US presidential elections. \n\n <b>Task</b>: ✏️ Draw ⭕ on the map to highlight <b>groups</b> of counties with **higher than average** Medicaid participation rates and **high** Trump 2024 Vote Share. \n\n <mark><b> Please answer the question out loud 🗣️, as well as verbalize any insights, questions or challenges you have while 🔎 exploring the map. </b></mark>",
+      "type": "react-component",
+      "path": "maps-study/assets/Univariate.tsx",
+      "parameters": {
+        "dataPath": "maps-study/assets/medicaid-trump.csv",
+        "columnA": "voter_rate",
+        "columnB": "medicaid_rate",
+        "columnAFormat": "percentage",
+        "columnBFormat": "percentage",
+        "columnAScale": "linear",
+        "columnBScale": "linear",
+        "draw": true,
+        "countySelections": false,
+        "taskid": "uDraw-4"
+      },
+      "response": [
+        {
+          "id": "thinkaloud",
+          "prompt": "Have you verbalized your thoughts?",
+          "location": "belowStimulus",
+          "type": "reactive",
+          "hidden": true
+        }
+      ],
+      "nextButtonLocation": "sidebar",
+      "instructionLocation": "aboveStimulus"
+    },
+    "univariate-4g": {
+      "description": "",
+      "instruction": "The maps show the population distribution of 🐐 goats and 🐏 sheep by county. \n\n <b>Task</b>: ✏️ Draw ⭕ on the map to highlight <b>groups</b> of counties with **many** goats and sheep. \n\n <mark><b> Please answer the question out loud 🗣️, as well as verbalize any insights, questions or challenges you have while 🔎 exploring the map. </b></mark>",
+      "type": "react-component",
+      "path": "maps-study/assets/Univariate_G.tsx",
+      "parameters": {
+        "dataPath": "maps-study/assets/sheeplandia.csv",
+        "columnA": "goats",
+        "columnB": "sheep",
+        "columnAFormat": "thousands-separator",
+        "columnBFormat": "thousands-separator",
+        "columnAScale": "linear",
+        "columnBScale": "linear",
+        "draw": true,
+        "countySelections": false,
+        "taskid": "uDraw-4"
+      },
+      "response": [
+        {
+          "id": "thinkaloud",
+          "prompt": "Have you verbalized your thoughts?",
+          "location": "belowStimulus",
+          "type": "reactive",
+          "hidden": true
+        }
+      ],
+      "nextButtonLocation": "sidebar",
+      "instructionLocation": "aboveStimulus"
+    },
+    "univariate-5": {
+      "description": "",
+      "instruction": "Suppose you're writing an 🗞️ article for a national reporting agency. \n\n <b>Task</b>: Using the maps, what story can you tell about 🩺 Medicaid participation rates and 🗳️ Trump 2024 Vote Share across the United States? \n\n <mark><b> Please answer the question out loud 🗣️ </b></mark>",
+      "type": "react-component",
+      "path": "maps-study/assets/Univariate.tsx",
+      "parameters": {
+        "dataPath": "maps-study/assets/medicaid-trump.csv",
+        "columnA": "voter_rate",
+        "columnB": "medicaid_rate",
+        "columnAFormat": "percentage",
+        "columnBFormat": "percentage",
+        "columnAScale": "linear",
+        "columnBScale": "linear",
+        "draw": false,
+        "countySelections": false,
+        "taskid": "uNarrate-5"
+      },
+      "response": [
+        {
+          "id": "thinkaloud",
+          "prompt": "Have you verbalized your thoughts?",
+          "location": "belowStimulus",
+          "type": "reactive",
+          "hidden": true
+        }
+      ],
+      "nextButtonLocation": "sidebar",
+      "instructionLocation": "aboveStimulus"
+    },
+    "univariate-5g": {
+      "description": "",
+      "instruction": "Suppose you're writing an 🗞️ article for a national reporting agency. \n\n <b>Task</b>: Using the maps, what story can you tell about the distribution of 🐐 goats and 🐏 sheep across the United States? \n\n <mark><b> Please answer the question out loud 🗣️ </b></mark>",
+      "type": "react-component",
+      "path": "maps-study/assets/Univariate_G.tsx",
+      "parameters": {
+        "dataPath": "maps-study/assets/sheeplandia.csv",
+        "columnA": "goats",
+        "columnB": "sheep",
+        "columnAFormat": "thousands-separator",
+        "columnBFormat": "thousands-separator",
+        "columnAScale": "linear",
+        "columnBScale": "linear",
+        "draw": false,
+        "countySelections": false,
+        "taskid": "uNarrate-5"
+      },
+      "response": [
+        {
+          "id": "thinkaloud",
+          "prompt": "Have you verbalized your thoughts?",
+          "location": "belowStimulus",
+          "type": "reactive",
+          "hidden": true
+        }
+      ],
+      "nextButtonLocation": "sidebar",
+      "instructionLocation": "aboveStimulus"
+    },
+    "bivariate-1": {
+      "description": "",
+      "instruction": "The map shows two percentages: \n\n 🩺 The percentage of people in a given county who are on Medicaid and <br/> 🗳️ The percentage of people who voted for Donald Trump in the 2024 US presidential elections. \n\n  <b>Task:</b> ✅ Select 5 counties with **higher than average** Medicaid participation rates and **low** Trump 2024 Vote Share. \n\n <b>Note:</b> Click on the map to ✅ select or ❌ de-select a county. \n\n <mark>**Please answer the question out loud 🗣️, as well as verbalize any insights, questions or challenges you have while 🔎 exploring the map.**</mark>",
+      "type": "react-component",
+      "path": "maps-study/assets/Bivariate.tsx",
+      "parameters": {
+        "dataPath": "maps-study/assets/medicaid-trump.csv",
+        "columnA": "voter_rate",
+        "columnB": "medicaid_rate",
+        "columnAFormat": "percentage",
+        "columnBFormat": "percentage",
+        "columnAScale": "linear",
+        "columnBScale": "linear",
+        "draw": false,
+        "countySelections": true,
+        "taskid": "selectedCounties"
+      },
+      "response": [
+        {
+          "id": "selectedCounties",
+          "prompt": "You selected the following counties: ",
+          "location": "belowStimulus",
+          "type": "reactive",
+          "hidden": true
+        },
+        {
+          "id": "thinkaloud",
+          "prompt": "Have you verbalized your thoughts?",
+          "location": "belowStimulus",
+          "type": "reactive",
+          "hidden": true
+        }
+      ],
+      "nextButtonLocation": "sidebar",
+      "instructionLocation": "aboveStimulus"
+    },
+    "bivariate-2": {
+      "description": "",
+      "instruction": "The map shows two percentages: \n\n 🩺 The percentage of people in a given county who are on Medicaid and <br/> 🗳️ The percentage of people who voted for Donald Trump in the 2024 US presidential elections. \n\n  <b>Task:</b> ✅ Select 5 counties with **low** Medicaid participation rates and **high** Trump 2024 Vote Share. \n\n <b>Note:</b> Click on the map to ✅ select or ❌ de-select a county. \n\n <mark>**Please answer the question out loud 🗣️, as well as verbalize any insights, questions or challenges you have while 🔎 exploring the map.**</mark>",
+      "type": "react-component",
+      "path": "maps-study/assets/Bivariate.tsx",
+      "parameters": {
+        "dataPath": "maps-study/assets/medicaid-trump.csv",
+        "columnA": "voter_rate",
+        "columnB": "medicaid_rate",
+        "columnAFormat": "percentage",
+        "columnBFormat": "percentage",
+        "columnAScale": "linear",
+        "columnBScale": "linear",
+        "draw": false,
+        "countySelections": true,
+        "taskid": "selectedCounties"
+      },
+      "response": [
+        {
+          "id": "selectedCounties",
+          "prompt": "You selected the following counties: ",
+          "location": "belowStimulus",
+          "type": "reactive",
+          "hidden": true
+        },
+        {
+          "id": "thinkaloud",
+          "prompt": "Have you verbalized your thoughts?",
+          "location": "belowStimulus",
+          "type": "reactive",
+          "hidden": true
+        }
+      ],
+      "nextButtonLocation": "sidebar",
+      "instructionLocation": "aboveStimulus"
+    },
+    "bivariate-1g": {
+      "description": "",
+      "instruction": "The map shows the population distribution of 🐐 goats and 🐏 sheep by county. \n\n  <b>Task</b>: ✅ Select 5 counties where sheep are **many** and goats are **few**. \n\n <b>Note:</b> Click on the map to ✅ select or ❌ de-select a county. \n\n <mark>**Please answer the question out loud 🗣️, as well as verbalize any insights, questions or challenges you have while 🔎 exploring the map.**</mark>",
+      "type": "react-component",
+      "path": "maps-study/assets/Bivariate_G.tsx",
+      "parameters": {
+        "dataPath": "maps-study/assets/sheeplandia.csv",
+        "columnA": "goats",
+        "columnB": "sheep",
+        "columnAFormat": "thousands-separator",
+        "columnBFormat": "thousands-separator",
+        "columnAScale": "linear",
+        "columnBScale": "linear",
+        "draw": false,
+        "countySelections": true,
+        "taskid": "selectedCounties"
+      },
+      "response": [
+        {
+          "id": "selectedCounties",
+          "prompt": "You selected the following counties: ",
+          "location": "belowStimulus",
+          "type": "reactive",
+          "hidden": true
+        },
+        {
+          "id": "thinkaloud",
+          "prompt": "Have you verbalized your thoughts?",
+          "location": "belowStimulus",
+          "type": "reactive",
+          "hidden": true
+        }
+      ],
+      "nextButtonLocation": "sidebar",
+      "instructionLocation": "aboveStimulus"
+    },
+    "bivariate-3": {
+      "description": "",
+      "instruction": "The map shows two percentages: \n\n 🩺 The percentage of people in a given county who are on Medicaid and <br/> 🗳️ The percentage of people who voted for Donald Trump in the 2024 US presidential elections. \n\n  <b>Task</b>: 🔄 Compare how the marked regions X and Y differ in Medicaid participation rates and Trump vote share. \n\n <mark>**Please answer the question out loud 🗣️, as well as verbalize any insights, questions or challenges you have while 🔎 exploring the map.**</mark>",
+      "type": "react-component",
+      "path": "maps-study/assets/Bivariate.tsx",
+      "parameters": {
+        "dataPath": "maps-study/assets/medicaid-trump.csv",
+        "columnA": "voter_rate",
+        "columnB": "medicaid_rate",
+        "columnAFormat": "percentage",
+        "columnBFormat": "percentage",
+        "columnAScale": "linear",
+        "columnBScale": "linear",
+        "draw": false,
+        "countySelections": false,
+        "taskid": "bNarrate-3"
+      },
+      "response": [
+        {
+          "id": "thinkaloud",
+          "prompt": "Have you verbalized your thoughts?",
+          "location": "belowStimulus",
+          "type": "reactive",
+          "hidden": true
+        }
+      ],
+      "nextButtonLocation": "sidebar",
+      "instructionLocation": "aboveStimulus"
+    },
+    "bivariate-3g": {
+      "description": "",
+      "instruction": "The map shows the population distribution of 🐐 goats and 🐏 sheep by county. \n\n  <b>Task</b>: 🔄 Compare the differences in goats and sheep between between regions X and Y. \n\n <mark>**Please answer the question out loud 🗣️, as well as verbalize any insights, questions or challenges you have while 🔎 exploring the map.**</mark>",
+      "type": "react-component",
+      "path": "maps-study/assets/Bivariate_G.tsx",
+      "parameters": {
+        "dataPath": "maps-study/assets/sheeplandia.csv",
+        "columnA": "goats",
+        "columnB": "sheep",
+        "columnAFormat": "thousands-separator",
+        "columnBFormat": "thousands-separator",
+        "columnAScale": "linear",
+        "columnBScale": "linear",
+        "draw": false,
+        "countySelections": false,
+        "taskid": "bNarrate-3"
+      },
+      "response": [
+        {
+          "id": "thinkaloud",
+          "prompt": "Have you verbalized your thoughts?",
+          "location": "belowStimulus",
+          "type": "reactive",
+          "hidden": true
+        }
+      ],
+      "nextButtonLocation": "sidebar",
+      "instructionLocation": "aboveStimulus"
+    },
+    "bivariate-4": {
+      "description": "",
+      "instruction": "The map shows two percentages: \n\n 🩺 The percentage of people in a given county who are on Medicaid and <br/> 🗳️ The percentage of people who voted for Donald Trump in the 2024 US presidential elections. \n\n  <b>Task</b>: ✏️ Draw ⭕ on the map to highlight <b>groups</b> of counties with **higher than average** Medicaid participation rates and **high** Trump 2024 Vote Share. \n\n <mark><b> Please answer the question out loud 🗣️, as well as verbalize any insights, questions or challenges you have while 🔎 exploring the map. </b></mark>",
+      "type": "react-component",
+      "path": "maps-study/assets/Bivariate.tsx",
+      "parameters": {
+        "dataPath": "maps-study/assets/medicaid-trump.csv",
+        "columnA": "voter_rate",
+        "columnB": "medicaid_rate",
+        "columnAFormat": "percentage",
+        "columnBFormat": "percentage",
+        "columnAScale": "linear",
+        "columnBScale": "linear",
+        "draw": true,
+        "countySelections": false,
+        "taskid": "bDraw-4"
+      },
+      "response": [
+        {
+          "id": "thinkaloud",
+          "prompt": "Have you verbalized your thoughts?",
+          "location": "belowStimulus",
+          "type": "reactive",
+          "hidden": true
+        }
+      ],
+      "nextButtonLocation": "sidebar",
+      "instructionLocation": "aboveStimulus"
+    },
+    "bivariate-4g": {
+      "description": "",
+      "instruction": "The map shows the population distribution of 🐐 goats and 🐏 sheep by county. \n\n  <b>Task</b>: ✏️ Draw ⭕ on the map to highlight <b>groups</b> of counties with **many** goats and sheep. \n\n <mark><b> Please answer the question out loud 🗣️, as well as verbalize any insights, questions or challenges you have while 🔎 exploring the map. </b></mark>",
+      "type": "react-component",
+      "path": "maps-study/assets/Bivariate_G.tsx",
+      "parameters": {
+        "dataPath": "maps-study/assets/sheeplandia.csv",
+        "columnA": "goats",
+        "columnB": "sheep",
+        "columnAFormat": "thousands-separator",
+        "columnBFormat": "thousands-separator",
+        "columnAScale": "linear",
+        "columnBScale": "linear",
+        "draw": true,
+        "countySelections": false,
+        "taskid": "bDraw-4"
+      },
+      "response": [
+        {
+          "id": "thinkaloud",
+          "prompt": "Have you verbalized your thoughts?",
+          "location": "belowStimulus",
+          "type": "reactive",
+          "hidden": true
+        }
+      ],
+      "nextButtonLocation": "sidebar",
+      "instructionLocation": "aboveStimulus"
+    },
+    "bivariate-5": {
+      "description": "",
+      "instruction": "Suppose you're writing an 🗞️ article for a national reporting agency. \n\n <b>Task</b>: Using the map, what story can you tell about 🩺 Medicaid participation rates and 🗳️ Trump 2024 Vote Share across the United States? \n\n <mark><b> Please answer the question out loud 🗣️ </b></mark>",
+      "type": "react-component",
+      "path": "maps-study/assets/Bivariate.tsx",
+      "parameters": {
+        "dataPath": "maps-study/assets/medicaid-trump.csv",
+        "columnA": "voter_rate",
+        "columnB": "medicaid_rate",
+        "columnAFormat": "percentage",
+        "columnBFormat": "percentage",
+        "columnAScale": "linear",
+        "columnBScale": "linear",
+        "draw": false,
+        "countySelections": false,
+        "taskid": "bNarrate-5"
+      },
+      "response": [
+        {
+          "id": "thinkaloud",
+          "prompt": "Have you verbalized your thoughts?",
+          "location": "belowStimulus",
+          "type": "reactive",
+          "hidden": true
+        }
+      ],
+      "nextButtonLocation": "sidebar",
+      "instructionLocation": "aboveStimulus"
+    },
+    "bivariate-5g": {
+      "description": "",
+      "instruction": "Suppose you're writing an 🗞️ article for a national reporting agency. \n\n <b>Task</b>: Using the map, what story can you tell about the distribution of 🐐 goats and 🐏 sheep across the United States? \n\n <mark><b> Please answer the question out loud 🗣️ </b></mark>",
+      "type": "react-component",
+      "path": "maps-study/assets/Bivariate_G.tsx",
+      "parameters": {
+        "dataPath": "maps-study/assets/sheeplandia.csv",
+        "columnA": "goats",
+        "columnB": "sheep",
+        "columnAFormat": "thousands-separator",
+        "columnBFormat": "thousands-separator",
+        "columnAScale": "linear",
+        "columnBScale": "linear",
+        "draw": false,
+        "countySelections": false,
+        "taskid": "bNarrate-5"
+      },
+      "response": [
+        {
+          "id": "thinkaloud",
+          "prompt": "Have you verbalized your thoughts?",
+          "location": "belowStimulus",
+          "type": "reactive",
+          "hidden": true
+        }
+      ],
+      "nextButtonLocation": "sidebar",
+      "instructionLocation": "aboveStimulus"
+    },
+    "demographics-g": {
+      "type": "questionnaire",
+      "description": "Follow-up question",
+      "response": [
+        {
+          "id": "studyFeedback_1",
+          "prompt": "Have you encountered similar maps before?",
+          "location": "aboveStimulus",
+          "type": "radio",
+          "withOther": false,
+          "options": ["Yes", "No"]
+        },
+        {
+          "id": "studyFeedback_2",
+          "prompt": "Are you familiar with the geographic distribution of goat and sheep across the US?",
+          "location": "aboveStimulus",
+          "type": "radio",
+          "withOther": false,
+          "options": ["Yes", "No"]
+        },
+        {
+          "id": "studyFeedback_3",
+          "prompt": "Please share any additional thoughts below",
+          "location": "aboveStimulus",
+          "type": "longText",
+          "placeholder": "Enter your feedback here"
+        }
+      ]
+    },
+    "demographics-t": {
+      "type": "questionnaire",
+      "description": "Follow-up question",
+      "response": [
+        {
+          "id": "studyFeedback_1",
+          "prompt": "Have you encountered similar maps before?",
+          "location": "aboveStimulus",
+          "type": "radio",
+          "withOther": false,
+          "options": ["Yes", "No"]
+        },
+        {
+          "id": "studyFeedback_2",
+          "prompt": "Are you familiar with Trump's 2024 vote share and Medicaid enrollment rates?",
+          "location": "aboveStimulus",
+          "type": "radio",
+          "withOther": false,
+          "options": ["Yes", "No"]
+        },
+        {
+          "id": "studyFeedback_3",
+          "prompt": "Please share any additional thoughts below",
+          "location": "aboveStimulus",
+          "type": "longText",
+          "placeholder": "Enter your feedback here"
+        }
+      ]
+    }
+  },
+  "sequence": {
+    "components": [
+      {
+        "components": [
+          "main-intro",
+          "$screen-recording.co.screenRecordingPermission"
+        ],
+        "order": "fixed"
+      },
+      "$color-blindness.se.short-test",
+      {
+        "components": [
+          {
+            "components": [
+              {
+                "components": [
+                  "introduction",
+                  "help",
+                  "univariate-4",
+                  "univariate-5",
+                  "univariate-2",
+                  "demographics-t"
+                ],
+                "order": "fixed"
+              },
+              {
+                "components": [
+                  "introduction-1",
+                  "help-1",
+                  "bivariate-4g",
+                  "bivariate-5g",
+                  "bivariate-1g",
+                  "demographics-g"
+                ],
+                "order": "fixed"
+              }
+            ],
+            "order": "latinSquare"
+          },
+          {
+            "components": [
+              {
+                "components": [
+                  "introduction-1",
+                  "help-1",
+                  "bivariate-4",
+                  "bivariate-5",
+                  "bivariate-1",
+                  "demographics-t"
+                ],
+                "order": "fixed"
+              },
+              {
+                "components": [
+                  "introduction",
+                  "help",
+                  "univariate-4g",
+                  "univariate-5g",
+                  "univariate-2g",
+                  "demographics-g"
+                ],
+                "order": "fixed"
+              }
+            ],
+            "order": "latinSquare"
+          }
+        ],
+        "order": "latinSquare",
+        "numSamples": 1
+      },
+      {
+        "components": ["poststudy-consent"],
+        "order": "fixed"
+      }
+    ],
+    "order": "fixed"
+  }
+}

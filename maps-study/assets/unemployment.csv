@@ -1,0 +1,3132 @@
+fips,population,county,state,rate,typology
+01001,54571,Autauga County, Alabama,0.097,Working Class Country
+01003,182265,Baldwin County, Alabama,0.091,Rural Middle America
+01005,27457,Barbour County, Alabama,0.134,African American South
+01007,22915,Bibb County, Alabama,0.121,Evangelical Hubs
+01009,57322,Blount County, Alabama,0.099,Evangelical Hubs
+01011,10914,Bullock County, Alabama,0.164,African American South
+01013,20947,Butler County, Alabama,0.167,African American South
+01015,118572,Calhoun County, Alabama,0.108,Working Class Country
+01017,34215,Chambers County, Alabama,0.186,African American South
+01019,25989,Cherokee County, Alabama,0.118,Evangelical Hubs
+01021,43643,Chilton County, Alabama,0.099,Evangelical Hubs
+01023,13859,Choctaw County, Alabama,0.127,African American South
+01025,25833,Clarke County, Alabama,0.17,African American South
+01027,13932,Clay County, Alabama,0.159,Evangelical Hubs
+01029,14972,Cleburne County, Alabama,0.104,Evangelical Hubs
+01031,49948,Coffee County, Alabama,0.085,Military Posts
+01033,54428,Colbert County, Alabama,0.114,Working Class Country
+01035,13228,Conecuh County, Alabama,0.195,African American South
+01037,11539,Coosa County, Alabama,0.14,Evangelical Hubs
+01039,37765,Covington County, Alabama,0.101,Evangelical Hubs
+01041,13906,Crenshaw County, Alabama,0.097,Evangelical Hubs
+01043,80406,Cullman County, Alabama,0.096,Evangelical Hubs
+01045,50251,Dale County, Alabama,0.093,Military Posts
+01047,43820,Dallas County, Alabama,0.211,African American South
+01049,71109,DeKalb County, Alabama,0.143,Evangelical Hubs
+01051,79303,Elmore County, Alabama,0.09,Evangelical Hubs
+01053,38319,Escambia County, Alabama,0.129,African American South
+01055,104430,Etowah County, Alabama,0.107,Evangelical Hubs
+01057,17241,Fayette County, Alabama,0.128,Evangelical Hubs
+01059,31704,Franklin County, Alabama,0.123,Evangelical Hubs
+01061,26790,Geneva County, Alabama,0.1,Evangelical Hubs
+01063,9045,Greene County, Alabama,0.147,African American South
+01065,15760,Hale County, Alabama,0.127,African American South
+01067,17302,Henry County, Alabama,0.099,Working Class Country
+01069,101547,Houston County, Alabama,0.089,Working Class Country
+01071,53227,Jackson County, Alabama,0.118,Evangelical Hubs
+01073,658466,Jefferson County, Alabama,0.107,African American South
+01075,14564,Lamar County, Alabama,0.148,Evangelical Hubs
+01077,92709,Lauderdale County, Alabama,0.105,Working Class Country
+01079,34339,Lawrence County, Alabama,0.136,Evangelical Hubs
+01081,140247,Lee County, Alabama,0.086,College Towns
+01083,82782,Limestone County, Alabama,0.093,Evangelical Hubs
+01085,11299,Lowndes County, Alabama,0.185,African American South
+01087,21452,Macon County, Alabama,0.114,African American South
+01089,334811,Madison County, Alabama,0.075,College Towns
+01091,21027,Marengo County, Alabama,0.148,African American South
+01093,30776,Marion County, Alabama,0.152,Evangelical Hubs
+01095,93019,Marshall County, Alabama,0.092,Evangelical Hubs
+01097,412992,Mobile County, Alabama,0.111,African American South
+01099,23068,Monroe County, Alabama,0.187,African American South
+01101,229363,Montgomery County, Alabama,0.102,African American South
+01103,119490,Morgan County, Alabama,0.104,Working Class Country
+01105,10591,Perry County, Alabama,0.198,African American South
+01107,19746,Pickens County, Alabama,0.13,African American South
+01109,32899,Pike County, Alabama,0.087,African American South
+01111,22913,Randolph County, Alabama,0.151,Evangelical Hubs
+01113,52947,Russell County, Alabama,0.126,African American South
+01115,83593,St. Clair County, Alabama,0.107,Evangelical Hubs
+01117,195085,Shelby County, Alabama,0.076,Exurbs
+01119,13763,Sumter County, Alabama,0.139,African American South
+01121,82291,Talladega County, Alabama,0.136,African American South
+01123,41616,Tallapoosa County, Alabama,0.137,Working Class Country
+01125,194656,Tuscaloosa County, Alabama,0.09,College Towns
+01127,67023,Walker County, Alabama,0.119,Evangelical Hubs
+01129,17581,Washington County, Alabama,0.151,Evangelical Hubs
+01131,11670,Wilcox County, Alabama,0.256,African American South
+01133,24484,Winston County, Alabama,0.175,Evangelical Hubs
+02013,3141,Aleutians East Borough, Alaska,0.101,Native American Lands
+02016,5561,Aleutians West Census Area, Alaska,0.084,Native American Lands
+02020,291826,Anchorage Municipality, Alaska,0.07,Military Posts
+02050,17013,Bethel Census Area, Alaska,0.148,Native American Lands
+02060,997,Bristol Bay Borough, Alaska,0.036,Military Posts
+02068,1826,Denali Borough, Alaska,0.034,Military Posts
+02070,4847,Dillingham Census Area, Alaska,0.084,Native American Lands
+02090,97581,Fairbanks North Star Borough, Alaska,0.069,Military Posts
+02100,2508,Haines Borough, Alaska,0.062,Graying America
+02110,31275,Juneau City and Borough, Alaska,0.057,Military Posts
+02122,55400,Kenai Peninsula Borough, Alaska,0.097,Graying America
+02130,13477,Ketchikan Gateway Borough, Alaska,0.061,Exurbs
+02150,13592,Kodiak Island Borough, Alaska,0.066,Military Posts
+02164,1631,Lake and Peninsula Borough, Alaska,0.059,Native American Lands
+02170,88995,Matanuska-Susitna Borough, Alaska,0.088,Exurbs
+02180,9492,Nome Census Area, Alaska,0.121,Native American Lands
+02185,9430,North Slope Borough, Alaska,0.057,Native American Lands
+02188,7523,Northwest Arctic Borough, Alaska,0.132,Native American Lands
+02220,8881,Sitka City and Borough, Alaska,0.059,Military Posts
+02240,7029,Southeast Fairbanks Census Area, Alaska,0.081,Military Posts
+02261,9636,Valdez-Cordova Census Area, Alaska,0.064,Military Posts
+02270,7459,Wade Hampton Census Area, Alaska,0.204,Native American Lands
+02282,662,Yakutat City and Borough, Alaska,0.063,Military Posts
+02290,5588,Yukon-Koyukuk Census Area, Alaska,0.136,Native American Lands
+04001,71518,Apache County, Arizona,0.148,Native American Lands
+04003,131346,Cochise County, Arizona,0.074,Military Posts
+04005,134421,Coconino County, Arizona,0.077,College Towns
+04007,53597,Gila County, Arizona,0.109,Graying America
+04009,37220,Graham County, Arizona,0.144,Native American Lands
+04011,8437,Greenlee County, Arizona,0.215,Hispanic Centers
+04012,20489,La Paz County, Arizona,0.089,Graying America
+04013,3817117,Maricopa County, Arizona,0.085,Big Cities
+04015,200186,Mohave County, Arizona,0.102,Graying America
+04017,107449,Navajo County, Arizona,0.142,Native American Lands
+04019,980263,Pima County, Arizona,0.084,Big Cities
+04021,375770,Pinal County, Arizona,0.118,Exurbs
+04023,47420,Santa Cruz County, Arizona,0.172,Hispanic Centers
+04025,211033,Yavapai County, Arizona,0.095,Graying America
+04027,195751,Yuma County, Arizona,0.242,Hispanic Centers
+05001,19019,Arkansas County, Arkansas,0.143,Working Class Country
+05003,21853,Ashley County, Arkansas,0.091,Evangelical Hubs
+05005,41513,Baxter County, Arkansas,0.082,Graying America
+05007,221339,Benton County, Arkansas,0.053,Urban Burbs
+05009,36903,Boone County, Arkansas,0.064,Evangelical Hubs
+05011,11508,Bradley County, Arkansas,0.078,African American South
+05013,5368,Calhoun County, Arkansas,0.062,Evangelical Hubs
+05015,27446,Carroll County, Arkansas,0.043,Rural Middle America
+05017,11800,Chicot County, Arkansas,0.096,African American South
+05019,22995,Clark County, Arkansas,0.063,College Towns
+05021,16083,Clay County, Arkansas,0.104,Evangelical Hubs
+05023,25970,Cleburne County, Arkansas,0.059,Evangelical Hubs
+05025,8689,Cleveland County, Arkansas,0.06,Evangelical Hubs
+05027,24552,Columbia County, Arkansas,0.081,African American South
+05029,21273,Conway County, Arkansas,0.065,Working Class Country
+05031,96443,Craighead County, Arkansas,0.059,College Towns
+05033,61948,Crawford County, Arkansas,0.066,Evangelical Hubs
+05035,50902,Crittenden County, Arkansas,0.099,African American South
+05037,17870,Cross County, Arkansas,0.071,Evangelical Hubs
+05039,8116,Dallas County, Arkansas,0.076,African American South
+05041,13008,Desha County, Arkansas,0.099,African American South
+05043,18509,Drew County, Arkansas,0.091,Working Class Country
+05045,113237,Faulkner County, Arkansas,0.06,College Towns
+05047,18125,Franklin County, Arkansas,0.059,Evangelical Hubs
+05049,12245,Fulton County, Arkansas,0.061,Evangelical Hubs
+05051,96024,Garland County, Arkansas,0.066,Working Class Country
+05053,17853,Grant County, Arkansas,0.057,Evangelical Hubs
+05055,42090,Greene County, Arkansas,0.082,Evangelical Hubs
+05057,22609,Hempstead County, Arkansas,0.086,African American South
+05059,32923,Hot Spring County, Arkansas,0.073,Evangelical Hubs
+05061,13789,Howard County, Arkansas,0.072,Evangelical Hubs
+05063,36647,Independence County, Arkansas,0.078,Evangelical Hubs
+05065,13696,Izard County, Arkansas,0.077,Evangelical Hubs
+05067,17997,Jackson County, Arkansas,0.092,Evangelical Hubs
+05069,77435,Jefferson County, Arkansas,0.092,African American South
+05071,25540,Johnson County, Arkansas,0.061,Evangelical Hubs
+05073,7645,Lafayette County, Arkansas,0.086,African American South
+05075,17415,Lawrence County, Arkansas,0.079,Evangelical Hubs
+05077,10424,Lee County, Arkansas,0.082,African American South
+05079,14134,Lincoln County, Arkansas,0.082,Evangelical Hubs
+05081,13171,Little River County, Arkansas,0.056,Working Class Country
+05083,22353,Logan County, Arkansas,0.077,Evangelical Hubs
+05085,68356,Lonoke County, Arkansas,0.052,Working Class Country
+05087,15717,Madison County, Arkansas,0.053,Evangelical Hubs
+05089,16653,Marion County, Arkansas,0.112,Evangelical Hubs
+05091,43462,Miller County, Arkansas,0.045,Evangelical Hubs
+05093,46480,Mississippi County, Arkansas,0.113,African American South
+05095,8149,Monroe County, Arkansas,0.074,African American South
+05097,9487,Montgomery County, Arkansas,0.058,Evangelical Hubs
+05099,8997,Nevada County, Arkansas,0.087,African American South
+05101,8330,Newton County, Arkansas,0.062,Evangelical Hubs
+05103,26120,Ouachita County, Arkansas,0.071,African American South
+05105,10445,Perry County, Arkansas,0.056,Evangelical Hubs
+05107,21757,Phillips County, Arkansas,0.088,African American South
+05109,11291,Pike County, Arkansas,0.063,Evangelical Hubs
+05111,24583,Poinsett County, Arkansas,0.075,Evangelical Hubs
+05113,20662,Polk County, Arkansas,0.064,Evangelical Hubs
+05115,61754,Pope County, Arkansas,0.062,Working Class Country
+05117,8715,Prairie County, Arkansas,0.067,Evangelical Hubs
+05119,382748,Pulaski County, Arkansas,0.06,African American South
+05121,17969,Randolph County, Arkansas,0.073,Evangelical Hubs
+05123,28258,St. Francis County, Arkansas,0.094,African American South
+05125,107118,Saline County, Arkansas,0.058,Exurbs
+05127,11233,Scott County, Arkansas,0.063,Evangelical Hubs
+05129,8195,Searcy County, Arkansas,0.059,Evangelical Hubs
+05131,125744,Sebastian County, Arkansas,0.062,Working Class Country
+05133,17058,Sevier County, Arkansas,0.051,Hispanic Centers
+05135,17264,Sharp County, Arkansas,0.078,Evangelical Hubs
+05137,12394,Stone County, Arkansas,0.066,Evangelical Hubs
+05139,41639,Union County, Arkansas,0.095,African American South
+05141,17295,Van Buren County, Arkansas,0.091,Evangelical Hubs
+05143,203065,Washington County, Arkansas,0.05,College Towns
+05145,77076,White County, Arkansas,0.067,Working Class Country
+05147,7260,Woodruff County, Arkansas,0.091,African American South
+05149,22185,Yell County, Arkansas,0.064,Evangelical Hubs
+06001,1510271,Alameda County, California,0.113,Big Cities
+06003,1175,Alpine County, California,0.152,Graying America
+06005,38091,Amador County, California,0.121,Graying America
+06007,220000,Butte County, California,0.122,College Towns
+06009,45578,Calaveras County, California,0.143,Graying America
+06011,21419,Colusa County, California,0.145,Hispanic Centers
+06013,1049025,Contra Costa County, California,0.112,Urban Burbs
+06015,28610,Del Norte County, California,0.119,Graying America
+06017,181058,El Dorado County, California,0.112,Exurbs
+06019,930450,Fresno County, California,0.141,Hispanic Centers
+06021,28122,Glenn County, California,0.138,Hispanic Centers
+06023,134623,Humboldt County, California,0.103,College Towns
+06025,174528,Imperial County, California,0.301,Hispanic Centers
+06027,18546,Inyo County, California,0.095,Graying America
+06029,839631,Kern County, California,0.139,Hispanic Centers
+06031,152982,Kings County, California,0.139,Hispanic Centers
+06033,64665,Lake County, California,0.147,Graying America
+06035,34895,Lassen County, California,0.118,Graying America
+06037,9818605,Los Angeles County, California,0.127,Big Cities
+06039,150865,Madera County, California,0.123,Hispanic Centers
+06041,252409,Marin County, California,0.08,Urban Burbs
+06043,18251,Mariposa County, California,0.088,Graying America
+06045,87841,Mendocino County, California,0.101,Graying America
+06047,255793,Merced County, California,0.157,Hispanic Centers
+06049,9686,Modoc County, California,0.111,Graying America
+06051,14202,Mono County, California,0.103,Graying America
+06053,415057,Monterey County, California,0.1,Hispanic Centers
+06055,136484,Napa County, California,0.087,Exurbs
+06057,98764,Nevada County, California,0.109,Graying America
+06059,3010232,Orange County, California,0.094,Urban Burbs
+06061,348432,Placer County, California,0.113,Exurbs
+06063,20007,Plumas County, California,0.139,Graying America
+06065,2189641,Riverside County, California,0.147,Hispanic Centers
+06067,1418788,Sacramento County, California,0.122,Big Cities
+06069,55269,San Benito County, California,0.125,Hispanic Centers
+06071,2035210,San Bernardino County, California,0.136,Hispanic Centers
+06073,3095313,San Diego County, California,0.102,Big Cities
+06075,805235,San Francisco County, California,0.097,Big Cities
+06077,685306,San Joaquin County, California,0.155,Hispanic Centers
+06079,269637,San Luis Obispo County, California,0.09,Exurbs
+06081,718451,San Mateo County, California,0.09,Urban Burbs
+06083,423895,Santa Barbara County, California,0.085,Exurbs
+06085,1781642,Santa Clara County, California,0.118,Big Cities
+06087,262382,Santa Cruz County, California,0.102,Urban Burbs
+06089,177223,Shasta County, California,0.147,Graying America
+06091,3240,Sierra County, California,0.137,Graying America
+06093,44900,Siskiyou County, California,0.135,Graying America
+06095,413344,Solano County, California,0.115,Exurbs
+06097,483878,Sonoma County, California,0.099,Urban Burbs
+06099,514453,Stanislaus County, California,0.153,Hispanic Centers
+06101,94737,Sutter County, California,0.151,Hispanic Centers
+06103,63463,Tehama County, California,0.137,Graying America
+06105,13786,Trinity County, California,0.159,Graying America
+06107,442179,Tulare County, California,0.149,Hispanic Centers
+06109,55365,Tuolumne County, California,0.127,Graying America
+06111,823318,Ventura County, California,0.11,Urban Burbs
+06113,200849,Yolo County, California,0.109,College Towns
+06115,72155,Yuba County, California,0.178,Hispanic Centers
+08001,441603,Adams County, Colorado,0.081,Exurbs
+08003,15445,Alamosa County, Colorado,0.055,Hispanic Centers
+08005,572003,Arapahoe County, Colorado,0.069,Urban Burbs
+08007,12084,Archuleta County, Colorado,0.062,Graying America
+08009,3788,Baca County, Colorado,0.034,Aging Farmlands
+08011,6499,Bent County, Colorado,0.05,Hispanic Centers
+08013,294567,Boulder County, Colorado,0.055,College Towns
+08014,55889,Broomfield County, Colorado,0.066,Urban Burbs
+08015,17809,Chaffee County, Colorado,0.051,Graying America
+08017,1836,Cheyenne County, Colorado,0.02,Aging Farmlands
+08019,9088,Clear Creek County, Colorado,0.07,Graying America
+08021,8256,Conejos County, Colorado,0.051,Hispanic Centers
+08023,3524,Costilla County, Colorado,0.084,Hispanic Centers
+08025,5823,Crowley County, Colorado,0.076,Graying America
+08027,4255,Custer County, Colorado,0.052,Graying America
+08029,30952,Delta County, Colorado,0.066,Graying America
+08031,600158,Denver County, Colorado,0.077,Big Cities
+08033,2064,Dolores County, Colorado,0.132,Graying America
+08035,285465,Douglas County, Colorado,0.059,Exurbs
+08037,52197,Eagle County, Colorado,0.062,Exurbs
+08039,23086,Elbert County, Colorado,0.06,Exurbs
+08041,622263,El Paso County, Colorado,0.072,Military Posts
+08043,46824,Fremont County, Colorado,0.077,Graying America
+08045,56389,Garfield County, Colorado,0.058,Exurbs
+08047,5441,Gilpin County, Colorado,0.06,Graying America
+08049,14843,Grand County, Colorado,0.058,Graying America
+08051,15324,Gunnison County, Colorado,0.044,College Towns
+08053,843,Hinsdale County, Colorado,0.022,Graying America
+08055,6711,Huerfano County, Colorado,0.072,Graying America
+08057,1394,Jackson County, Colorado,0.033,Graying America
+08059,534543,Jefferson County, Colorado,0.067,Exurbs
+08061,1398,Kiowa County, Colorado,0.028,Aging Farmlands
+08063,8270,Kit Carson County, Colorado,0.029,Aging Farmlands
+08065,7310,Lake County, Colorado,0.071,Graying America
+08067,51334,La Plata County, Colorado,0.047,Exurbs
+08069,299630,Larimer County, Colorado,0.056,Exurbs
+08071,15507,Las Animas County, Colorado,0.07,Hispanic Centers
+08073,5467,Lincoln County, Colorado,0.037,Graying America
+08075,22709,Logan County, Colorado,0.046,Graying America
+08077,146723,Mesa County, Colorado,0.082,College Towns
+08079,712,Mineral County, Colorado,0.053,Graying America
+08081,13795,Moffat County, Colorado,0.056,Graying America
+08083,25535,Montezuma County, Colorado,0.063,Graying America
+08085,41276,Montrose County, Colorado,0.069,Graying America
+08087,28159,Morgan County, Colorado,0.049,Hispanic Centers
+08089,18831,Otero County, Colorado,0.058,Hispanic Centers
+08091,4436,Ouray County, Colorado,0.041,Graying America
+08093,16206,Park County, Colorado,0.061,Graying America
+08095,4442,Phillips County, Colorado,0.026,Aging Farmlands
+08097,17148,Pitkin County, Colorado,0.05,Graying America
+08099,12551,Prowers County, Colorado,0.05,Hispanic Centers
+08101,159063,Pueblo County, Colorado,0.075,Hispanic Centers
+08103,6666,Rio Blanco County, Colorado,0.039,Graying America
+08105,11982,Rio Grande County, Colorado,0.048,Hispanic Centers
+08107,23509,Routt County, Colorado,0.06,Graying America
+08109,6108,Saguache County, Colorado,0.078,Hispanic Centers
+08111,699,San Juan County, Colorado,0.053,Graying America
+08113,7359,San Miguel County, Colorado,0.042,Graying America
+08115,2379,Sedgwick County, Colorado,0.033,Graying America
+08117,27994,Summit County, Colorado,0.058,Graying America
+08119,23350,Teller County, Colorado,0.067,Graying America
+08121,4814,Washington County, Colorado,0.032,Aging Farmlands
+08123,252825,Weld County, Colorado,0.075,Exurbs
+08125,10043,Yuma County, Colorado,0.026,Aging Farmlands
+09001,916829,Fairfield County, Connecticut,0.078,Urban Burbs
+09003,894014,Hartford County, Connecticut,0.088,Urban Burbs
+09005,189927,Litchfield County, Connecticut,0.079,Graying America
+09007,165676,Middlesex County, Connecticut,0.067,Exurbs
+09009,862477,New Haven County, Connecticut,0.089,Urban Burbs
+09011,274055,New London County, Connecticut,0.076,Military Posts
+09013,152691,Tolland County, Connecticut,0.067,Exurbs
+09015,118428,Windham County, Connecticut,0.09,Rural Middle America
+10001,162310,Kent County, Delaware,0.079,Military Posts
+10003,538479,New Castle County, Delaware,0.086,Urban Burbs
+10005,197145,Sussex County, Delaware,0.073,Graying America
+11001,601723,District of Columbia, District of Columbia,0.117,Big Cities
+12001,247336,Alachua County, Florida,0.071,College Towns
+12003,27115,Baker County, Florida,0.114,Evangelical Hubs
+12005,168852,Bay County, Florida,0.089,Military Posts
+12007,28520,Bradford County, Florida,0.083,Working Class Country
+12009,543376,Brevard County, Florida,0.111,Graying America
+12011,1748066,Broward County, Florida,0.098,Urban Burbs
+12013,14625,Calhoun County, Florida,0.082,Graying America
+12015,159978,Charlotte County, Florida,0.127,Graying America
+12017,141236,Citrus County, Florida,0.121,Graying America
+12019,190865,Clay County, Florida,0.098,Exurbs
+12021,321520,Collier County, Florida,0.131,Graying America
+12023,67531,Columbia County, Florida,0.09,Working Class Country
+12027,34862,DeSoto County, Florida,0.117,Graying America
+12029,16422,Dixie County, Florida,0.123,Graying America
+12031,864263,Duval County, Florida,0.112,Big Cities
+12033,297619,Escambia County, Florida,0.098,Military Posts
+12035,95696,Flagler County, Florida,0.162,Graying America
+12037,11549,Franklin County, Florida,0.071,Graying America
+12039,46389,Gadsden County, Florida,0.096,African American South
+12041,16939,Gilchrist County, Florida,0.1,Working Class Country
+12043,12884,Glades County, Florida,0.1,Graying America
+12045,15863,Gulf County, Florida,0.098,Graying America
+12047,14799,Hamilton County, Florida,0.113,African American South
+12049,27731,Hardee County, Florida,0.126,Hispanic Centers
+12051,39140,Hendry County, Florida,0.168,Hispanic Centers
+12053,172778,Hernando County, Florida,0.138,Graying America
+12055,98786,Highlands County, Florida,0.116,Graying America
+12057,1229226,Hillsborough County, Florida,0.115,Urban Burbs
+12059,19927,Holmes County, Florida,0.072,Evangelical Hubs
+12061,138028,Indian River County, Florida,0.152,Graying America
+12063,49746,Jackson County, Florida,0.072,African American South
+12065,14761,Jefferson County, Florida,0.085,African American South
+12067,8870,Lafayette County, Florida,0.072,Graying America
+12069,297052,Lake County, Florida,0.123,Graying America
+12071,618754,Lee County, Florida,0.139,Graying America
+12073,275487,Leon County, Florida,0.072,College Towns
+12075,40801,Levy County, Florida,0.121,Working Class Country
+12077,8365,Liberty County, Florida,0.053,Graying America
+12079,19224,Madison County, Florida,0.117,African American South
+12081,322833,Manatee County, Florida,0.127,Graying America
+12083,331298,Marion County, Florida,0.133,Graying America
+12085,146318,Martin County, Florida,0.119,Graying America
+12086,2496435,Miami-Dade County, Florida,0.113,Big Cities
+12087,73090,Monroe County, Florida,0.07,Graying America
+12089,73314,Nassau County, Florida,0.107,Exurbs
+12091,180822,Okaloosa County, Florida,0.072,Military Posts
+12093,39996,Okeechobee County, Florida,0.133,Graying America
+12095,1145956,Orange County, Florida,0.114,Urban Burbs
+12097,268685,Osceola County, Florida,0.128,Hispanic Centers
+12099,1320134,Palm Beach County, Florida,0.117,Urban Burbs
+12101,464697,Pasco County, Florida,0.125,Exurbs
+12103,916542,Pinellas County, Florida,0.112,Urban Burbs
+12105,602095,Polk County, Florida,0.127,Exurbs
+12107,74364,Putnam County, Florida,0.122,Working Class Country
+12109,190039,St. Johns County, Florida,0.09,Exurbs
+12111,277789,St. Lucie County, Florida,0.153,Exurbs
+12113,151372,Santa Rosa County, Florida,0.094,Exurbs
+12115,379448,Sarasota County, Florida,0.123,Graying America
+12117,422718,Seminole County, Florida,0.106,Urban Burbs
+12119,93420,Sumter County, Florida,0.09,Graying America
+12121,41551,Suwannee County, Florida,0.098,Working Class Country
+12123,22570,Taylor County, Florida,0.104,Evangelical Hubs
+12125,15535,Union County, Florida,0.084,Graying America
+12127,494593,Volusia County, Florida,0.117,Graying America
+12129,30776,Wakulla County, Florida,0.072,Exurbs
+12131,55043,Walton County, Florida,0.068,Graying America
+12133,24896,Washington County, Florida,0.096,Evangelical Hubs
+13001,18236,Appling County, Georgia,0.097,Evangelical Hubs
+13003,8375,Atkinson County, Georgia,0.126,Working Class Country
+13005,11096,Bacon County, Georgia,0.085,Evangelical Hubs
+13007,3451,Baker County, Georgia,0.091,African American South
+13009,45720,Baldwin County, Georgia,0.116,African American South
+13011,18395,Banks County, Georgia,0.067,Evangelical Hubs
+13013,69367,Barrow County, Georgia,0.111,Exurbs
+13015,100157,Bartow County, Georgia,0.133,Working Class Country
+13017,17634,Ben Hill County, Georgia,0.153,African American South
+13019,19286,Berrien County, Georgia,0.124,Evangelical Hubs
+13021,155547,Bibb County, Georgia,0.1,African American South
+13023,13063,Bleckley County, Georgia,0.097,Evangelical Hubs
+13025,18411,Brantley County, Georgia,0.116,Evangelical Hubs
+13027,16243,Brooks County, Georgia,0.087,African American South
+13029,30233,Bryan County, Georgia,0.081,Military Posts
+13031,70217,Bulloch County, Georgia,0.09,College Towns
+13033,23316,Burke County, Georgia,0.122,African American South
+13035,23655,Butts County, Georgia,0.127,Working Class Country
+13037,6694,Calhoun County, Georgia,0.111,African American South
+13039,50513,Camden County, Georgia,0.091,Military Posts
+13043,10998,Candler County, Georgia,0.093,African American South
+13045,110527,Carroll County, Georgia,0.108,Working Class Country
+13047,63942,Catoosa County, Georgia,0.08,Middle Suburbs
+13049,12171,Charlton County, Georgia,0.106,Working Class Country
+13051,265128,Chatham County, Georgia,0.085,College Towns
+13053,11267,Chattahoochee County, Georgia,0.146,Military Posts
+13055,26015,Chattooga County, Georgia,0.114,Evangelical Hubs
+13057,214346,Cherokee County, Georgia,0.095,Exurbs
+13059,116714,Clarke County, Georgia,0.07,College Towns
+13061,3183,Clay County, Georgia,0.082,African American South
+13063,259424,Clayton County, Georgia,0.123,African American South
+13065,6798,Clinch County, Georgia,0.11,Working Class Country
+13067,688078,Cobb County, Georgia,0.096,Urban Burbs
+13069,42356,Coffee County, Georgia,0.168,Working Class Country
+13071,45498,Colquitt County, Georgia,0.09,African American South
+13073,124053,Columbia County, Georgia,0.07,Military Posts
+13075,17212,Cook County, Georgia,0.119,Evangelical Hubs
+13077,127317,Coweta County, Georgia,0.1,Urban Burbs
+13079,12630,Crawford County, Georgia,0.095,Working Class Country
+13081,23439,Crisp County, Georgia,0.121,African American South
+13083,16633,Dade County, Georgia,0.09,Evangelical Hubs
+13085,22330,Dawson County, Georgia,0.101,Exurbs
+13087,27842,Decatur County, Georgia,0.127,African American South
+13089,691893,DeKalb County, Georgia,0.107,Urban Burbs
+13091,21796,Dodge County, Georgia,0.112,Evangelical Hubs
+13093,14918,Dooly County, Georgia,0.101,African American South
+13095,94565,Dougherty County, Georgia,0.111,African American South
+13097,132403,Douglas County, Georgia,0.114,African American South
+13099,11008,Early County, Georgia,0.105,African American South
+13101,4034,Echols County, Georgia,0.067,Evangelical Hubs
+13103,52250,Effingham County, Georgia,0.079,Exurbs
+13105,20166,Elbert County, Georgia,0.122,African American South
+13107,22598,Emanuel County, Georgia,0.103,African American South
+13109,11000,Evans County, Georgia,0.089,African American South
+13111,23682,Fannin County, Georgia,0.1,Graying America
+13113,106567,Fayette County, Georgia,0.084,Urban Burbs
+13115,96317,Floyd County, Georgia,0.111,Working Class Country
+13117,175511,Forsyth County, Georgia,0.086,Urban Burbs
+13119,22084,Franklin County, Georgia,0.118,Evangelical Hubs
+13121,920581,Fulton County, Georgia,0.107,Big Cities
+13123,28292,Gilmer County, Georgia,0.098,Graying America
+13125,3082,Glascock County, Georgia,0.111,Evangelical Hubs
+13127,79626,Glynn County, Georgia,0.082,Military Posts
+13129,55186,Gordon County, Georgia,0.131,Evangelical Hubs
+13131,25011,Grady County, Georgia,0.098,Working Class Country
+13133,15994,Greene County, Georgia,0.111,Graying America
+13135,805321,Gwinnett County, Georgia,0.094,Urban Burbs
+13137,43041,Habersham County, Georgia,0.094,Evangelical Hubs
+13139,179684,Hall County, Georgia,0.091,Exurbs
+13141,9429,Hancock County, Georgia,0.177,African American South
+13143,28780,Haralson County, Georgia,0.113,Evangelical Hubs
+13145,32024,Harris County, Georgia,0.072,Exurbs
+13147,25213,Hart County, Georgia,0.138,Working Class Country
+13149,11834,Heard County, Georgia,0.124,Evangelical Hubs
+13151,203922,Henry County, Georgia,0.104,Urban Burbs
+13153,139900,Houston County, Georgia,0.073,Military Posts
+13155,9538,Irwin County, Georgia,0.145,Evangelical Hubs
+13157,60485,Jackson County, Georgia,0.109,Exurbs
+13159,13900,Jasper County, Georgia,0.127,Evangelical Hubs
+13161,15068,Jeff Davis County, Georgia,0.135,Evangelical Hubs
+13163,16930,Jefferson County, Georgia,0.149,African American South
+13165,8340,Jenkins County, Georgia,0.196,African American South
+13167,9980,Johnson County, Georgia,0.119,African American South
+13169,28669,Jones County, Georgia,0.086,Working Class Country
+13171,18317,Lamar County, Georgia,0.153,Working Class Country
+13173,10078,Lanier County, Georgia,0.084,Military Posts
+13175,48434,Laurens County, Georgia,0.108,African American South
+13177,28298,Lee County, Georgia,0.079,Exurbs
+13179,63453,Liberty County, Georgia,0.085,Military Posts
+13181,7996,Lincoln County, Georgia,0.103,Working Class Country
+13183,14464,Long County, Georgia,0.059,Military Posts
+13185,109233,Lowndes County, Georgia,0.082,College Towns
+13187,29966,Lumpkin County, Georgia,0.111,College Towns
+13189,21875,McDuffie County, Georgia,0.121,African American South
+13191,14333,McIntosh County, Georgia,0.096,Graying America
+13193,14740,Macon County, Georgia,0.13,African American South
+13195,28120,Madison County, Georgia,0.083,Evangelical Hubs
+13197,8742,Marion County, Georgia,0.099,Working Class Country
+13199,21992,Meriwether County, Georgia,0.132,African American South
+13201,6125,Miller County, Georgia,0.087,Evangelical Hubs
+13205,23498,Mitchell County, Georgia,0.104,African American South
+13207,26424,Monroe County, Georgia,0.102,Working Class Country
+13209,9123,Montgomery County, Georgia,0.085,Working Class Country
+13211,17868,Morgan County, Georgia,0.098,Rural Middle America
+13213,39628,Murray County, Georgia,0.123,Evangelical Hubs
+13215,189885,Muscogee County, Georgia,0.092,African American South
+13217,99958,Newton County, Georgia,0.126,African American South
+13219,32808,Oconee County, Georgia,0.062,Exurbs
+13221,14899,Oglethorpe County, Georgia,0.082,Evangelical Hubs
+13223,142324,Paulding County, Georgia,0.107,Exurbs
+13225,27695,Peach County, Georgia,0.102,African American South
+13227,29431,Pickens County, Georgia,0.108,Rural Middle America
+13229,18758,Pierce County, Georgia,0.093,Evangelical Hubs
+13231,17869,Pike County, Georgia,0.118,Evangelical Hubs
+13233,41475,Polk County, Georgia,0.108,Evangelical Hubs
+13235,12010,Pulaski County, Georgia,0.071,African American South
+13237,21218,Putnam County, Georgia,0.104,Working Class Country
+13239,2513,Quitman County, Georgia,0.118,African American South
+13241,16276,Rabun County, Georgia,0.104,Graying America
+13243,7719,Randolph County, Georgia,0.13,African American South
+13245,200549,Richmond County, Georgia,0.103,African American South
+13247,85215,Rockdale County, Georgia,0.12,African American South
+13249,5010,Schley County, Georgia,0.138,Evangelical Hubs
+13251,14593,Screven County, Georgia,0.137,African American South
+13253,8729,Seminole County, Georgia,0.107,African American South
+13255,64073,Spalding County, Georgia,0.154,African American South
+13257,26175,Stephens County, Georgia,0.107,Evangelical Hubs
+13259,6058,Stewart County, Georgia,0.107,African American South
+13261,32819,Sumter County, Georgia,0.129,African American South
+13263,6865,Talbot County, Georgia,0.098,African American South
+13265,1717,Taliaferro County, Georgia,0.124,African American South
+13267,25520,Tattnall County, Georgia,0.087,Evangelical Hubs
+13269,8906,Taylor County, Georgia,0.13,African American South
+13271,16500,Telfair County, Georgia,0.162,African American South
+13273,9315,Terrell County, Georgia,0.116,African American South
+13275,44720,Thomas County, Georgia,0.093,African American South
+13277,40118,Tift County, Georgia,0.106,African American South
+13279,27223,Toombs County, Georgia,0.098,African American South
+13281,10471,Towns County, Georgia,0.078,Graying America
+13283,6885,Treutlen County, Georgia,0.119,African American South
+13285,67044,Troup County, Georgia,0.129,African American South
+13287,8930,Turner County, Georgia,0.13,African American South
+13289,9023,Twiggs County, Georgia,0.114,African American South
+13291,21356,Union County, Georgia,0.09,Graying America
+13293,27153,Upson County, Georgia,0.133,African American South
+13295,68756,Walker County, Georgia,0.096,Evangelical Hubs
+13297,83768,Walton County, Georgia,0.11,Exurbs
+13299,36312,Ware County, Georgia,0.107,African American South
+13301,5834,Warren County, Georgia,0.188,African American South
+13303,21187,Washington County, Georgia,0.14,African American South
+13305,30099,Wayne County, Georgia,0.117,Evangelical Hubs
+13307,2799,Webster County, Georgia,0.091,African American South
+13309,7421,Wheeler County, Georgia,0.091,African American South
+13311,27144,White County, Georgia,0.095,Rural Middle America
+13313,102599,Whitfield County, Georgia,0.125,Hispanic Centers
+13315,9255,Wilcox County, Georgia,0.116,African American South
+13317,10593,Wilkes County, Georgia,0.117,African American South
+13319,9563,Wilkinson County, Georgia,0.107,African American South
+13321,21679,Worth County, Georgia,0.108,Evangelical Hubs
+15001,185079,Hawaii County, Hawaii,0.108,Graying America
+15003,953207,Honolulu County, Hawaii,0.063,Urban Burbs
+15005,90,Kalawao County, Hawaii,0,Exurbs
+15007,67091,Kauai County, Hawaii,0.096,Exurbs
+15009,154834,Maui County, Hawaii,0.097,Exurbs
+16001,392365,Ada County, Idaho,0.091,Exurbs
+16003,3976,Adams County, Idaho,0.121,Graying America
+16005,82839,Bannock County, Idaho,0.084,LDS Enclaves
+16007,5986,Bear Lake County, Idaho,0.052,LDS Enclaves
+16009,9285,Benewah County, Idaho,0.121,Rural Middle America
+16011,45607,Bingham County, Idaho,0.059,LDS Enclaves
+16013,21376,Blaine County, Idaho,0.077,Graying America
+16015,7028,Boise County, Idaho,0.071,Graying America
+16017,40877,Bonner County, Idaho,0.095,Graying America
+16019,104234,Bonneville County, Idaho,0.059,LDS Enclaves
+16021,10972,Boundary County, Idaho,0.12,Graying America
+16023,2891,Butte County, Idaho,0.045,Aging Farmlands
+16025,1117,Camas County, Idaho,0.11,Graying America
+16027,188923,Canyon County, Idaho,0.106,Exurbs
+16029,6963,Caribou County, Idaho,0.06,LDS Enclaves
+16031,22952,Cassia County, Idaho,0.059,LDS Enclaves
+16033,982,Clark County, Idaho,0.041,Hispanic Centers
+16035,8761,Clearwater County, Idaho,0.118,Graying America
+16037,4368,Custer County, Idaho,0.039,Graying America
+16039,27038,Elmore County, Idaho,0.077,Military Posts
+16041,12786,Franklin County, Idaho,0.04,LDS Enclaves
+16043,13242,Fremont County, Idaho,0.066,LDS Enclaves
+16045,16719,Gem County, Idaho,0.104,Rural Middle America
+16047,15464,Gooding County, Idaho,0.055,Hispanic Centers
+16049,16267,Idaho County, Idaho,0.083,Graying America
+16051,26140,Jefferson County, Idaho,0.068,LDS Enclaves
+16053,22374,Jerome County, Idaho,0.059,Hispanic Centers
+16055,138494,Kootenai County, Idaho,0.087,Exurbs
+16057,37244,Latah County, Idaho,0.059,College Towns
+16059,7936,Lemhi County, Idaho,0.065,Graying America
+16061,3821,Lewis County, Idaho,0.052,Graying America
+16063,5208,Lincoln County, Idaho,0.097,Hispanic Centers
+16065,37536,Madison County, Idaho,0.055,LDS Enclaves
+16067,20069,Minidoka County, Idaho,0.06,Hispanic Centers
+16069,39265,Nez Perce County, Idaho,0.055,Rural Middle America
+16071,4286,Oneida County, Idaho,0.05,LDS Enclaves
+16073,11526,Owyhee County, Idaho,0.041,Aging Farmlands
+16075,22623,Payette County, Idaho,0.077,Rural Middle America
+16077,7817,Power County, Idaho,0.067,Hispanic Centers
+16079,12765,Shoshone County, Idaho,0.119,Graying America
+16081,10170,Teton County, Idaho,0.051,Exurbs
+16083,77230,Twin Falls County, Idaho,0.068,Exurbs
+16085,9862,Valley County, Idaho,0.114,Graying America
+16087,10198,Washington County, Idaho,0.084,Graying America
+17001,67103,Adams County, Illinois,0.079,Rural Middle America
+17003,8238,Alexander County, Illinois,0.112,African American South
+17005,17768,Bond County, Illinois,0.093,Rural Middle America
+17007,54165,Boone County, Illinois,0.138,Rural Middle America
+17009,6937,Brown County, Illinois,0.045,Rural Middle America
+17011,34978,Bureau County, Illinois,0.109,Rural Middle America
+17013,5089,Calhoun County, Illinois,0.095,Aging Farmlands
+17015,15387,Carroll County, Illinois,0.105,Rural Middle America
+17017,13642,Cass County, Illinois,0.073,Rural Middle America
+17019,201081,Champaign County, Illinois,0.082,College Towns
+17021,34800,Christian County, Illinois,0.099,Rural Middle America
+17023,16335,Clark County, Illinois,0.131,Rural Middle America
+17025,13815,Clay County, Illinois,0.114,Rural Middle America
+17027,37762,Clinton County, Illinois,0.079,Rural Middle America
+17029,53873,Coles County, Illinois,0.091,College Towns
+17031,5194675,Cook County, Illinois,0.106,Big Cities
+17033,19817,Crawford County, Illinois,0.105,Rural Middle America
+17035,11048,Cumberland County, Illinois,0.097,Rural Middle America
+17037,105160,DeKalb County, Illinois,0.092,College Towns
+17039,16561,De Witt County, Illinois,0.092,Rural Middle America
+17041,19980,Douglas County, Illinois,0.091,Rural Middle America
+17043,916924,DuPage County, Illinois,0.086,Urban Burbs
+17045,18576,Edgar County, Illinois,0.107,Rural Middle America
+17047,6721,Edwards County, Illinois,0.091,Rural Middle America
+17049,34242,Effingham County, Illinois,0.079,Rural Middle America
+17051,22140,Fayette County, Illinois,0.116,Working Class Country
+17053,14081,Ford County, Illinois,0.104,Rural Middle America
+17055,39561,Franklin County, Illinois,0.146,Working Class Country
+17057,37069,Fulton County, Illinois,0.125,Rural Middle America
+17059,5589,Gallatin County, Illinois,0.11,Working Class Country
+17061,13886,Greene County, Illinois,0.092,Working Class Country
+17063,50063,Grundy County, Illinois,0.114,Exurbs
+17065,8457,Hamilton County, Illinois,0.093,Aging Farmlands
+17067,19104,Hancock County, Illinois,0.113,Rural Middle America
+17069,4320,Hardin County, Illinois,0.128,Aging Farmlands
+17071,7331,Henderson County, Illinois,0.094,Rural Middle America
+17073,50486,Henry County, Illinois,0.086,Rural Middle America
+17075,29718,Iroquois County, Illinois,0.1,Rural Middle America
+17077,60218,Jackson County, Illinois,0.073,College Towns
+17079,9698,Jasper County, Illinois,0.095,Rural Middle America
+17081,38827,Jefferson County, Illinois,0.1,Working Class Country
+17083,22985,Jersey County, Illinois,0.088,Rural Middle America
+17085,22678,Jo Daviess County, Illinois,0.081,Graying America
+17087,12582,Johnson County, Illinois,0.104,Working Class Country
+17089,515269,Kane County, Illinois,0.099,Urban Burbs
+17091,113449,Kankakee County, Illinois,0.128,Rural Middle America
+17093,114736,Kendall County, Illinois,0.104,Urban Burbs
+17095,52919,Knox County, Illinois,0.103,Rural Middle America
+17097,703462,Lake County, Illinois,0.1,Urban Burbs
+17099,113924,LaSalle County, Illinois,0.124,Rural Middle America
+17101,16833,Lawrence County, Illinois,0.103,Rural Middle America
+17103,36031,Lee County, Illinois,0.109,Rural Middle America
+17105,38950,Livingston County, Illinois,0.107,Rural Middle America
+17107,30305,Logan County, Illinois,0.095,Rural Middle America
+17109,32612,McDonough County, Illinois,0.077,College Towns
+17111,308760,McHenry County, Illinois,0.093,Exurbs
+17113,169572,McLean County, Illinois,0.074,College Towns
+17115,110768,Macon County, Illinois,0.124,Rural Middle America
+17117,47765,Macoupin County, Illinois,0.105,Rural Middle America
+17119,269282,Madison County, Illinois,0.097,Middle Suburbs
+17121,39437,Marion County, Illinois,0.119,Rural Middle America
+17123,12640,Marshall County, Illinois,0.106,Rural Middle America
+17125,14666,Mason County, Illinois,0.143,Working Class Country
+17127,15429,Massac County, Illinois,0.08,Working Class Country
+17129,12705,Menard County, Illinois,0.078,Rural Middle America
+17131,16434,Mercer County, Illinois,0.089,Rural Middle America
+17133,32957,Monroe County, Illinois,0.078,Exurbs
+17135,30104,Montgomery County, Illinois,0.122,Rural Middle America
+17137,35547,Morgan County, Illinois,0.084,Rural Middle America
+17139,14846,Moultrie County, Illinois,0.09,Rural Middle America
+17141,53497,Ogle County, Illinois,0.119,Rural Middle America
+17143,186494,Peoria County, Illinois,0.116,College Towns
+17145,22350,Perry County, Illinois,0.119,Working Class Country
+17147,16729,Piatt County, Illinois,0.082,Rural Middle America
+17149,16430,Pike County, Illinois,0.081,Working Class Country
+17151,4470,Pope County, Illinois,0.106,Graying America
+17153,6161,Pulaski County, Illinois,0.119,African American South
+17155,6006,Putnam County, Illinois,0.15,Rural Middle America
+17157,33476,Randolph County, Illinois,0.094,Working Class Country
+17159,16233,Richland County, Illinois,0.105,Rural Middle America
+17161,147546,Rock Island County, Illinois,0.095,Middle Suburbs
+17163,270056,St. Clair County, Illinois,0.108,Military Posts
+17165,24913,Saline County, Illinois,0.112,Working Class Country
+17167,197465,Sangamon County, Illinois,0.079,College Towns
+17169,7544,Schuyler County, Illinois,0.066,Rural Middle America
+17171,5355,Scott County, Illinois,0.075,Rural Middle America
+17173,22363,Shelby County, Illinois,0.1,Rural Middle America
+17175,5994,Stark County, Illinois,0.098,Rural Middle America
+17177,47711,Stephenson County, Illinois,0.116,Rural Middle America
+17179,135394,Tazewell County, Illinois,0.113,Rural Middle America
+17181,17808,Union County, Illinois,0.108,Working Class Country
+17183,81625,Vermilion County, Illinois,0.12,Working Class Country
+17185,11947,Wabash County, Illinois,0.103,Rural Middle America
+17187,17707,Warren County, Illinois,0.08,Rural Middle America
+17189,14716,Washington County, Illinois,0.08,Rural Middle America
+17191,16760,Wayne County, Illinois,0.097,Rural Middle America
+17193,14665,White County, Illinois,0.086,Evangelical Hubs
+17195,58498,Whiteside County, Illinois,0.106,Rural Middle America
+17197,677560,Will County, Illinois,0.099,Urban Burbs
+17199,66357,Williamson County, Illinois,0.096,Rural Middle America
+17201,295266,Winnebago County, Illinois,0.155,Middle Suburbs
+17203,38664,Woodford County, Illinois,0.086,Rural Middle America
+18001,34387,Adams County, Indiana,0.134,Rural Middle America
+18003,355329,Allen County, Indiana,0.093,Middle Suburbs
+18005,76794,Bartholomew County, Indiana,0.088,Rural Middle America
+18007,8854,Benton County, Indiana,0.09,Rural Middle America
+18009,12766,Blackford County, Indiana,0.133,Rural Middle America
+18011,56640,Boone County, Indiana,0.068,Exurbs
+18013,15242,Brown County, Indiana,0.078,Graying America
+18015,20155,Carroll County, Indiana,0.099,Rural Middle America
+18017,38966,Cass County, Indiana,0.105,Rural Middle America
+18019,110232,Clark County, Indiana,0.082,Middle Suburbs
+18021,26890,Clay County, Indiana,0.096,Rural Middle America
+18023,33224,Clinton County, Indiana,0.092,Rural Middle America
+18025,10713,Crawford County, Indiana,0.105,Working Class Country
+18027,31648,Daviess County, Indiana,0.049,Working Class Country
+18029,50047,Dearborn County, Indiana,0.089,Rural Middle America
+18031,25740,Decatur County, Indiana,0.11,Rural Middle America
+18033,42223,DeKalb County, Indiana,0.124,Rural Middle America
+18035,117671,Delaware County, Indiana,0.095,College Towns
+18037,41889,Dubois County, Indiana,0.08,Rural Middle America
+18039,197559,Elkhart County, Indiana,0.15,Middle Suburbs
+18041,24277,Fayette County, Indiana,0.134,Rural Middle America
+18043,74578,Floyd County, Indiana,0.074,Middle Suburbs
+18045,17240,Fountain County, Indiana,0.116,Rural Middle America
+18047,23087,Franklin County, Indiana,0.089,Rural Middle America
+18049,20836,Fulton County, Indiana,0.112,Rural Middle America
+18051,33503,Gibson County, Indiana,0.067,Rural Middle America
+18053,70061,Grant County, Indiana,0.111,Working Class Country
+18055,33165,Greene County, Indiana,0.071,Evangelical Hubs
+18057,274569,Hamilton County, Indiana,0.061,Exurbs
+18059,70002,Hancock County, Indiana,0.078,Exurbs
+18061,39364,Harrison County, Indiana,0.078,Rural Middle America
+18063,145448,Hendricks County, Indiana,0.068,Exurbs
+18065,49462,Henry County, Indiana,0.12,Rural Middle America
+18067,82752,Howard County, Indiana,0.119,Middle Suburbs
+18069,37124,Huntington County, Indiana,0.111,Rural Middle America
+18071,42376,Jackson County, Indiana,0.101,Rural Middle America
+18073,33478,Jasper County, Indiana,0.087,Rural Middle America
+18075,21253,Jay County, Indiana,0.104,Rural Middle America
+18077,32428,Jefferson County, Indiana,0.095,Rural Middle America
+18079,28525,Jennings County, Indiana,0.122,Rural Middle America
+18081,139654,Johnson County, Indiana,0.074,Exurbs
+18083,38440,Knox County, Indiana,0.066,Rural Middle America
+18085,77358,Kosciusko County, Indiana,0.11,Rural Middle America
+18087,37128,LaGrange County, Indiana,0.14,Rural Middle America
+18089,496005,Lake County, Indiana,0.094,Middle Suburbs
+18091,111467,LaPorte County, Indiana,0.107,Rural Middle America
+18093,46134,Lawrence County, Indiana,0.111,Rural Middle America
+18095,131636,Madison County, Indiana,0.097,Middle Suburbs
+18097,903393,Marion County, Indiana,0.084,Big Cities
+18099,47051,Marshall County, Indiana,0.114,Rural Middle America
+18101,10334,Martin County, Indiana,0.063,Rural Middle America
+18103,36903,Miami County, Indiana,0.123,Rural Middle America
+18105,137974,Monroe County, Indiana,0.056,College Towns
+18107,38124,Montgomery County, Indiana,0.097,Rural Middle America
+18109,68894,Morgan County, Indiana,0.075,Rural Middle America
+18111,14244,Newton County, Indiana,0.089,Rural Middle America
+18113,47536,Noble County, Indiana,0.145,Rural Middle America
+18115,6128,Ohio County, Indiana,0.105,Rural Middle America
+18117,19840,Orange County, Indiana,0.092,Rural Middle America
+18119,21575,Owen County, Indiana,0.081,Rural Middle America
+18121,17339,Parke County, Indiana,0.083,Rural Middle America
+18123,19338,Perry County, Indiana,0.088,Rural Middle America
+18125,12845,Pike County, Indiana,0.087,Rural Middle America
+18127,164343,Porter County, Indiana,0.082,Middle Suburbs
+18129,25910,Posey County, Indiana,0.07,Rural Middle America
+18131,13402,Pulaski County, Indiana,0.095,Rural Middle America
+18133,37963,Putnam County, Indiana,0.082,Rural Middle America
+18135,26171,Randolph County, Indiana,0.102,Rural Middle America
+18137,28818,Ripley County, Indiana,0.091,Rural Middle America
+18139,17392,Rush County, Indiana,0.095,Rural Middle America
+18141,266931,St. Joseph County, Indiana,0.104,College Towns
+18143,24181,Scott County, Indiana,0.121,Rural Middle America
+18145,44436,Shelby County, Indiana,0.088,Rural Middle America
+18147,20952,Spencer County, Indiana,0.081,Rural Middle America
+18149,23363,Starke County, Indiana,0.126,Working Class Country
+18151,34185,Steuben County, Indiana,0.129,Rural Middle America
+18153,21475,Sullivan County, Indiana,0.093,Rural Middle America
+18155,10613,Switzerland County, Indiana,0.07,Working Class Country
+18157,172780,Tippecanoe County, Indiana,0.085,College Towns
+18159,15936,Tipton County, Indiana,0.103,Rural Middle America
+18161,7516,Union County, Indiana,0.086,Rural Middle America
+18163,179703,Vanderburgh County, Indiana,0.074,College Towns
+18165,16212,Vermillion County, Indiana,0.108,Rural Middle America
+18167,107848,Vigo County, Indiana,0.092,College Towns
+18169,32888,Wabash County, Indiana,0.12,Rural Middle America
+18171,8508,Warren County, Indiana,0.101,Rural Middle America
+18173,59689,Warrick County, Indiana,0.069,Rural Middle America
+18175,28262,Washington County, Indiana,0.112,Rural Middle America
+18177,68917,Wayne County, Indiana,0.109,Rural Middle America
+18179,27636,Wells County, Indiana,0.091,Rural Middle America
+18181,24643,White County, Indiana,0.094,Rural Middle America
+18183,33292,Whitley County, Indiana,0.116,Rural Middle America
+19001,7682,Adair County, Iowa,0.051,Rural Middle America
+19003,4029,Adams County, Iowa,0.06,Aging Farmlands
+19005,14330,Allamakee County, Iowa,0.093,Aging Farmlands
+19007,12887,Appanoose County, Iowa,0.094,Working Class Country
+19009,6119,Audubon County, Iowa,0.051,Aging Farmlands
+19011,26076,Benton County, Iowa,0.058,Rural Middle America
+19013,131090,Black Hawk County, Iowa,0.058,College Towns
+19015,26306,Boone County, Iowa,0.059,Rural Middle America
+19017,24276,Bremer County, Iowa,0.05,Rural Middle America
+19019,20958,Buchanan County, Iowa,0.059,Rural Middle America
+19021,20260,Buena Vista County, Iowa,0.055,Hispanic Centers
+19023,14867,Butler County, Iowa,0.06,Rural Middle America
+19025,9670,Calhoun County, Iowa,0.054,Rural Middle America
+19027,20816,Carroll County, Iowa,0.042,Rural Middle America
+19029,13956,Cass County, Iowa,0.058,Rural Middle America
+19031,18499,Cedar County, Iowa,0.057,Rural Middle America
+19033,44151,Cerro Gordo County, Iowa,0.067,Rural Middle America
+19035,12072,Cherokee County, Iowa,0.044,Rural Middle America
+19037,12439,Chickasaw County, Iowa,0.084,Rural Middle America
+19039,9286,Clarke County, Iowa,0.074,Rural Middle America
+19041,16667,Clay County, Iowa,0.062,Rural Middle America
+19043,18129,Clayton County, Iowa,0.079,Rural Middle America
+19045,49116,Clinton County, Iowa,0.077,Rural Middle America
+19047,17096,Crawford County, Iowa,0.047,Hispanic Centers
+19049,66135,Dallas County, Iowa,0.051,Exurbs
+19051,8753,Davis County, Iowa,0.101,Rural Middle America
+19053,8457,Decatur County, Iowa,0.066,Rural Middle America
+19055,17764,Delaware County, Iowa,0.068,Rural Middle America
+19057,40325,Des Moines County, Iowa,0.082,Rural Middle America
+19059,16667,Dickinson County, Iowa,0.058,Graying America
+19061,93653,Dubuque County, Iowa,0.06,Rural Middle America
+19063,10302,Emmet County, Iowa,0.086,Rural Middle America
+19065,20880,Fayette County, Iowa,0.085,Rural Middle America
+19067,16303,Floyd County, Iowa,0.087,Rural Middle America
+19069,10680,Franklin County, Iowa,0.07,Rural Middle America
+19071,7441,Fremont County, Iowa,0.07,Rural Middle America
+19073,9336,Greene County, Iowa,0.063,Rural Middle America
+19075,12453,Grundy County, Iowa,0.049,Rural Middle America
+19077,10954,Guthrie County, Iowa,0.056,Rural Middle America
+19079,15673,Hamilton County, Iowa,0.081,Rural Middle America
+19081,11341,Hancock County, Iowa,0.09,Rural Middle America
+19083,17534,Hardin County, Iowa,0.06,Rural Middle America
+19085,14928,Harrison County, Iowa,0.044,Rural Middle America
+19087,20145,Henry County, Iowa,0.088,Rural Middle America
+19089,9566,Howard County, Iowa,0.086,Rural Middle America
+19091,9815,Humboldt County, Iowa,0.062,Rural Middle America
+19093,7089,Ida County, Iowa,0.058,Rural Middle America
+19095,16355,Iowa County, Iowa,0.058,Rural Middle America
+19097,19848,Jackson County, Iowa,0.077,Rural Middle America
+19099,36842,Jasper County, Iowa,0.081,Rural Middle America
+19101,16843,Jefferson County, Iowa,0.087,Rural Middle America
+19103,130882,Johnson County, Iowa,0.044,College Towns
+19105,20638,Jones County, Iowa,0.063,Rural Middle America
+19107,10511,Keokuk County, Iowa,0.071,Rural Middle America
+19109,15543,Kossuth County, Iowa,0.056,Rural Middle America
+19111,35862,Lee County, Iowa,0.114,Rural Middle America
+19113,211226,Linn County, Iowa,0.065,Middle Suburbs
+19115,11387,Louisa County, Iowa,0.08,Rural Middle America
+19117,8898,Lucas County, Iowa,0.06,Rural Middle America
+19119,11581,Lyon County, Iowa,0.043,Rural Middle America
+19121,15679,Madison County, Iowa,0.058,Rural Middle America
+19123,22381,Mahaska County, Iowa,0.077,Rural Middle America
+19125,33309,Marion County, Iowa,0.057,Rural Middle America
+19127,40648,Marshall County, Iowa,0.07,Rural Middle America
+19129,15059,Mills County, Iowa,0.043,Rural Middle America
+19131,10776,Mitchell County, Iowa,0.054,Rural Middle America
+19133,9243,Monona County, Iowa,0.071,Rural Middle America
+19135,7970,Monroe County, Iowa,0.075,Rural Middle America
+19137,10740,Montgomery County, Iowa,0.087,Rural Middle America
+19139,42745,Muscatine County, Iowa,0.089,Rural Middle America
+19141,14398,O'Brien County, Iowa,0.053,Rural Middle America
+19143,6462,Osceola County, Iowa,0.054,Aging Farmlands
+19145,15932,Page County, Iowa,0.087,Rural Middle America
+19147,9421,Palo Alto County, Iowa,0.07,Rural Middle America
+19149,24986,Plymouth County, Iowa,0.047,Rural Middle America
+19151,7310,Pocahontas County, Iowa,0.052,Aging Farmlands
+19153,430640,Polk County, Iowa,0.062,Urban Burbs
+19155,93158,Pottawattamie County, Iowa,0.048,Rural Middle America
+19157,18914,Poweshiek County, Iowa,0.066,Rural Middle America
+19159,5131,Ringgold County, Iowa,0.053,Aging Farmlands
+19161,10350,Sac County, Iowa,0.047,Rural Middle America
+19163,165224,Scott County, Iowa,0.073,Middle Suburbs
+19165,12167,Shelby County, Iowa,0.039,Rural Middle America
+19167,33704,Sioux County, Iowa,0.041,Rural Middle America
+19169,89542,Story County, Iowa,0.045,College Towns
+19171,17767,Tama County, Iowa,0.066,Rural Middle America
+19173,6317,Taylor County, Iowa,0.067,Rural Middle America
+19175,12534,Union County, Iowa,0.06,Rural Middle America
+19177,7570,Van Buren County, Iowa,0.08,Rural Middle America
+19179,35625,Wapello County, Iowa,0.094,Rural Middle America
+19181,46225,Warren County, Iowa,0.058,Exurbs
+19183,21704,Washington County, Iowa,0.049,Rural Middle America
+19185,6403,Wayne County, Iowa,0.064,Aging Farmlands
+19187,38013,Webster County, Iowa,0.083,Rural Middle America
+19189,10866,Winnebago County, Iowa,0.091,Rural Middle America
+19191,21056,Winneshiek County, Iowa,0.058,Rural Middle America
+19193,102172,Woodbury County, Iowa,0.057,Rural Middle America
+19195,7598,Worth County, Iowa,0.063,Rural Middle America
+19197,13229,Wright County, Iowa,0.084,Rural Middle America
+20001,13371,Allen County, Kansas,0.078,Rural Middle America
+20003,8102,Anderson County, Kansas,0.079,Rural Middle America
+20005,16924,Atchison County, Kansas,0.081,Rural Middle America
+20007,4861,Barber County, Kansas,0.051,Aging Farmlands
+20009,27674,Barton County, Kansas,0.061,Rural Middle America
+20011,15173,Bourbon County, Kansas,0.065,Rural Middle America
+20013,9984,Brown County, Kansas,0.056,Rural Middle America
+20015,65880,Butler County, Kansas,0.072,Rural Middle America
+20017,2790,Chase County, Kansas,0.054,Rural Middle America
+20019,3669,Chautauqua County, Kansas,0.084,Working Class Country
+20021,21603,Cherokee County, Kansas,0.085,Rural Middle America
+20023,2726,Cheyenne County, Kansas,0.037,Aging Farmlands
+20025,2215,Clark County, Kansas,0.037,Aging Farmlands
+20027,8535,Clay County, Kansas,0.042,Aging Farmlands
+20029,9533,Cloud County, Kansas,0.045,Rural Middle America
+20031,8601,Coffey County, Kansas,0.057,Rural Middle America
+20033,1891,Comanche County, Kansas,0.038,Aging Farmlands
+20035,36311,Cowley County, Kansas,0.076,Rural Middle America
+20037,39134,Crawford County, Kansas,0.081,College Towns
+20039,2961,Decatur County, Kansas,0.033,Aging Farmlands
+20041,19754,Dickinson County, Kansas,0.051,Rural Middle America
+20043,7945,Doniphan County, Kansas,0.088,Rural Middle America
+20045,110826,Douglas County, Kansas,0.054,College Towns
+20047,3037,Edwards County, Kansas,0.044,Aging Farmlands
+20049,2882,Elk County, Kansas,0.11,Aging Farmlands
+20051,28452,Ellis County, Kansas,0.036,College Towns
+20053,6497,Ellsworth County, Kansas,0.041,Aging Farmlands
+20055,36776,Finney County, Kansas,0.043,Hispanic Centers
+20057,33848,Ford County, Kansas,0.038,Hispanic Centers
+20059,25992,Franklin County, Kansas,0.071,Rural Middle America
+20061,34362,Geary County, Kansas,0.069,Military Posts
+20063,2695,Gove County, Kansas,0.035,Aging Farmlands
+20065,2597,Graham County, Kansas,0.043,Aging Farmlands
+20067,7829,Grant County, Kansas,0.042,Hispanic Centers
+20069,6006,Gray County, Kansas,0.034,Aging Farmlands
+20071,1247,Greeley County, Kansas,0.045,Aging Farmlands
+20073,6689,Greenwood County, Kansas,0.072,Aging Farmlands
+20075,2690,Hamilton County, Kansas,0.042,Hispanic Centers
+20077,6034,Harper County, Kansas,0.056,Working Class Country
+20079,34684,Harvey County, Kansas,0.074,Rural Middle America
+20081,4256,Haskell County, Kansas,0.037,Hispanic Centers
+20083,1916,Hodgeman County, Kansas,0.042,Aging Farmlands
+20085,13462,Jackson County, Kansas,0.06,Rural Middle America
+20087,19126,Jefferson County, Kansas,0.067,Rural Middle America
+20089,3077,Jewell County, Kansas,0.049,Aging Farmlands
+20091,544179,Johnson County, Kansas,0.068,Exurbs
+20093,3977,Kearny County, Kansas,0.045,Hispanic Centers
+20095,7858,Kingman County, Kansas,0.063,Aging Farmlands
+20097,2553,Kiowa County, Kansas,0.049,Aging Farmlands
+20099,21607,Labette County, Kansas,0.078,Rural Middle America
+20101,1750,Lane County, Kansas,0.034,Aging Farmlands
+20103,76227,Leavenworth County, Kansas,0.073,Military Posts
+20105,3241,Lincoln County, Kansas,0.063,Aging Farmlands
+20107,9656,Linn County, Kansas,0.084,Working Class Country
+20109,2756,Logan County, Kansas,0.04,Aging Farmlands
+20111,33690,Lyon County, Kansas,0.057,College Towns
+20113,29180,McPherson County, Kansas,0.051,Rural Middle America
+20115,12660,Marion County, Kansas,0.063,Rural Middle America
+20117,10117,Marshall County, Kansas,0.049,Rural Middle America
+20119,4575,Meade County, Kansas,0.042,Aging Farmlands
+20121,32787,Miami County, Kansas,0.068,Rural Middle America
+20123,6373,Mitchell County, Kansas,0.058,Aging Farmlands
+20125,35471,Montgomery County, Kansas,0.094,Rural Middle America
+20127,5923,Morris County, Kansas,0.068,Aging Farmlands
+20129,3233,Morton County, Kansas,0.047,Aging Farmlands
+20131,10178,Nemaha County, Kansas,0.043,Rural Middle America
+20133,16512,Neosho County, Kansas,0.07,Rural Middle America
+20135,3107,Ness County, Kansas,0.04,Aging Farmlands
+20137,5671,Norton County, Kansas,0.047,Rural Middle America
+20139,16295,Osage County, Kansas,0.07,Rural Middle America
+20141,3858,Osborne County, Kansas,0.044,Aging Farmlands
+20143,6091,Ottawa County, Kansas,0.065,Rural Middle America
+20145,6973,Pawnee County, Kansas,0.037,Graying America
+20147,5642,Phillips County, Kansas,0.06,Aging Farmlands
+20149,21604,Pottawatomie County, Kansas,0.041,Exurbs
+20151,9656,Pratt County, Kansas,0.053,Rural Middle America
+20153,2519,Rawlins County, Kansas,0.035,Aging Farmlands
+20155,64511,Reno County, Kansas,0.063,Rural Middle America
+20157,4980,Republic County, Kansas,0.041,Aging Farmlands
+20159,10083,Rice County, Kansas,0.051,Rural Middle America
+20161,71115,Riley County, Kansas,0.032,College Towns
+20163,5181,Rooks County, Kansas,0.073,Aging Farmlands
+20165,3307,Rush County, Kansas,0.059,Aging Farmlands
+20167,6970,Russell County, Kansas,0.046,Rural Middle America
+20169,55606,Saline County, Kansas,0.057,Rural Middle America
+20171,4936,Scott County, Kansas,0.032,Aging Farmlands
+20173,498365,Sedgwick County, Kansas,0.088,Big Cities
+20175,22952,Seward County, Kansas,0.051,Hispanic Centers
+20177,177934,Shawnee County, Kansas,0.064,College Towns
+20179,2556,Sheridan County, Kansas,0.032,Aging Farmlands
+20181,6010,Sherman County, Kansas,0.039,Aging Farmlands
+20183,3853,Smith County, Kansas,0.043,Aging Farmlands
+20185,4437,Stafford County, Kansas,0.061,Aging Farmlands
+20187,2235,Stanton County, Kansas,0.034,Aging Farmlands
+20189,5724,Stevens County, Kansas,0.053,Hispanic Centers
+20191,24132,Sumner County, Kansas,0.09,Rural Middle America
+20193,7900,Thomas County, Kansas,0.036,Rural Middle America
+20195,3001,Trego County, Kansas,0.036,Aging Farmlands
+20197,7053,Wabaunsee County, Kansas,0.066,Rural Middle America
+20199,1485,Wallace County, Kansas,0.059,Aging Farmlands
+20201,5799,Washington County, Kansas,0.045,Aging Farmlands
+20203,2234,Wichita County, Kansas,0.035,Aging Farmlands
+20205,9409,Wilson County, Kansas,0.102,Rural Middle America
+20207,3309,Woodson County, Kansas,0.089,Aging Farmlands
+20209,157505,Wyandotte County, Kansas,0.104,Hispanic Centers
+21001,18656,Adair County, Kentucky,0.101,Evangelical Hubs
+21003,19956,Allen County, Kentucky,0.143,Evangelical Hubs
+21005,21421,Anderson County, Kentucky,0.109,Evangelical Hubs
+21007,8249,Ballard County, Kentucky,0.102,Working Class Country
+21009,42173,Barren County, Kentucky,0.116,Working Class Country
+21011,11591,Bath County, Kentucky,0.133,Working Class Country
+21013,28691,Bell County, Kentucky,0.125,Evangelical Hubs
+21015,118811,Boone County, Kentucky,0.092,Exurbs
+21017,19985,Bourbon County, Kentucky,0.091,Rural Middle America
+21019,49542,Boyd County, Kentucky,0.083,Working Class Country
+21021,28432,Boyle County, Kentucky,0.11,Rural Middle America
+21023,8488,Bracken County, Kentucky,0.102,Evangelical Hubs
+21025,13878,Breathitt County, Kentucky,0.1,Evangelical Hubs
+21027,20059,Breckinridge County, Kentucky,0.121,Working Class Country
+21029,74319,Bullitt County, Kentucky,0.108,Rural Middle America
+21031,12690,Butler County, Kentucky,0.137,Evangelical Hubs
+21033,12984,Caldwell County, Kentucky,0.109,Working Class Country
+21035,37191,Calloway County, Kentucky,0.08,College Towns
+21037,90336,Campbell County, Kentucky,0.107,Middle Suburbs
+21039,5104,Carlisle County, Kentucky,0.091,Evangelical Hubs
+21041,10811,Carroll County, Kentucky,0.124,Working Class Country
+21043,27720,Carter County, Kentucky,0.135,Evangelical Hubs
+21045,15955,Casey County, Kentucky,0.102,Evangelical Hubs
+21047,73955,Christian County, Kentucky,0.129,Military Posts
+21049,35613,Clark County, Kentucky,0.114,Rural Middle America
+21051,21730,Clay County, Kentucky,0.135,Evangelical Hubs
+21053,10272,Clinton County, Kentucky,0.09,Evangelical Hubs
+21055,9315,Crittenden County, Kentucky,0.108,Evangelical Hubs
+21057,6856,Cumberland County, Kentucky,0.13,Evangelical Hubs
+21059,96656,Daviess County, Kentucky,0.091,Rural Middle America
+21061,12161,Edmonson County, Kentucky,0.128,Evangelical Hubs
+21063,7852,Elliott County, Kentucky,0.126,Evangelical Hubs
+21065,14672,Estill County, Kentucky,0.129,Evangelical Hubs
+21067,295803,Fayette County, Kentucky,0.077,College Towns
+21069,14348,Fleming County, Kentucky,0.122,Evangelical Hubs
+21071,39451,Floyd County, Kentucky,0.124,Evangelical Hubs
+21073,49285,Franklin County, Kentucky,0.091,College Towns
+21075,6813,Fulton County, Kentucky,0.144,African American South
+21077,8589,Gallatin County, Kentucky,0.111,Working Class Country
+21079,16912,Garrard County, Kentucky,0.119,Evangelical Hubs
+21081,24662,Grant County, Kentucky,0.101,Working Class Country
+21083,37121,Graves County, Kentucky,0.103,Evangelical Hubs
+21085,25746,Grayson County, Kentucky,0.164,Working Class Country
+21087,11258,Green County, Kentucky,0.124,Evangelical Hubs
+21089,36910,Greenup County, Kentucky,0.098,Evangelical Hubs
+21091,8565,Hancock County, Kentucky,0.136,Rural Middle America
+21093,105543,Hardin County, Kentucky,0.1,Military Posts
+21095,29278,Harlan County, Kentucky,0.125,Evangelical Hubs
+21097,18846,Harrison County, Kentucky,0.111,Rural Middle America
+21099,18199,Hart County, Kentucky,0.106,Evangelical Hubs
+21101,46250,Henderson County, Kentucky,0.098,Working Class Country
+21103,15416,Henry County, Kentucky,0.107,Working Class Country
+21105,4902,Hickman County, Kentucky,0.092,Evangelical Hubs
+21107,46920,Hopkins County, Kentucky,0.091,Evangelical Hubs
+21109,13494,Jackson County, Kentucky,0.175,Evangelical Hubs
+21111,741096,Jefferson County, Kentucky,0.105,Big Cities
+21113,48586,Jessamine County, Kentucky,0.088,Exurbs
+21115,23356,Johnson County, Kentucky,0.111,Evangelical Hubs
+21117,159720,Kenton County, Kentucky,0.1,Middle Suburbs
+21119,16346,Knott County, Kentucky,0.12,Evangelical Hubs
+21121,31883,Knox County, Kentucky,0.115,Evangelical Hubs
+21123,14193,Larue County, Kentucky,0.107,Rural Middle America
+21125,58849,Laurel County, Kentucky,0.101,Evangelical Hubs
+21127,15860,Lawrence County, Kentucky,0.131,Evangelical Hubs
+21129,7887,Lee County, Kentucky,0.123,Evangelical Hubs
+21131,11310,Leslie County, Kentucky,0.137,Evangelical Hubs
+21133,24519,Letcher County, Kentucky,0.12,Evangelical Hubs
+21135,13870,Lewis County, Kentucky,0.151,Evangelical Hubs
+21137,24742,Lincoln County, Kentucky,0.121,Evangelical Hubs
+21139,9519,Livingston County, Kentucky,0.098,Evangelical Hubs
+21141,26835,Logan County, Kentucky,0.104,Evangelical Hubs
+21143,8314,Lyon County, Kentucky,0.122,Graying America
+21145,65565,McCracken County, Kentucky,0.091,Evangelical Hubs
+21147,18306,McCreary County, Kentucky,0.133,Evangelical Hubs
+21149,9531,McLean County, Kentucky,0.106,Rural Middle America
+21151,82916,Madison County, Kentucky,0.087,College Towns
+21153,13333,Magoffin County, Kentucky,0.214,Evangelical Hubs
+21155,19820,Marion County, Kentucky,0.129,Working Class Country
+21157,31448,Marshall County, Kentucky,0.107,Rural Middle America
+21159,12929,Martin County, Kentucky,0.124,Evangelical Hubs
+21161,17490,Mason County, Kentucky,0.111,Working Class Country
+21163,28602,Meade County, Kentucky,0.124,Military Posts
+21165,6306,Menifee County, Kentucky,0.147,Evangelical Hubs
+21167,21331,Mercer County, Kentucky,0.108,Rural Middle America
+21169,10099,Metcalfe County, Kentucky,0.158,Evangelical Hubs
+21171,10963,Monroe County, Kentucky,0.14,Evangelical Hubs
+21173,26499,Montgomery County, Kentucky,0.126,Rural Middle America
+21175,13923,Morgan County, Kentucky,0.145,Evangelical Hubs
+21177,31499,Muhlenberg County, Kentucky,0.107,Evangelical Hubs
+21179,43437,Nelson County, Kentucky,0.115,Rural Middle America
+21181,7135,Nicholas County, Kentucky,0.125,Evangelical Hubs
+21183,23842,Ohio County, Kentucky,0.094,Working Class Country
+21185,60316,Oldham County, Kentucky,0.086,Exurbs
+21187,10841,Owen County, Kentucky,0.101,Evangelical Hubs
+21189,4755,Owsley County, Kentucky,0.112,Evangelical Hubs
+21191,14877,Pendleton County, Kentucky,0.117,Evangelical Hubs
+21193,28712,Perry County, Kentucky,0.125,Evangelical Hubs
+21195,65024,Pike County, Kentucky,0.107,Evangelical Hubs
+21197,12613,Powell County, Kentucky,0.167,Evangelical Hubs
+21199,63063,Pulaski County, Kentucky,0.1,Evangelical Hubs
+21201,2282,Robertson County, Kentucky,0.096,Working Class Country
+21203,17056,Rockcastle County, Kentucky,0.128,Evangelical Hubs
+21205,23333,Rowan County, Kentucky,0.086,College Towns
+21207,17565,Russell County, Kentucky,0.108,Evangelical Hubs
+21209,47173,Scott County, Kentucky,0.091,Exurbs
+21211,42074,Shelby County, Kentucky,0.096,Exurbs
+21213,17327,Simpson County, Kentucky,0.118,Working Class Country
+21215,17061,Spencer County, Kentucky,0.102,Rural Middle America
+21217,24512,Taylor County, Kentucky,0.102,Evangelical Hubs
+21219,12460,Todd County, Kentucky,0.126,Evangelical Hubs
+21221,14339,Trigg County, Kentucky,0.16,Evangelical Hubs
+21223,8809,Trimble County, Kentucky,0.107,Working Class Country
+21225,15007,Union County, Kentucky,0.108,Evangelical Hubs
+21227,113792,Warren County, Kentucky,0.092,College Towns
+21229,11717,Washington County, Kentucky,0.127,Rural Middle America
+21231,20813,Wayne County, Kentucky,0.136,Evangelical Hubs
+21233,13621,Webster County, Kentucky,0.088,Evangelical Hubs
+21235,35637,Whitley County, Kentucky,0.114,Evangelical Hubs
+21237,7355,Wolfe County, Kentucky,0.139,Evangelical Hubs
+21239,24939,Woodford County, Kentucky,0.083,Exurbs
+22001,61773,Acadia Parish, Louisiana,0.071,Working Class Country
+22003,25764,Allen Parish, Louisiana,0.101,Working Class Country
+22005,107215,Ascension Parish, Louisiana,0.067,Urban Burbs
+22007,23421,Assumption Parish, Louisiana,0.088,Working Class Country
+22009,42073,Avoyelles Parish, Louisiana,0.081,African American South
+22011,35654,Beauregard Parish, Louisiana,0.08,Working Class Country
+22013,14353,Bienville Parish, Louisiana,0.105,African American South
+22015,116979,Bossier Parish, Louisiana,0.064,Military Posts
+22017,254969,Caddo Parish, Louisiana,0.079,African American South
+22019,192768,Calcasieu Parish, Louisiana,0.072,Military Posts
+22021,10132,Caldwell Parish, Louisiana,0.107,Working Class Country
+22023,6839,Cameron Parish, Louisiana,0.056,Working Class Country
+22025,10407,Catahoula Parish, Louisiana,0.103,African American South
+22027,17195,Claiborne Parish, Louisiana,0.103,African American South
+22029,20822,Concordia Parish, Louisiana,0.113,African American South
+22031,26656,De Soto Parish, Louisiana,0.09,African American South
+22033,440171,East Baton Rouge Parish, Louisiana,0.068,African American South
+22035,7759,East Carroll Parish, Louisiana,0.142,African American South
+22037,20267,East Feliciana Parish, Louisiana,0.08,Working Class Country
+22039,33984,Evangeline Parish, Louisiana,0.086,African American South
+22041,20767,Franklin Parish, Louisiana,0.113,African American South
+22043,22309,Grant Parish, Louisiana,0.082,Working Class Country
+22045,73240,Iberia Parish, Louisiana,0.076,African American South
+22047,33387,Iberville Parish, Louisiana,0.104,African American South
+22049,16274,Jackson Parish, Louisiana,0.078,African American South
+22051,432552,Jefferson Parish, Louisiana,0.065,College Towns
+22053,31594,Jefferson Davis Parish, Louisiana,0.064,Working Class Country
+22055,221578,Lafayette Parish, Louisiana,0.059,College Towns
+22057,96318,Lafourche Parish, Louisiana,0.049,Working Class Country
+22059,14890,LaSalle Parish, Louisiana,0.073,Evangelical Hubs
+22061,46735,Lincoln Parish, Louisiana,0.078,College Towns
+22063,128026,Livingston Parish, Louisiana,0.07,Working Class Country
+22065,12093,Madison Parish, Louisiana,0.093,African American South
+22067,27979,Morehouse Parish, Louisiana,0.151,African American South
+22069,39566,Natchitoches Parish, Louisiana,0.084,African American South
+22071,343829,Orleans Parish, Louisiana,0.107,African American South
+22073,153720,Ouachita Parish, Louisiana,0.076,African American South
+22075,23042,Plaquemines Parish, Louisiana,0.062,Working Class Country
+22077,22802,Pointe Coupee Parish, Louisiana,0.079,African American South
+22079,131613,Rapides Parish, Louisiana,0.069,African American South
+22081,9091,Red River Parish, Louisiana,0.096,African American South
+22083,20725,Richland Parish, Louisiana,0.107,African American South
+22085,24233,Sabine Parish, Louisiana,0.081,Working Class Country
+22087,35897,St. Bernard Parish, Louisiana,0.105,African American South
+22089,52780,St. Charles Parish, Louisiana,0.065,Exurbs
+22091,11203,St. Helena Parish, Louisiana,0.118,African American South
+22093,22102,St. James Parish, Louisiana,0.1,African American South
+22095,45924,St. John the Baptist Parish, Louisiana,0.084,African American South
+22097,83384,St. Landry Parish, Louisiana,0.083,African American South
+22099,52160,St. Martin Parish, Louisiana,0.075,Working Class Country
+22101,54650,St. Mary Parish, Louisiana,0.086,African American South
+22103,233740,St. Tammany Parish, Louisiana,0.052,Urban Burbs
+22105,121097,Tangipahoa Parish, Louisiana,0.081,African American South
+22107,5252,Tensas Parish, Louisiana,0.135,African American South
+22109,111860,Terrebonne Parish, Louisiana,0.052,Working Class Country
+22111,22721,Union Parish, Louisiana,0.122,Working Class Country
+22113,57999,Vermilion Parish, Louisiana,0.072,Working Class Country
+22115,52334,Vernon Parish, Louisiana,0.067,Military Posts
+22117,47168,Washington Parish, Louisiana,0.096,African American South
+22119,41207,Webster Parish, Louisiana,0.091,African American South
+22121,23788,West Baton Rouge Parish, Louisiana,0.074,Exurbs
+22123,11604,West Carroll Parish, Louisiana,0.17,Evangelical Hubs
+22125,15625,West Feliciana Parish, Louisiana,0.082,African American South
+22127,15313,Winn Parish, Louisiana,0.091,Working Class Country
+23001,107702,Androscoggin County, Maine,0.084,Rural Middle America
+23003,71870,Aroostook County, Maine,0.093,Graying America
+23005,281674,Cumberland County, Maine,0.065,Exurbs
+23007,30768,Franklin County, Maine,0.112,Graying America
+23009,54418,Hancock County, Maine,0.068,Graying America
+23011,122151,Kennebec County, Maine,0.073,Graying America
+23013,39736,Knox County, Maine,0.07,Graying America
+23015,34457,Lincoln County, Maine,0.063,Graying America
+23017,57833,Oxford County, Maine,0.109,Graying America
+23019,153923,Penobscot County, Maine,0.08,College Towns
+23021,17535,Piscataquis County, Maine,0.116,Graying America
+23023,35293,Sagadahoc County, Maine,0.067,Graying America
+23025,52228,Somerset County, Maine,0.107,Graying America
+23027,38786,Waldo County, Maine,0.078,Graying America
+23029,32856,Washington County, Maine,0.104,Graying America
+23031,197131,York County, Maine,0.074,Graying America
+24001,75087,Allegany County, Maryland,0.075,Working Class Country
+24003,537656,Anne Arundel County, Maryland,0.065,Urban Burbs
+24005,805029,Baltimore County, Maryland,0.077,Urban Burbs
+24009,88737,Calvert County, Maryland,0.059,Military Posts
+24011,33066,Caroline County, Maryland,0.088,Working Class Country
+24013,167134,Carroll County, Maryland,0.06,Exurbs
+24015,101108,Cecil County, Maryland,0.086,Exurbs
+24017,146551,Charles County, Maryland,0.059,Military Posts
+24019,32618,Dorchester County, Maryland,0.109,African American South
+24021,233385,Frederick County, Maryland,0.059,Urban Burbs
+24023,30097,Garrett County, Maryland,0.069,Graying America
+24025,244826,Harford County, Maryland,0.071,Urban Burbs
+24027,287085,Howard County, Maryland,0.054,Urban Burbs
+24029,20197,Kent County, Maryland,0.071,Graying America
+24031,971777,Montgomery County, Maryland,0.053,Urban Burbs
+24033,863420,Prince George's County, Maryland,0.073,Urban Burbs
+24035,47798,Queen Anne's County, Maryland,0.066,Exurbs
+24037,105151,St. Mary's County, Maryland,0.056,Military Posts
+24039,26470,Somerset County, Maryland,0.095,African American South
+24041,37782,Talbot County, Maryland,0.068,Graying America
+24043,147430,Washington County, Maryland,0.094,Middle Suburbs
+24045,98733,Wicomico County, Maryland,0.077,College Towns
+24047,51454,Worcester County, Maryland,0.075,Graying America
+24510,620961,Baltimore city, Maryland,0.106,Big Cities
+25001,215888,Barnstable County, Massachusetts,0.08,Graying America
+25003,131219,Berkshire County, Massachusetts,0.084,Graying America
+25005,548285,Bristol County, Massachusetts,0.118,Exurbs
+25007,16535,Dukes County, Massachusetts,0.05,Graying America
+25009,743159,Essex County, Massachusetts,0.101,Urban Burbs
+25011,71372,Franklin County, Massachusetts,0.087,Graying America
+25013,463490,Hampden County, Massachusetts,0.105,College Towns
+25015,158080,Hampshire County, Massachusetts,0.073,College Towns
+25017,1503085,Middlesex County, Massachusetts,0.081,Urban Burbs
+25019,10172,Nantucket County, Massachusetts,0.05,Exurbs
+25021,670850,Norfolk County, Massachusetts,0.085,Urban Burbs
+25023,494919,Plymouth County, Massachusetts,0.097,Exurbs
+25025,722023,Suffolk County, Massachusetts,0.093,Big Cities
+25027,798552,Worcester County, Massachusetts,0.101,Urban Burbs
+26001,10942,Alcona County, Michigan,0.167,Graying America
+26003,9601,Alger County, Michigan,0.12,Graying America
+26005,111408,Allegan County, Michigan,0.132,Rural Middle America
+26007,29598,Alpena County, Michigan,0.139,Graying America
+26009,23580,Antrim County, Michigan,0.147,Graying America
+26011,15899,Arenac County, Michigan,0.158,Graying America
+26013,8860,Baraga County, Michigan,0.243,Graying America
+26015,59173,Barry County, Michigan,0.105,Rural Middle America
+26017,107771,Bay County, Michigan,0.123,Middle Suburbs
+26019,17525,Benzie County, Michigan,0.12,Graying America
+26021,156813,Berrien County, Michigan,0.135,Middle Suburbs
+26023,45248,Branch County, Michigan,0.14,Rural Middle America
+26025,136146,Calhoun County, Michigan,0.124,Rural Middle America
+26027,52293,Cass County, Michigan,0.114,Rural Middle America
+26029,25949,Charlevoix County, Michigan,0.139,Graying America
+26031,26152,Cheboygan County, Michigan,0.086,Graying America
+26033,38520,Chippewa County, Michigan,0.116,Graying America
+26035,30926,Clare County, Michigan,0.168,Graying America
+26037,75382,Clinton County, Michigan,0.094,Rural Middle America
+26039,14074,Crawford County, Michigan,0.137,Graying America
+26041,37069,Delta County, Michigan,0.115,Rural Middle America
+26043,26168,Dickinson County, Michigan,0.12,Rural Middle America
+26045,107759,Eaton County, Michigan,0.103,Rural Middle America
+26047,32694,Emmet County, Michigan,0.122,Graying America
+26049,425790,Genesee County, Michigan,0.158,Middle Suburbs
+26051,25692,Gladwin County, Michigan,0.165,Graying America
+26053,16427,Gogebic County, Michigan,0.133,Graying America
+26055,86986,Grand Traverse County, Michigan,0.12,Rural Middle America
+26057,42476,Gratiot County, Michigan,0.137,Rural Middle America
+26059,46688,Hillsdale County, Michigan,0.172,Rural Middle America
+26061,36628,Houghton County, Michigan,0.102,College Towns
+26063,33118,Huron County, Michigan,0.148,Graying America
+26065,280895,Ingham County, Michigan,0.116,College Towns
+26067,63905,Ionia County, Michigan,0.134,Rural Middle America
+26069,25887,Iosco County, Michigan,0.164,Graying America
+26071,11817,Iron County, Michigan,0.117,Graying America
+26073,70311,Isabella County, Michigan,0.085,College Towns
+26075,160248,Jackson County, Michigan,0.149,Rural Middle America
+26077,250331,Kalamazoo County, Michigan,0.112,College Towns
+26079,17153,Kalkaska County, Michigan,0.143,Graying America
+26081,602622,Kent County, Michigan,0.117,Urban Burbs
+26083,2156,Keweenaw County, Michigan,0.119,Graying America
+26085,11539,Lake County, Michigan,0.175,Graying America
+26087,88319,Lapeer County, Michigan,0.181,Rural Middle America
+26089,21708,Leelanau County, Michigan,0.09,Graying America
+26091,99892,Lenawee County, Michigan,0.161,Rural Middle America
+26093,180967,Livingston County, Michigan,0.136,Exurbs
+26095,6631,Luce County, Michigan,0.132,Graying America
+26097,11113,Mackinac County, Michigan,0.061,Graying America
+26099,840978,Macomb County, Michigan,0.181,Middle Suburbs
+26101,24733,Manistee County, Michigan,0.126,Graying America
+26103,67077,Marquette County, Michigan,0.101,College Towns
+26105,28705,Mason County, Michigan,0.129,Rural Middle America
+26107,42798,Mecosta County, Michigan,0.13,College Towns
+26109,24029,Menominee County, Michigan,0.125,Rural Middle America
+26111,83629,Midland County, Michigan,0.102,Rural Middle America
+26113,14849,Missaukee County, Michigan,0.15,Working Class Country
+26115,152021,Monroe County, Michigan,0.142,Middle Suburbs
+26117,63342,Montcalm County, Michigan,0.176,Rural Middle America
+26119,9765,Montmorency County, Michigan,0.189,Graying America
+26121,172188,Muskegon County, Michigan,0.16,Middle Suburbs
+26123,48460,Newaygo County, Michigan,0.138,Rural Middle America
+26125,1202362,Oakland County, Michigan,0.156,Urban Burbs
+26127,26570,Oceana County, Michigan,0.152,Rural Middle America
+26129,21699,Ogemaw County, Michigan,0.127,Graying America
+26131,6780,Ontonagon County, Michigan,0.138,Graying America
+26133,23528,Osceola County, Michigan,0.153,Working Class Country
+26135,8640,Oscoda County, Michigan,0.191,Graying America
+26137,24164,Otsego County, Michigan,0.147,Graying America
+26139,263801,Ottawa County, Michigan,0.128,Exurbs
+26141,13376,Presque Isle County, Michigan,0.16,Graying America
+26143,24449,Roscommon County, Michigan,0.146,Graying America
+26145,200169,Saginaw County, Michigan,0.129,Middle Suburbs
+26147,163040,St. Clair County, Michigan,0.19,Rural Middle America
+26149,61295,St. Joseph County, Michigan,0.139,Rural Middle America
+26151,43114,Sanilac County, Michigan,0.178,Rural Middle America
+26153,8485,Schoolcraft County, Michigan,0.127,Graying America
+26155,70648,Shiawassee County, Michigan,0.152,Rural Middle America
+26157,55729,Tuscola County, Michigan,0.163,Rural Middle America
+26159,76258,Van Buren County, Michigan,0.132,Rural Middle America
+26161,344791,Washtenaw County, Michigan,0.093,College Towns
+26163,1820584,Wayne County, Michigan,0.183,Big Cities
+26165,32735,Wexford County, Michigan,0.183,Rural Middle America
+27001,16202,Aitkin County, Minnesota,0.081,Graying America
+27003,330844,Anoka County, Minnesota,0.079,Exurbs
+27005,32504,Becker County, Minnesota,0.064,Rural Middle America
+27007,44442,Beltrami County, Minnesota,0.072,College Towns
+27009,38451,Benton County, Minnesota,0.07,Rural Middle America
+27011,5269,Big Stone County, Minnesota,0.045,Aging Farmlands
+27013,64013,Blue Earth County, Minnesota,0.063,College Towns
+27015,25893,Brown County, Minnesota,0.055,Rural Middle America
+27017,35386,Carlton County, Minnesota,0.073,Rural Middle America
+27019,91042,Carver County, Minnesota,0.07,Exurbs
+27021,28567,Cass County, Minnesota,0.079,Graying America
+27023,12441,Chippewa County, Minnesota,0.061,Rural Middle America
+27025,53887,Chisago County, Minnesota,0.084,Rural Middle America
+27027,58999,Clay County, Minnesota,0.036,College Towns
+27029,8695,Clearwater County, Minnesota,0.091,Working Class Country
+27031,5176,Cook County, Minnesota,0.047,Graying America
+27033,11687,Cottonwood County, Minnesota,0.052,Rural Middle America
+27035,62500,Crow Wing County, Minnesota,0.074,Graying America
+27037,398552,Dakota County, Minnesota,0.069,Urban Burbs
+27039,20087,Dodge County, Minnesota,0.061,Rural Middle America
+27041,36009,Douglas County, Minnesota,0.056,Rural Middle America
+27043,14553,Faribault County, Minnesota,0.076,Rural Middle America
+27045,20866,Fillmore County, Minnesota,0.07,Rural Middle America
+27047,31255,Freeborn County, Minnesota,0.076,Rural Middle America
+27049,46183,Goodhue County, Minnesota,0.067,Rural Middle America
+27051,6018,Grant County, Minnesota,0.068,Rural Middle America
+27053,1152425,Hennepin County, Minnesota,0.073,Big Cities
+27055,19027,Houston County, Minnesota,0.071,Rural Middle America
+27057,20428,Hubbard County, Minnesota,0.073,Graying America
+27059,37816,Isanti County, Minnesota,0.083,Rural Middle America
+27061,45058,Itasca County, Minnesota,0.092,Graying America
+27063,10266,Jackson County, Minnesota,0.047,Rural Middle America
+27065,16239,Kanabec County, Minnesota,0.103,Rural Middle America
+27067,42239,Kandiyohi County, Minnesota,0.055,Rural Middle America
+27069,4552,Kittson County, Minnesota,0.052,Aging Farmlands
+27071,13311,Koochiching County, Minnesota,0.073,Graying America
+27073,7259,Lac qui Parle County, Minnesota,0.054,Aging Farmlands
+27075,10866,Lake County, Minnesota,0.075,Graying America
+27077,4045,Lake of the Woods County, Minnesota,0.069,Graying America
+27079,27703,Le Sueur County, Minnesota,0.086,Rural Middle America
+27081,5896,Lincoln County, Minnesota,0.045,Aging Farmlands
+27083,25857,Lyon County, Minnesota,0.049,Rural Middle America
+27085,36651,McLeod County, Minnesota,0.08,Rural Middle America
+27087,5413,Mahnomen County, Minnesota,0.06,Native American Lands
+27089,9439,Marshall County, Minnesota,0.062,Aging Farmlands
+27091,20840,Martin County, Minnesota,0.069,Rural Middle America
+27093,23300,Meeker County, Minnesota,0.078,Rural Middle America
+27095,26097,Mille Lacs County, Minnesota,0.105,Rural Middle America
+27097,33198,Morrison County, Minnesota,0.09,Rural Middle America
+27099,39163,Mower County, Minnesota,0.055,Rural Middle America
+27101,8725,Murray County, Minnesota,0.039,Aging Farmlands
+27103,32727,Nicollet County, Minnesota,0.061,Rural Middle America
+27105,21378,Nobles County, Minnesota,0.045,Hispanic Centers
+27107,6852,Norman County, Minnesota,0.051,Aging Farmlands
+27109,144248,Olmsted County, Minnesota,0.055,Exurbs
+27111,57303,Otter Tail County, Minnesota,0.063,Graying America
+27113,13930,Pennington County, Minnesota,0.056,Rural Middle America
+27115,29750,Pine County, Minnesota,0.091,Graying America
+27117,9596,Pipestone County, Minnesota,0.053,Rural Middle America
+27119,31600,Polk County, Minnesota,0.044,Rural Middle America
+27121,10995,Pope County, Minnesota,0.064,Rural Middle America
+27123,508640,Ramsey County, Minnesota,0.074,Big Cities
+27125,4089,Red Lake County, Minnesota,0.067,Rural Middle America
+27127,16059,Redwood County, Minnesota,0.061,Aging Farmlands
+27129,15730,Renville County, Minnesota,0.064,Rural Middle America
+27131,64142,Rice County, Minnesota,0.075,Rural Middle America
+27133,9687,Rock County, Minnesota,0.051,Rural Middle America
+27135,15629,Roseau County, Minnesota,0.05,Rural Middle America
+27137,200226,St. Louis County, Minnesota,0.082,College Towns
+27139,129928,Scott County, Minnesota,0.068,Exurbs
+27141,88499,Sherburne County, Minnesota,0.081,Exurbs
+27143,15226,Sibley County, Minnesota,0.065,Rural Middle America
+27145,150642,Stearns County, Minnesota,0.068,College Towns
+27147,36576,Steele County, Minnesota,0.077,Rural Middle America
+27149,9726,Stevens County, Minnesota,0.043,Rural Middle America
+27151,9783,Swift County, Minnesota,0.066,Rural Middle America
+27153,24895,Todd County, Minnesota,0.075,Rural Middle America
+27155,3558,Traverse County, Minnesota,0.062,Aging Farmlands
+27157,21676,Wabasha County, Minnesota,0.071,Rural Middle America
+27159,13843,Wadena County, Minnesota,0.088,Working Class Country
+27161,19136,Waseca County, Minnesota,0.07,Rural Middle America
+27163,238136,Washington County, Minnesota,0.068,Exurbs
+27165,11211,Watonwan County, Minnesota,0.075,Rural Middle America
+27167,6576,Wilkin County, Minnesota,0.047,Rural Middle America
+27169,51461,Winona County, Minnesota,0.07,College Towns
+27171,124700,Wright County, Minnesota,0.082,Exurbs
+27173,10438,Yellow Medicine County, Minnesota,0.051,Rural Middle America
+28001,32297,Adams County, Mississippi,0.08,African American South
+28003,37057,Alcorn County, Mississippi,0.113,Evangelical Hubs
+28005,13131,Amite County, Mississippi,0.086,African American South
+28007,19564,Attala County, Mississippi,0.118,African American South
+28009,8729,Benton County, Mississippi,0.126,Working Class Country
+28011,34145,Bolivar County, Mississippi,0.09,African American South
+28013,14962,Calhoun County, Mississippi,0.097,African American South
+28015,10597,Carroll County, Mississippi,0.098,Evangelical Hubs
+28017,17392,Chickasaw County, Mississippi,0.132,African American South
+28019,8547,Choctaw County, Mississippi,0.113,Working Class Country
+28021,9604,Claiborne County, Mississippi,0.15,African American South
+28023,16732,Clarke County, Mississippi,0.1,African American South
+28025,20634,Clay County, Mississippi,0.178,African American South
+28027,26151,Coahoma County, Mississippi,0.111,African American South
+28029,29449,Copiah County, Mississippi,0.099,African American South
+28031,19568,Covington County, Mississippi,0.077,African American South
+28033,161252,DeSoto County, Mississippi,0.072,Exurbs
+28035,74934,Forrest County, Mississippi,0.077,African American South
+28037,8118,Franklin County, Mississippi,0.09,Working Class Country
+28039,22578,George County, Mississippi,0.1,Evangelical Hubs
+28041,14400,Greene County, Mississippi,0.099,Evangelical Hubs
+28043,21906,Grenada County, Mississippi,0.11,African American South
+28045,43929,Hancock County, Mississippi,0.075,Working Class Country
+28047,187105,Harrison County, Mississippi,0.072,Military Posts
+28049,245285,Hinds County, Mississippi,0.079,African American South
+28051,19198,Holmes County, Mississippi,0.166,African American South
+28053,9375,Humphreys County, Mississippi,0.102,African American South
+28055,1406,Issaquena County, Mississippi,0.092,African American South
+28057,23401,Itawamba County, Mississippi,0.096,Evangelical Hubs
+28059,139668,Jackson County, Mississippi,0.08,Working Class Country
+28061,17062,Jasper County, Mississippi,0.102,African American South
+28063,7726,Jefferson County, Mississippi,0.155,African American South
+28065,12487,Jefferson Davis County, Mississippi,0.106,African American South
+28067,67761,Jones County, Mississippi,0.071,Evangelical Hubs
+28069,10456,Kemper County, Mississippi,0.103,African American South
+28071,47351,Lafayette County, Mississippi,0.069,College Towns
+28073,55658,Lamar County, Mississippi,0.066,Exurbs
+28075,80261,Lauderdale County, Mississippi,0.087,African American South
+28077,12929,Lawrence County, Mississippi,0.102,Working Class Country
+28079,23805,Leake County, Mississippi,0.087,African American South
+28081,82910,Lee County, Mississippi,0.098,Evangelical Hubs
+28083,32317,Leflore County, Mississippi,0.116,African American South
+28085,34869,Lincoln County, Mississippi,0.088,Working Class Country
+28087,59779,Lowndes County, Mississippi,0.102,African American South
+28089,95203,Madison County, Mississippi,0.063,Exurbs
+28091,27088,Marion County, Mississippi,0.101,African American South
+28093,37144,Marshall County, Mississippi,0.112,African American South
+28095,36989,Monroe County, Mississippi,0.137,Working Class Country
+28097,10925,Montgomery County, Mississippi,0.127,African American South
+28099,29676,Neshoba County, Mississippi,0.084,African American South
+28101,21720,Newton County, Mississippi,0.079,Evangelical Hubs
+28103,11545,Noxubee County, Mississippi,0.176,African American South
+28105,47671,Oktibbeha County, Mississippi,0.08,College Towns
+28107,34707,Panola County, Mississippi,0.119,African American South
+28109,55834,Pearl River County, Mississippi,0.083,Evangelical Hubs
+28111,12250,Perry County, Mississippi,0.104,Evangelical Hubs
+28113,40404,Pike County, Mississippi,0.098,African American South
+28115,29957,Pontotoc County, Mississippi,0.087,Evangelical Hubs
+28117,25276,Prentiss County, Mississippi,0.115,Evangelical Hubs
+28119,8223,Quitman County, Mississippi,0.111,African American South
+28121,141617,Rankin County, Mississippi,0.056,Exurbs
+28123,28264,Scott County, Mississippi,0.059,African American South
+28125,4916,Sharkey County, Mississippi,0.09,African American South
+28127,27503,Simpson County, Mississippi,0.082,Working Class Country
+28129,16491,Smith County, Mississippi,0.082,Evangelical Hubs
+28131,17786,Stone County, Mississippi,0.072,Evangelical Hubs
+28133,29450,Sunflower County, Mississippi,0.118,African American South
+28135,15378,Tallahatchie County, Mississippi,0.099,African American South
+28137,28886,Tate County, Mississippi,0.103,Evangelical Hubs
+28139,22232,Tippah County, Mississippi,0.125,Evangelical Hubs
+28141,19593,Tishomingo County, Mississippi,0.101,Evangelical Hubs
+28143,10778,Tunica County, Mississippi,0.13,African American South
+28145,27134,Union County, Mississippi,0.088,Evangelical Hubs
+28147,15443,Walthall County, Mississippi,0.103,African American South
+28149,48773,Warren County, Mississippi,0.091,African American South
+28151,51137,Washington County, Mississippi,0.113,African American South
+28153,20747,Wayne County, Mississippi,0.094,African American South
+28155,10253,Webster County, Mississippi,0.135,Evangelical Hubs
+28157,9878,Wilkinson County, Mississippi,0.101,African American South
+28159,19198,Winston County, Mississippi,0.151,African American South
+28161,12678,Yalobusha County, Mississippi,0.129,African American South
+28163,28065,Yazoo County, Mississippi,0.105,African American South
+29001,25607,Adair County, Missouri,0.065,College Towns
+29003,17291,Andrew County, Missouri,0.076,Rural Middle America
+29005,5685,Atchison County, Missouri,0.079,Aging Farmlands
+29007,25529,Audrain County, Missouri,0.092,Working Class Country
+29009,35597,Barry County, Missouri,0.081,Rural Middle America
+29011,12402,Barton County, Missouri,0.117,Evangelical Hubs
+29013,17049,Bates County, Missouri,0.108,Working Class Country
+29015,19056,Benton County, Missouri,0.093,Graying America
+29017,12363,Bollinger County, Missouri,0.088,Working Class Country
+29019,162642,Boone County, Missouri,0.062,College Towns
+29021,89201,Buchanan County, Missouri,0.087,Rural Middle America
+29023,42794,Butler County, Missouri,0.08,Evangelical Hubs
+29025,9424,Caldwell County, Missouri,0.086,Evangelical Hubs
+29027,44332,Callaway County, Missouri,0.08,Rural Middle America
+29029,44002,Camden County, Missouri,0.079,Graying America
+29031,75674,Cape Girardeau County, Missouri,0.069,College Towns
+29033,9295,Carroll County, Missouri,0.098,Evangelical Hubs
+29035,6265,Carter County, Missouri,0.087,Evangelical Hubs
+29037,99478,Cass County, Missouri,0.097,Rural Middle America
+29039,13982,Cedar County, Missouri,0.086,Evangelical Hubs
+29041,7831,Chariton County, Missouri,0.105,Aging Farmlands
+29043,77422,Christian County, Missouri,0.08,Exurbs
+29045,7139,Clark County, Missouri,0.113,Evangelical Hubs
+29047,221939,Clay County, Missouri,0.086,Exurbs
+29049,20743,Clinton County, Missouri,0.087,Rural Middle America
+29051,75990,Cole County, Missouri,0.067,Rural Middle America
+29053,17601,Cooper County, Missouri,0.084,Working Class Country
+29055,24696,Crawford County, Missouri,0.107,Evangelical Hubs
+29057,7883,Dade County, Missouri,0.101,Evangelical Hubs
+29059,16777,Dallas County, Missouri,0.094,Evangelical Hubs
+29061,8433,Daviess County, Missouri,0.087,Working Class Country
+29063,12892,DeKalb County, Missouri,0.093,Rural Middle America
+29065,15657,Dent County, Missouri,0.094,Evangelical Hubs
+29067,13684,Douglas County, Missouri,0.098,Evangelical Hubs
+29069,31953,Dunklin County, Missouri,0.111,Evangelical Hubs
+29071,101492,Franklin County, Missouri,0.115,Rural Middle America
+29073,15222,Gasconade County, Missouri,0.108,Rural Middle America
+29075,6738,Gentry County, Missouri,0.068,Rural Middle America
+29077,275174,Greene County, Missouri,0.083,College Towns
+29079,10261,Grundy County, Missouri,0.069,Evangelical Hubs
+29081,8957,Harrison County, Missouri,0.078,Working Class Country
+29083,22272,Henry County, Missouri,0.096,Working Class Country
+29085,9627,Hickory County, Missouri,0.123,Graying America
+29087,4912,Holt County, Missouri,0.071,Aging Farmlands
+29089,10144,Howard County, Missouri,0.083,Rural Middle America
+29091,40400,Howell County, Missouri,0.092,Working Class Country
+29093,10630,Iron County, Missouri,0.087,Evangelical Hubs
+29095,674158,Jackson County, Missouri,0.109,Big Cities
+29097,117404,Jasper County, Missouri,0.084,Rural Middle America
+29099,218733,Jefferson County, Missouri,0.106,Middle Suburbs
+29101,52595,Johnson County, Missouri,0.08,Military Posts
+29103,4131,Knox County, Missouri,0.059,Working Class Country
+29105,35571,Laclede County, Missouri,0.11,Rural Middle America
+29107,33381,Lafayette County, Missouri,0.09,Rural Middle America
+29109,38634,Lawrence County, Missouri,0.078,Evangelical Hubs
+29111,10211,Lewis County, Missouri,0.083,Working Class Country
+29113,52566,Lincoln County, Missouri,0.113,Rural Middle America
+29115,12761,Linn County, Missouri,0.103,Rural Middle America
+29117,15195,Livingston County, Missouri,0.078,Rural Middle America
+29119,23083,McDonald County, Missouri,0.07,Evangelical Hubs
+29121,15566,Macon County, Missouri,0.079,Evangelical Hubs
+29123,12226,Madison County, Missouri,0.098,Evangelical Hubs
+29125,9176,Maries County, Missouri,0.087,Working Class Country
+29127,28781,Marion County, Missouri,0.089,Rural Middle America
+29129,3785,Mercer County, Missouri,0.079,Aging Farmlands
+29131,24748,Miller County, Missouri,0.106,Evangelical Hubs
+29133,14358,Mississippi County, Missouri,0.097,Working Class Country
+29135,15607,Moniteau County, Missouri,0.078,Working Class Country
+29137,8840,Monroe County, Missouri,0.11,Rural Middle America
+29139,12236,Montgomery County, Missouri,0.103,Working Class Country
+29141,20565,Morgan County, Missouri,0.113,Working Class Country
+29143,18956,New Madrid County, Missouri,0.089,Working Class Country
+29145,58114,Newton County, Missouri,0.079,Evangelical Hubs
+29147,23370,Nodaway County, Missouri,0.059,College Towns
+29149,10881,Oregon County, Missouri,0.09,Evangelical Hubs
+29151,13878,Osage County, Missouri,0.099,Rural Middle America
+29153,9723,Ozark County, Missouri,0.076,Evangelical Hubs
+29155,18296,Pemiscot County, Missouri,0.121,African American South
+29157,18971,Perry County, Missouri,0.072,Rural Middle America
+29159,42201,Pettis County, Missouri,0.081,Rural Middle America
+29161,45156,Phelps County, Missouri,0.071,College Towns
+29163,18516,Pike County, Missouri,0.083,Working Class Country
+29165,89322,Platte County, Missouri,0.08,Exurbs
+29167,31137,Polk County, Missouri,0.089,Evangelical Hubs
+29169,52274,Pulaski County, Missouri,0.068,Military Posts
+29171,4979,Putnam County, Missouri,0.074,Working Class Country
+29173,10167,Ralls County, Missouri,0.08,Working Class Country
+29175,25414,Randolph County, Missouri,0.094,Working Class Country
+29177,23494,Ray County, Missouri,0.083,Rural Middle America
+29179,6696,Reynolds County, Missouri,0.127,Aging Farmlands
+29181,14100,Ripley County, Missouri,0.095,Working Class Country
+29183,360485,St. Charles County, Missouri,0.087,Exurbs
+29185,9805,St. Clair County, Missouri,0.103,Aging Farmlands
+29186,18145,Ste. Genevieve County, Missouri,0.093,Rural Middle America
+29187,65359,St. Francois County, Missouri,0.109,Working Class Country
+29189,998954,St. Louis County, Missouri,0.096,Urban Burbs
+29195,23370,Saline County, Missouri,0.079,Rural Middle America
+29197,4431,Schuyler County, Missouri,0.078,Working Class Country
+29199,4843,Scotland County, Missouri,0.122,Aging Farmlands
+29201,39191,Scott County, Missouri,0.092,Working Class Country
+29203,8441,Shannon County, Missouri,0.096,Evangelical Hubs
+29205,6373,Shelby County, Missouri,0.081,Evangelical Hubs
+29207,29968,Stoddard County, Missouri,0.09,Evangelical Hubs
+29209,32202,Stone County, Missouri,0.09,Graying America
+29211,6714,Sullivan County, Missouri,0.064,Working Class Country
+29213,51675,Taney County, Missouri,0.086,Working Class Country
+29215,26008,Texas County, Missouri,0.088,Evangelical Hubs
+29217,21159,Vernon County, Missouri,0.079,Working Class Country
+29219,32513,Warren County, Missouri,0.112,Rural Middle America
+29221,25195,Washington County, Missouri,0.137,Evangelical Hubs
+29223,13521,Wayne County, Missouri,0.095,Evangelical Hubs
+29225,36202,Webster County, Missouri,0.09,Working Class Country
+29227,2171,Worth County, Missouri,0.084,Aging Farmlands
+29229,18815,Wright County, Missouri,0.096,Evangelical Hubs
+29510,319294,St. Louis city, Missouri,0.111,Big Cities
+30001,9246,Beaverhead County, Montana,0.044,Graying America
+30003,12865,Big Horn County, Montana,0.102,Native American Lands
+30005,6491,Blaine County, Montana,0.05,Native American Lands
+30007,5612,Broadwater County, Montana,0.062,Graying America
+30009,10078,Carbon County, Montana,0.048,Graying America
+30011,1160,Carter County, Montana,0.039,Aging Farmlands
+30013,81327,Cascade County, Montana,0.052,Military Posts
+30015,5813,Chouteau County, Montana,0.042,Native American Lands
+30017,11699,Custer County, Montana,0.046,Graying America
+30019,1751,Daniels County, Montana,0.042,Aging Farmlands
+30021,8966,Dawson County, Montana,0.048,Aging Farmlands
+30023,9298,Deer Lodge County, Montana,0.065,Graying America
+30025,2890,Fallon County, Montana,0.037,Aging Farmlands
+30027,11586,Fergus County, Montana,0.047,Aging Farmlands
+30029,90928,Flathead County, Montana,0.088,Graying America
+30031,89513,Gallatin County, Montana,0.055,College Towns
+30033,1206,Garfield County, Montana,0.034,Aging Farmlands
+30035,13399,Glacier County, Montana,0.072,Native American Lands
+30037,884,Golden Valley County, Montana,0.047,Aging Farmlands
+30039,3079,Granite County, Montana,0.082,Graying America
+30041,16096,Hill County, Montana,0.051,Graying America
+30043,11406,Jefferson County, Montana,0.058,Exurbs
+30045,2072,Judith Basin County, Montana,0.046,Aging Farmlands
+30047,28746,Lake County, Montana,0.083,Graying America
+30049,63395,Lewis and Clark County, Montana,0.043,Exurbs
+30051,2339,Liberty County, Montana,0.047,Aging Farmlands
+30053,19687,Lincoln County, Montana,0.111,Graying America
+30055,1734,McCone County, Montana,0.032,Aging Farmlands
+30057,7691,Madison County, Montana,0.048,Graying America
+30059,1891,Meagher County, Montana,0.078,Graying America
+30061,4223,Mineral County, Montana,0.086,Graying America
+30063,109299,Missoula County, Montana,0.056,College Towns
+30065,4538,Musselshell County, Montana,0.075,Aging Farmlands
+30067,15636,Park County, Montana,0.061,Graying America
+30069,494,Petroleum County, Montana,0.045,Aging Farmlands
+30071,4253,Phillips County, Montana,0.048,Aging Farmlands
+30073,6153,Pondera County, Montana,0.06,Graying America
+30075,1743,Powder River County, Montana,0.04,Aging Farmlands
+30077,7027,Powell County, Montana,0.073,Graying America
+30079,1179,Prairie County, Montana,0.031,Aging Farmlands
+30081,40212,Ravalli County, Montana,0.075,Graying America
+30083,9746,Richland County, Montana,0.046,Aging Farmlands
+30085,10425,Roosevelt County, Montana,0.075,Native American Lands
+30087,9233,Rosebud County, Montana,0.073,Native American Lands
+30089,11413,Sanders County, Montana,0.112,Graying America
+30091,3384,Sheridan County, Montana,0.043,Aging Farmlands
+30093,34200,Silver Bow County, Montana,0.055,Graying America
+30095,9117,Stillwater County, Montana,0.052,Aging Farmlands
+30097,3651,Sweet Grass County, Montana,0.031,Aging Farmlands
+30099,6073,Teton County, Montana,0.04,Aging Farmlands
+30101,5324,Toole County, Montana,0.041,Graying America
+30103,718,Treasure County, Montana,0.051,Aging Farmlands
+30105,7369,Valley County, Montana,0.046,Graying America
+30107,2168,Wheatland County, Montana,0.043,Aging Farmlands
+30109,1017,Wibaux County, Montana,0.041,Aging Farmlands
+30111,147972,Yellowstone County, Montana,0.047,Exurbs
+31001,31364,Adams County, Nebraska,0.056,Rural Middle America
+31003,6685,Antelope County, Nebraska,0.036,Aging Farmlands
+31005,460,Arthur County, Nebraska,0.044,Aging Farmlands
+31007,690,Banner County, Nebraska,0.035,Aging Farmlands
+31009,478,Blaine County, Nebraska,0.052,Aging Farmlands
+31011,5505,Boone County, Nebraska,0.039,Aging Farmlands
+31013,11308,Box Butte County, Nebraska,0.071,Aging Farmlands
+31015,2099,Boyd County, Nebraska,0.036,Aging Farmlands
+31017,3145,Brown County, Nebraska,0.031,Aging Farmlands
+31019,46102,Buffalo County, Nebraska,0.035,College Towns
+31021,6858,Burt County, Nebraska,0.057,Rural Middle America
+31023,8395,Butler County, Nebraska,0.039,Rural Middle America
+31025,25241,Cass County, Nebraska,0.046,Rural Middle America
+31027,8852,Cedar County, Nebraska,0.032,Aging Farmlands
+31029,3966,Chase County, Nebraska,0.03,Aging Farmlands
+31031,5713,Cherry County, Nebraska,0.025,Aging Farmlands
+31033,9998,Cheyenne County, Nebraska,0.041,Rural Middle America
+31035,6542,Clay County, Nebraska,0.043,Aging Farmlands
+31037,10515,Colfax County, Nebraska,0.04,Hispanic Centers
+31039,9139,Cuming County, Nebraska,0.035,Rural Middle America
+31041,10939,Custer County, Nebraska,0.031,Aging Farmlands
+31043,21006,Dakota County, Nebraska,0.055,Hispanic Centers
+31045,9182,Dawes County, Nebraska,0.044,College Towns
+31047,24326,Dawson County, Nebraska,0.048,Hispanic Centers
+31049,1941,Deuel County, Nebraska,0.038,Aging Farmlands
+31051,6000,Dixon County, Nebraska,0.037,Rural Middle America
+31053,36691,Dodge County, Nebraska,0.049,Rural Middle America
+31055,517110,Douglas County, Nebraska,0.05,Big Cities
+31057,2008,Dundy County, Nebraska,0.04,Aging Farmlands
+31059,5890,Fillmore County, Nebraska,0.044,Aging Farmlands
+31061,3225,Franklin County, Nebraska,0.037,Aging Farmlands
+31063,2756,Frontier County, Nebraska,0.03,Aging Farmlands
+31065,4959,Furnas County, Nebraska,0.041,Aging Farmlands
+31067,22311,Gage County, Nebraska,0.059,Rural Middle America
+31069,2057,Garden County, Nebraska,0.044,Aging Farmlands
+31071,2049,Garfield County, Nebraska,0.025,Aging Farmlands
+31073,2044,Gosper County, Nebraska,0.038,Aging Farmlands
+31075,614,Grant County, Nebraska,0.031,Aging Farmlands
+31077,2538,Greeley County, Nebraska,0.033,Aging Farmlands
+31079,58607,Hall County, Nebraska,0.044,Exurbs
+31081,9124,Hamilton County, Nebraska,0.034,Rural Middle America
+31083,3423,Harlan County, Nebraska,0.036,Aging Farmlands
+31085,967,Hayes County, Nebraska,0.042,Aging Farmlands
+31087,2908,Hitchcock County, Nebraska,0.066,Aging Farmlands
+31089,10435,Holt County, Nebraska,0.032,Aging Farmlands
+31091,736,Hooker County, Nebraska,0.04,Graying America
+31093,6274,Howard County, Nebraska,0.038,Rural Middle America
+31095,7547,Jefferson County, Nebraska,0.046,Aging Farmlands
+31097,5217,Johnson County, Nebraska,0.039,Rural Middle America
+31099,6489,Kearney County, Nebraska,0.038,Aging Farmlands
+31101,8368,Keith County, Nebraska,0.039,Graying America
+31103,824,Keya Paha County, Nebraska,0.044,Aging Farmlands
+31105,3821,Kimball County, Nebraska,0.043,Working Class Country
+31107,8701,Knox County, Nebraska,0.036,Aging Farmlands
+31109,285407,Lancaster County, Nebraska,0.042,College Towns
+31111,36288,Lincoln County, Nebraska,0.04,Rural Middle America
+31113,763,Logan County, Nebraska,0.043,Aging Farmlands
+31115,632,Loup County, Nebraska,0.032,Aging Farmlands
+31117,539,McPherson County, Nebraska,0.04,Aging Farmlands
+31119,34876,Madison County, Nebraska,0.042,Rural Middle America
+31121,7845,Merrick County, Nebraska,0.04,Aging Farmlands
+31123,5042,Morrill County, Nebraska,0.041,Aging Farmlands
+31125,3735,Nance County, Nebraska,0.036,Aging Farmlands
+31127,7248,Nemaha County, Nebraska,0.054,Rural Middle America
+31129,4500,Nuckolls County, Nebraska,0.047,Aging Farmlands
+31131,15740,Otoe County, Nebraska,0.05,Rural Middle America
+31133,2773,Pawnee County, Nebraska,0.041,Aging Farmlands
+31135,2970,Perkins County, Nebraska,0.031,Aging Farmlands
+31137,9188,Phelps County, Nebraska,0.038,Rural Middle America
+31139,7266,Pierce County, Nebraska,0.036,Rural Middle America
+31141,32237,Platte County, Nebraska,0.044,Rural Middle America
+31143,5406,Polk County, Nebraska,0.042,Aging Farmlands
+31145,11055,Red Willow County, Nebraska,0.042,Rural Middle America
+31147,8363,Richardson County, Nebraska,0.057,Aging Farmlands
+31149,1526,Rock County, Nebraska,0.031,Aging Farmlands
+31151,14200,Saline County, Nebraska,0.04,Rural Middle America
+31153,158840,Sarpy County, Nebraska,0.047,Military Posts
+31155,20780,Saunders County, Nebraska,0.045,Rural Middle America
+31157,36970,Scotts Bluff County, Nebraska,0.048,Rural Middle America
+31159,16750,Seward County, Nebraska,0.037,Rural Middle America
+31161,5469,Sheridan County, Nebraska,0.035,Aging Farmlands
+31163,3152,Sherman County, Nebraska,0.03,Aging Farmlands
+31165,1311,Sioux County, Nebraska,0.038,Aging Farmlands
+31167,6129,Stanton County, Nebraska,0.036,Rural Middle America
+31169,5228,Thayer County, Nebraska,0.043,Aging Farmlands
+31171,647,Thomas County, Nebraska,0.038,Aging Farmlands
+31173,6940,Thurston County, Nebraska,0.138,Native American Lands
+31175,4260,Valley County, Nebraska,0.029,Aging Farmlands
+31177,20234,Washington County, Nebraska,0.041,Rural Middle America
+31179,9595,Wayne County, Nebraska,0.038,College Towns
+31181,3812,Webster County, Nebraska,0.042,Aging Farmlands
+31183,818,Wheeler County, Nebraska,0.032,Aging Farmlands
+31185,13665,York County, Nebraska,0.057,Rural Middle America
+32001,24877,Churchill County, Nevada,0.099,Graying America
+32003,1951269,Clark County, Nevada,0.139,Big Cities
+32005,46997,Douglas County, Nevada,0.126,Graying America
+32007,48818,Elko County, Nevada,0.068,Exurbs
+32009,783,Esmeralda County, Nevada,0.083,Graying America
+32011,1987,Eureka County, Nevada,0.093,Aging Farmlands
+32013,16528,Humboldt County, Nevada,0.086,Graying America
+32015,5775,Lander County, Nevada,0.072,Graying America
+32017,5345,Lincoln County, Nevada,0.094,Graying America
+32019,51980,Lyon County, Nevada,0.163,Rural Middle America
+32021,4772,Mineral County, Nevada,0.105,Native American Lands
+32023,43946,Nye County, Nevada,0.161,Graying America
+32027,6753,Pershing County, Nevada,0.106,Graying America
+32029,4010,Storey County, Nevada,0.148,Graying America
+32031,421407,Washoe County, Nevada,0.131,Exurbs
+32033,10030,White Pine County, Nevada,0.084,Graying America
+32510,55274,Carson City, Nevada,0.128,Graying America
+33001,60088,Belknap County, New Hampshire,0.07,Graying America
+33003,47818,Carroll County, New Hampshire,0.054,Graying America
+33005,77117,Cheshire County, New Hampshire,0.065,College Towns
+33007,33055,Coos County, New Hampshire,0.078,Graying America
+33009,89118,Grafton County, New Hampshire,0.056,Graying America
+33011,400721,Hillsborough County, New Hampshire,0.075,Exurbs
+33013,146445,Merrimack County, New Hampshire,0.063,Exurbs
+33015,295223,Rockingham County, New Hampshire,0.075,Exurbs
+33017,123143,Strafford County, New Hampshire,0.066,College Towns
+33019,43742,Sullivan County, New Hampshire,0.065,Graying America
+34001,274549,Atlantic County, New Jersey,0.122,Middle Suburbs
+34003,905116,Bergen County, New Jersey,0.084,Urban Burbs
+34005,448734,Burlington County, New Jersey,0.091,Urban Burbs
+34007,513657,Camden County, New Jersey,0.109,Urban Burbs
+34009,97265,Cape May County, New Jersey,0.085,Graying America
+34011,156898,Cumberland County, New Jersey,0.126,Hispanic Centers
+34013,783969,Essex County, New Jersey,0.111,Urban Burbs
+34015,288288,Gloucester County, New Jersey,0.1,Exurbs
+34017,634266,Hudson County, New Jersey,0.116,Urban Burbs
+34019,128349,Hunterdon County, New Jersey,0.069,Exurbs
+34021,366513,Mercer County, New Jersey,0.081,Urban Burbs
+34023,809858,Middlesex County, New Jersey,0.092,Urban Burbs
+34025,630380,Monmouth County, New Jersey,0.087,Urban Burbs
+34027,492276,Morris County, New Jersey,0.076,Urban Burbs
+34029,576567,Ocean County, New Jersey,0.096,Exurbs
+34031,501226,Passaic County, New Jersey,0.117,Urban Burbs
+34033,66083,Salem County, New Jersey,0.101,Rural Middle America
+34035,323444,Somerset County, New Jersey,0.079,Urban Burbs
+34037,149265,Sussex County, New Jersey,0.085,Exurbs
+34039,536499,Union County, New Jersey,0.098,Urban Burbs
+34041,108692,Warren County, New Jersey,0.088,Exurbs
+35001,662564,Bernalillo County, New Mexico,0.075,Big Cities
+35003,3725,Catron County, New Mexico,0.081,Graying America
+35005,65645,Chaves County, New Mexico,0.068,Hispanic Centers
+35006,27213,Cibola County, New Mexico,0.063,Hispanic Centers
+35007,13750,Colfax County, New Mexico,0.08,Hispanic Centers
+35009,48376,Curry County, New Mexico,0.044,Military Posts
+35011,2022,De Baca County, New Mexico,0.043,Hispanic Centers
+35013,209233,Do��_a Ana County, New Mexico,0.069,Hispanic Centers
+35015,53829,Eddy County, New Mexico,0.06,Hispanic Centers
+35017,29514,Grant County, New Mexico,0.123,Hispanic Centers
+35019,4687,Guadalupe County, New Mexico,0.075,Hispanic Centers
+35021,695,Harding County, New Mexico,0.045,Hispanic Centers
+35023,4894,Hidalgo County, New Mexico,0.076,Hispanic Centers
+35025,64727,Lea County, New Mexico,0.083,Hispanic Centers
+35027,20497,Lincoln County, New Mexico,0.051,Graying America
+35028,17950,Los Alamos County, New Mexico,0.029,Exurbs
+35029,25095,Luna County, New Mexico,0.134,Hispanic Centers
+35031,71492,McKinley County, New Mexico,0.086,Native American Lands
+35033,4881,Mora County, New Mexico,0.131,Hispanic Centers
+35035,63797,Otero County, New Mexico,0.068,Military Posts
+35037,9041,Quay County, New Mexico,0.059,Hispanic Centers
+35039,40246,Rio Arriba County, New Mexico,0.072,Hispanic Centers
+35041,19846,Roosevelt County, New Mexico,0.044,College Towns
+35043,131561,Sandoval County, New Mexico,0.09,Exurbs
+35045,130044,San Juan County, New Mexico,0.083,Native American Lands
+35047,29393,San Miguel County, New Mexico,0.078,Hispanic Centers
+35049,144170,Santa Fe County, New Mexico,0.065,Urban Burbs
+35051,11988,Sierra County, New Mexico,0.048,Graying America
+35053,17866,Socorro County, New Mexico,0.05,Hispanic Centers
+35055,32937,Taos County, New Mexico,0.087,Hispanic Centers
+35057,16383,Torrance County, New Mexico,0.088,Hispanic Centers
+35059,4549,Union County, New Mexico,0.055,Hispanic Centers
+35061,76569,Valencia County, New Mexico,0.085,Hispanic Centers
+36001,304204,Albany County, New York,0.071,College Towns
+36003,48946,Allegany County, New York,0.079,Rural Middle America
+36005,1385108,Bronx County, New York,0.133,Big Cities
+36007,200600,Broome County, New York,0.085,College Towns
+36009,80317,Cattaraugus County, New York,0.085,Rural Middle America
+36011,80026,Cayuga County, New York,0.08,Rural Middle America
+36013,134905,Chautauqua County, New York,0.078,Rural Middle America
+36015,88830,Chemung County, New York,0.089,Rural Middle America
+36017,50477,Chenango County, New York,0.087,Rural Middle America
+36019,82128,Clinton County, New York,0.09,College Towns
+36021,63096,Columbia County, New York,0.077,Graying America
+36023,49336,Cortland County, New York,0.085,Rural Middle America
+36025,47980,Delaware County, New York,0.084,Graying America
+36027,297488,Dutchess County, New York,0.082,College Towns
+36029,919040,Erie County, New York,0.083,Urban Burbs
+36031,39370,Essex County, New York,0.078,Graying America
+36033,51599,Franklin County, New York,0.078,Graying America
+36035,55531,Fulton County, New York,0.091,Rural Middle America
+36037,60079,Genesee County, New York,0.072,Rural Middle America
+36039,49221,Greene County, New York,0.084,Graying America
+36041,4836,Hamilton County, New York,0.056,Graying America
+36043,64519,Herkimer County, New York,0.076,Rural Middle America
+36045,116229,Jefferson County, New York,0.078,Military Posts
+36047,2504700,Kings County, New York,0.11,Big Cities
+36049,27087,Lewis County, New York,0.076,Rural Middle America
+36051,65393,Livingston County, New York,0.075,Rural Middle America
+36053,73442,Madison County, New York,0.074,Rural Middle America
+36055,744344,Monroe County, New York,0.083,College Towns
+36057,50219,Montgomery County, New York,0.088,Graying America
+36059,1339532,Nassau County, New York,0.072,Urban Burbs
+36061,1585873,New York County, New York,0.092,Big Cities
+36063,216469,Niagara County, New York,0.088,Middle Suburbs
+36065,234878,Oneida County, New York,0.073,Rural Middle America
+36067,467026,Onondaga County, New York,0.079,College Towns
+36069,107931,Ontario County, New York,0.067,Rural Middle America
+36071,372813,Orange County, New York,0.082,Urban Burbs
+36073,42883,Orleans County, New York,0.082,Rural Middle America
+36075,122109,Oswego County, New York,0.093,Rural Middle America
+36077,62259,Otsego County, New York,0.068,Graying America
+36079,99710,Putnam County, New York,0.07,Urban Burbs
+36081,2230722,Queens County, New York,0.091,Big Cities
+36083,159429,Rensselaer County, New York,0.077,College Towns
+36085,468730,Richmond County, New York,0.089,Big Cities
+36087,311687,Rockland County, New York,0.074,Urban Burbs
+36089,111944,St. Lawrence County, New York,0.089,College Towns
+36091,219607,Saratoga County, New York,0.064,Exurbs
+36093,154727,Schenectady County, New York,0.078,College Towns
+36095,32749,Schoharie County, New York,0.076,Graying America
+36097,18343,Schuyler County, New York,0.074,Graying America
+36099,35251,Seneca County, New York,0.073,Rural Middle America
+36101,98990,Steuben County, New York,0.095,Rural Middle America
+36103,1493350,Suffolk County, New York,0.075,Urban Burbs
+36105,77547,Sullivan County, New York,0.086,Graying America
+36107,51125,Tioga County, New York,0.079,Rural Middle America
+36109,101564,Tompkins County, New York,0.056,College Towns
+36111,182493,Ulster County, New York,0.081,Graying America
+36113,65707,Warren County, New York,0.072,Graying America
+36115,63216,Washington County, New York,0.074,Rural Middle America
+36117,93772,Wayne County, New York,0.078,Rural Middle America
+36119,949113,Westchester County, New York,0.074,Urban Burbs
+36121,42155,Wyoming County, New York,0.078,Rural Middle America
+36123,25348,Yates County, New York,0.06,Graying America
+37001,151131,Alamance County, North Carolina,0.118,College Towns
+37003,37198,Alexander County, North Carolina,0.136,Evangelical Hubs
+37005,11155,Alleghany County, North Carolina,0.109,Graying America
+37007,26948,Anson County, North Carolina,0.148,African American South
+37009,27281,Ashe County, North Carolina,0.1,Graying America
+37011,17797,Avery County, North Carolina,0.079,Graying America
+37013,47759,Beaufort County, North Carolina,0.112,Working Class Country
+37015,21282,Bertie County, North Carolina,0.105,African American South
+37017,35190,Bladen County, North Carolina,0.12,African American South
+37019,107431,Brunswick County, North Carolina,0.105,Graying America
+37021,238318,Buncombe County, North Carolina,0.082,College Towns
+37023,90912,Burke County, North Carolina,0.141,Evangelical Hubs
+37025,178011,Cabarrus County, North Carolina,0.114,Urban Burbs
+37027,83029,Caldwell County, North Carolina,0.152,Evangelical Hubs
+37029,9980,Camden County, North Carolina,0.071,Rural Middle America
+37031,66469,Carteret County, North Carolina,0.076,Graying America
+37033,23719,Caswell County, North Carolina,0.124,Working Class Country
+37035,154358,Catawba County, North Carolina,0.136,Middle Suburbs
+37037,63505,Chatham County, North Carolina,0.08,Exurbs
+37039,27444,Cherokee County, North Carolina,0.142,Graying America
+37041,14793,Chowan County, North Carolina,0.119,African American South
+37043,10587,Clay County, North Carolina,0.108,Graying America
+37045,98078,Cleveland County, North Carolina,0.143,Working Class Country
+37047,58098,Columbus County, North Carolina,0.125,African American South
+37049,103505,Craven County, North Carolina,0.1,Military Posts
+37051,319431,Cumberland County, North Carolina,0.091,Military Posts
+37053,23547,Currituck County, North Carolina,0.05,Exurbs
+37055,33920,Dare County, North Carolina,0.068,Graying America
+37057,162878,Davidson County, North Carolina,0.125,Working Class Country
+37059,41240,Davie County, North Carolina,0.121,Rural Middle America
+37061,58505,Duplin County, North Carolina,0.087,Working Class Country
+37063,267587,Durham County, North Carolina,0.08,College Towns
+37065,56552,Edgecombe County, North Carolina,0.163,African American South
+37067,350670,Forsyth County, North Carolina,0.095,College Towns
+37069,60619,Franklin County, North Carolina,0.097,Working Class Country
+37071,206086,Gaston County, North Carolina,0.133,Working Class Country
+37073,12197,Gates County, North Carolina,0.071,Working Class Country
+37075,8861,Graham County, North Carolina,0.134,Graying America
+37077,59916,Granville County, North Carolina,0.102,Working Class Country
+37079,21362,Greene County, North Carolina,0.102,African American South
+37081,488406,Guilford County, North Carolina,0.11,Urban Burbs
+37083,54691,Halifax County, North Carolina,0.131,African American South
+37085,114678,Harnett County, North Carolina,0.109,Exurbs
+37087,59036,Haywood County, North Carolina,0.085,Graying America
+37089,106740,Henderson County, North Carolina,0.086,Middle Suburbs
+37091,24669,Hertford County, North Carolina,0.094,African American South
+37093,46952,Hoke County, North Carolina,0.083,African American South
+37095,5810,Hyde County, North Carolina,0.059,African American South
+37097,159437,Iredell County, North Carolina,0.121,Urban Burbs
+37099,40271,Jackson County, North Carolina,0.078,College Towns
+37101,168878,Johnston County, North Carolina,0.095,Exurbs
+37103,10153,Jones County, North Carolina,0.109,Working Class Country
+37105,57866,Lee County, North Carolina,0.135,Working Class Country
+37107,59495,Lenoir County, North Carolina,0.114,African American South
+37109,78265,Lincoln County, North Carolina,0.132,Evangelical Hubs
+37111,44996,McDowell County, North Carolina,0.141,Evangelical Hubs
+37113,33922,Macon County, North Carolina,0.092,Graying America
+37115,20764,Madison County, North Carolina,0.093,Graying America
+37117,24505,Martin County, North Carolina,0.106,African American South
+37119,919628,Mecklenburg County, North Carolina,0.11,Big Cities
+37121,15579,Mitchell County, North Carolina,0.11,Graying America
+37123,27798,Montgomery County, North Carolina,0.133,Working Class Country
+37125,88247,Moore County, North Carolina,0.095,Rural Middle America
+37127,95840,Nash County, North Carolina,0.119,African American South
+37129,202667,New Hanover County, North Carolina,0.091,College Towns
+37131,22099,Northampton County, North Carolina,0.107,African American South
+37133,177772,Onslow County, North Carolina,0.083,Military Posts
+37135,133801,Orange County, North Carolina,0.063,College Towns
+37137,13144,Pamlico County, North Carolina,0.101,Graying America
+37139,40661,Pasquotank County, North Carolina,0.091,Military Posts
+37141,52217,Pender County, North Carolina,0.108,Working Class Country
+37143,13453,Perquimans County, North Carolina,0.103,Working Class Country
+37145,39464,Person County, North Carolina,0.108,Working Class Country
+37147,168148,Pitt County, North Carolina,0.1,College Towns
+37149,20510,Polk County, North Carolina,0.082,Graying America
+37151,141752,Randolph County, North Carolina,0.11,Rural Middle America
+37153,46639,Richmond County, North Carolina,0.132,African American South
+37155,134168,Robeson County, North Carolina,0.115,Native American Lands
+37157,93643,Rockingham County, North Carolina,0.117,Evangelical Hubs
+37159,138428,Rowan County, North Carolina,0.128,Working Class Country
+37161,67810,Rutherford County, North Carolina,0.143,Working Class Country
+37163,63431,Sampson County, North Carolina,0.083,Working Class Country
+37165,36157,Scotland County, North Carolina,0.165,African American South
+37167,60585,Stanly County, North Carolina,0.119,Evangelical Hubs
+37169,47401,Stokes County, North Carolina,0.101,Evangelical Hubs
+37171,73673,Surry County, North Carolina,0.118,Evangelical Hubs
+37173,13981,Swain County, North Carolina,0.091,Graying America
+37175,33090,Transylvania County, North Carolina,0.085,Graying America
+37177,4407,Tyrrell County, North Carolina,0.088,Graying America
+37179,201292,Union County, North Carolina,0.1,Urban Burbs
+37181,45422,Vance County, North Carolina,0.13,African American South
+37183,900993,Wake County, North Carolina,0.083,Big Cities
+37185,20972,Warren County, North Carolina,0.127,African American South
+37187,13228,Washington County, North Carolina,0.117,African American South
+37189,51079,Watauga County, North Carolina,0.069,College Towns
+37191,122623,Wayne County, North Carolina,0.088,African American South
+37193,69340,Wilkes County, North Carolina,0.129,Evangelical Hubs
+37195,81234,Wilson County, North Carolina,0.119,African American South
+37197,38406,Yadkin County, North Carolina,0.093,Evangelical Hubs
+37199,17818,Yancey County, North Carolina,0.109,Evangelical Hubs
+38001,2343,Adams County, North Dakota,0.027,Aging Farmlands
+38003,11066,Barnes County, North Dakota,0.034,Aging Farmlands
+38005,6660,Benson County, North Dakota,0.053,Native American Lands
+38007,783,Billings County, North Dakota,0.013,Aging Farmlands
+38009,6429,Bottineau County, North Dakota,0.029,Aging Farmlands
+38011,3151,Bowman County, North Dakota,0.027,Aging Farmlands
+38013,1968,Burke County, North Dakota,0.022,Aging Farmlands
+38015,81308,Burleigh County, North Dakota,0.028,Exurbs
+38017,149778,Cass County, North Dakota,0.037,College Towns
+38019,3993,Cavalier County, North Dakota,0.025,Aging Farmlands
+38021,5289,Dickey County, North Dakota,0.041,Aging Farmlands
+38023,2071,Divide County, North Dakota,0.034,Aging Farmlands
+38025,3536,Dunn County, North Dakota,0.036,Aging Farmlands
+38027,2385,Eddy County, North Dakota,0.038,Aging Farmlands
+38029,3550,Emmons County, North Dakota,0.051,Aging Farmlands
+38031,3343,Foster County, North Dakota,0.028,Aging Farmlands
+38033,1680,Golden Valley County, North Dakota,0.025,Aging Farmlands
+38035,66861,Grand Forks County, North Dakota,0.035,College Towns
+38037,2394,Grant County, North Dakota,0.032,Aging Farmlands
+38039,2420,Griggs County, North Dakota,0.036,Aging Farmlands
+38041,2477,Hettinger County, North Dakota,0.027,Aging Farmlands
+38043,2435,Kidder County, North Dakota,0.034,Aging Farmlands
+38045,4139,LaMoure County, North Dakota,0.043,Aging Farmlands
+38047,1990,Logan County, North Dakota,0.027,Aging Farmlands
+38049,5395,McHenry County, North Dakota,0.029,Aging Farmlands
+38051,2809,McIntosh County, North Dakota,0.031,Aging Farmlands
+38053,6360,McKenzie County, North Dakota,0.022,Exurbs
+38055,8962,McLean County, North Dakota,0.034,Aging Farmlands
+38057,8424,Mercer County, North Dakota,0.033,Aging Farmlands
+38059,27471,Morton County, North Dakota,0.03,Exurbs
+38061,7673,Mountrail County, North Dakota,0.044,Graying America
+38063,3126,Nelson County, North Dakota,0.029,Aging Farmlands
+38065,1846,Oliver County, North Dakota,0.031,Aging Farmlands
+38067,7413,Pembina County, North Dakota,0.051,Aging Farmlands
+38069,4357,Pierce County, North Dakota,0.04,Aging Farmlands
+38071,11451,Ramsey County, North Dakota,0.032,Graying America
+38073,5457,Ransom County, North Dakota,0.06,Rural Middle America
+38075,2470,Renville County, North Dakota,0.033,Aging Farmlands
+38077,16321,Richland County, North Dakota,0.043,Rural Middle America
+38079,13937,Rolette County, North Dakota,0.097,Native American Lands
+38081,3829,Sargent County, North Dakota,0.065,Rural Middle America
+38083,1321,Sheridan County, North Dakota,0.037,Aging Farmlands
+38085,4153,Sioux County, North Dakota,0.043,Native American Lands
+38087,727,Slope County, North Dakota,0.012,Aging Farmlands
+38089,24199,Stark County, North Dakota,0.028,Exurbs
+38091,1975,Steele County, North Dakota,0.021,Aging Farmlands
+38093,21100,Stutsman County, North Dakota,0.032,Rural Middle America
+38095,2246,Towner County, North Dakota,0.026,Aging Farmlands
+38097,8121,Traill County, North Dakota,0.035,Rural Middle America
+38099,11119,Walsh County, North Dakota,0.045,Aging Farmlands
+38101,61675,Ward County, North Dakota,0.028,Military Posts
+38103,4207,Wells County, North Dakota,0.038,Aging Farmlands
+38105,22398,Williams County, North Dakota,0.02,Exurbs
+39001,28550,Adams County, Ohio,0.138,Evangelical Hubs
+39003,106331,Allen County, Ohio,0.102,Rural Middle America
+39005,53139,Ashland County, Ohio,0.114,Rural Middle America
+39007,101497,Ashtabula County, Ohio,0.126,Rural Middle America
+39009,64757,Athens County, Ohio,0.086,College Towns
+39011,45949,Auglaize County, Ohio,0.101,Rural Middle America
+39013,70400,Belmont County, Ohio,0.092,Rural Middle America
+39015,44846,Brown County, Ohio,0.119,Rural Middle America
+39017,368130,Butler County, Ohio,0.091,Exurbs
+39019,28836,Carroll County, Ohio,0.132,Rural Middle America
+39021,40097,Champaign County, Ohio,0.114,Rural Middle America
+39023,138333,Clark County, Ohio,0.099,Middle Suburbs
+39025,197363,Clermont County, Ohio,0.094,Middle Suburbs
+39027,42040,Clinton County, Ohio,0.139,Rural Middle America
+39029,107841,Columbiana County, Ohio,0.125,Rural Middle America
+39031,36901,Coshocton County, Ohio,0.123,Rural Middle America
+39033,43784,Crawford County, Ohio,0.132,Rural Middle America
+39035,1280122,Cuyahoga County, Ohio,0.085,Big Cities
+39037,52959,Darke County, Ohio,0.099,Rural Middle America
+39039,39037,Defiance County, Ohio,0.117,Rural Middle America
+39041,174214,Delaware County, Ohio,0.067,Exurbs
+39043,77079,Erie County, Ohio,0.095,Middle Suburbs
+39045,146156,Fairfield County, Ohio,0.082,Exurbs
+39047,29030,Fayette County, Ohio,0.117,Working Class Country
+39049,1163414,Franklin County, Ohio,0.082,Big Cities
+39051,42698,Fulton County, Ohio,0.121,Rural Middle America
+39053,30934,Gallia County, Ohio,0.095,Evangelical Hubs
+39055,93389,Geauga County, Ohio,0.065,Rural Middle America
+39057,161573,Greene County, Ohio,0.094,College Towns
+39059,40087,Guernsey County, Ohio,0.108,Working Class Country
+39061,802374,Hamilton County, Ohio,0.089,Urban Burbs
+39063,74782,Hancock County, Ohio,0.091,Rural Middle America
+39065,32058,Hardin County, Ohio,0.112,Rural Middle America
+39067,15864,Harrison County, Ohio,0.106,Working Class Country
+39069,28215,Henry County, Ohio,0.109,Rural Middle America
+39071,43589,Highland County, Ohio,0.153,Working Class Country
+39073,29380,Hocking County, Ohio,0.104,Rural Middle America
+39075,42366,Holmes County, Ohio,0.063,Rural Middle America
+39077,59626,Huron County, Ohio,0.128,Rural Middle America
+39079,33225,Jackson County, Ohio,0.105,Working Class Country
+39081,69709,Jefferson County, Ohio,0.127,Rural Middle America
+39083,60921,Knox County, Ohio,0.087,Rural Middle America
+39085,230041,Lake County, Ohio,0.079,Middle Suburbs
+39087,62450,Lawrence County, Ohio,0.084,Working Class Country
+39089,166492,Licking County, Ohio,0.089,Rural Middle America
+39091,45858,Logan County, Ohio,0.112,Rural Middle America
+39093,301356,Lorain County, Ohio,0.091,Middle Suburbs
+39095,441815,Lucas County, Ohio,0.113,Urban Burbs
+39097,43435,Madison County, Ohio,0.085,Rural Middle America
+39099,238823,Mahoning County, Ohio,0.118,Middle Suburbs
+39101,66501,Marion County, Ohio,0.102,Rural Middle America
+39103,172332,Medina County, Ohio,0.075,Middle Suburbs
+39105,23770,Meigs County, Ohio,0.152,Working Class Country
+39107,40814,Mercer County, Ohio,0.078,Rural Middle America
+39109,102506,Miami County, Ohio,0.11,Rural Middle America
+39111,14642,Monroe County, Ohio,0.115,Aging Farmlands
+39113,535153,Montgomery County, Ohio,0.11,Urban Burbs
+39115,15054,Morgan County, Ohio,0.146,Working Class Country
+39117,34827,Morrow County, Ohio,0.1,Rural Middle America
+39119,86074,Muskingum County, Ohio,0.119,Rural Middle America
+39121,14645,Noble County, Ohio,0.14,Rural Middle America
+39123,41428,Ottawa County, Ohio,0.107,Graying America
+39125,19614,Paulding County, Ohio,0.115,Rural Middle America
+39127,36058,Perry County, Ohio,0.128,Working Class Country
+39129,55698,Pickaway County, Ohio,0.103,Rural Middle America
+39131,28709,Pike County, Ohio,0.147,Working Class Country
+39133,161419,Portage County, Ohio,0.092,Middle Suburbs
+39135,42270,Preble County, Ohio,0.111,Rural Middle America
+39137,34499,Putnam County, Ohio,0.09,Rural Middle America
+39139,124475,Richland County, Ohio,0.118,Rural Middle America
+39141,78064,Ross County, Ohio,0.115,Rural Middle America
+39143,60944,Sandusky County, Ohio,0.108,Rural Middle America
+39145,79499,Scioto County, Ohio,0.121,Working Class Country
+39147,56745,Seneca County, Ohio,0.12,Rural Middle America
+39149,49423,Shelby County, Ohio,0.119,Rural Middle America
+39151,375586,Stark County, Ohio,0.11,Middle Suburbs
+39153,541781,Summit County, Ohio,0.096,College Towns
+39155,210312,Trumbull County, Ohio,0.135,Middle Suburbs
+39157,92582,Tuscarawas County, Ohio,0.102,Rural Middle America
+39159,52300,Union County, Ohio,0.08,Exurbs
+39161,28744,Van Wert County, Ohio,0.132,Rural Middle America
+39163,13435,Vinton County, Ohio,0.113,Working Class Country
+39165,212693,Warren County, Ohio,0.085,Exurbs
+39167,61778,Washington County, Ohio,0.094,Rural Middle America
+39169,114520,Wayne County, Ohio,0.089,Rural Middle America
+39171,37642,Williams County, Ohio,0.141,Rural Middle America
+39173,125488,Wood County, Ohio,0.1,College Towns
+39175,22615,Wyandot County, Ohio,0.112,Rural Middle America
+40001,22683,Adair County, Oklahoma,0.076,Native American Lands
+40003,5642,Alfalfa County, Oklahoma,0.055,Aging Farmlands
+40005,14182,Atoka County, Oklahoma,0.084,Evangelical Hubs
+40007,5636,Beaver County, Oklahoma,0.033,Aging Farmlands
+40009,22119,Beckham County, Oklahoma,0.059,Graying America
+40011,11943,Blaine County, Oklahoma,0.057,Aging Farmlands
+40013,42416,Bryan County, Oklahoma,0.052,College Towns
+40015,29600,Caddo County, Oklahoma,0.061,Working Class Country
+40017,115541,Canadian County, Oklahoma,0.055,Exurbs
+40019,47557,Carter County, Oklahoma,0.057,Working Class Country
+40021,46987,Cherokee County, Oklahoma,0.056,Native American Lands
+40023,15205,Choctaw County, Oklahoma,0.076,Working Class Country
+40025,2475,Cimarron County, Oklahoma,0.035,Aging Farmlands
+40027,255755,Cleveland County, Oklahoma,0.052,College Towns
+40029,5925,Coal County, Oklahoma,0.088,Working Class Country
+40031,124098,Comanche County, Oklahoma,0.051,Military Posts
+40033,6193,Cotton County, Oklahoma,0.04,Working Class Country
+40035,15029,Craig County, Oklahoma,0.055,Working Class Country
+40037,69967,Creek County, Oklahoma,0.081,Working Class Country
+40039,27469,Custer County, Oklahoma,0.049,College Towns
+40041,41487,Delaware County, Oklahoma,0.06,Graying America
+40043,4810,Dewey County, Oklahoma,0.046,Aging Farmlands
+40045,4151,Ellis County, Oklahoma,0.045,Aging Farmlands
+40047,60580,Garfield County, Oklahoma,0.045,Graying America
+40049,27576,Garvin County, Oklahoma,0.059,Evangelical Hubs
+40051,52431,Grady County, Oklahoma,0.074,Evangelical Hubs
+40053,4527,Grant County, Oklahoma,0.042,Aging Farmlands
+40055,6239,Greer County, Oklahoma,0.079,Graying America
+40057,2922,Harmon County, Oklahoma,0.069,Aging Farmlands
+40059,3685,Harper County, Oklahoma,0.043,Graying America
+40061,12769,Haskell County, Oklahoma,0.084,Evangelical Hubs
+40063,14003,Hughes County, Oklahoma,0.107,Evangelical Hubs
+40065,26446,Jackson County, Oklahoma,0.048,Military Posts
+40067,6472,Jefferson County, Oklahoma,0.086,Evangelical Hubs
+40069,10957,Johnston County, Oklahoma,0.07,Working Class Country
+40071,46562,Kay County, Oklahoma,0.081,Working Class Country
+40073,15034,Kingfisher County, Oklahoma,0.043,Rural Middle America
+40075,9446,Kiowa County, Oklahoma,0.062,Evangelical Hubs
+40077,11154,Latimer County, Oklahoma,0.104,Working Class Country
+40079,50384,Le Flore County, Oklahoma,0.087,Working Class Country
+40081,34273,Lincoln County, Oklahoma,0.067,Working Class Country
+40083,41848,Logan County, Oklahoma,0.056,Exurbs
+40085,9423,Love County, Oklahoma,0.054,Working Class Country
+40087,34506,McClain County, Oklahoma,0.056,Exurbs
+40089,33151,McCurtain County, Oklahoma,0.116,Working Class Country
+40091,20252,McIntosh County, Oklahoma,0.082,Working Class Country
+40093,7527,Major County, Oklahoma,0.045,Aging Farmlands
+40095,15840,Marshall County, Oklahoma,0.075,Working Class Country
+40097,41259,Mayes County, Oklahoma,0.081,Working Class Country
+40099,13488,Murray County, Oklahoma,0.047,Working Class Country
+40101,70990,Muskogee County, Oklahoma,0.081,Working Class Country
+40103,11561,Noble County, Oklahoma,0.077,Rural Middle America
+40105,10536,Nowata County, Oklahoma,0.093,Evangelical Hubs
+40107,12191,Okfuskee County, Oklahoma,0.089,Evangelical Hubs
+40109,718633,Oklahoma County, Oklahoma,0.061,Big Cities
+40111,40069,Okmulgee County, Oklahoma,0.085,Working Class Country
+40113,47472,Osage County, Oklahoma,0.074,Working Class Country
+40115,31848,Ottawa County, Oklahoma,0.062,Working Class Country
+40117,16577,Pawnee County, Oklahoma,0.082,Working Class Country
+40119,77350,Payne County, Oklahoma,0.063,College Towns
+40121,45837,Pittsburg County, Oklahoma,0.065,Graying America
+40123,37492,Pontotoc County, Oklahoma,0.051,College Towns
+40125,69442,Pottawatomie County, Oklahoma,0.065,Working Class Country
+40127,11572,Pushmataha County, Oklahoma,0.089,Working Class Country
+40129,3647,Roger Mills County, Oklahoma,0.045,Aging Farmlands
+40131,86905,Rogers County, Oklahoma,0.072,Exurbs
+40133,25482,Seminole County, Oklahoma,0.092,Working Class Country
+40135,42391,Sequoyah County, Oklahoma,0.087,Working Class Country
+40137,45048,Stephens County, Oklahoma,0.084,Evangelical Hubs
+40139,20640,Texas County, Oklahoma,0.038,Hispanic Centers
+40141,7992,Tillman County, Oklahoma,0.056,Graying America
+40143,603403,Tulsa County, Oklahoma,0.068,Big Cities
+40145,73085,Wagoner County, Oklahoma,0.066,Exurbs
+40147,50976,Washington County, Oklahoma,0.059,Rural Middle America
+40149,11629,Washita County, Oklahoma,0.063,Evangelical Hubs
+40151,8878,Woods County, Oklahoma,0.042,College Towns
+40153,20081,Woodward County, Oklahoma,0.065,Working Class Country
+41001,16134,Baker County, Oregon,0.085,Graying America
+41003,85579,Benton County, Oregon,0.075,College Towns
+41005,375992,Clackamas County, Oregon,0.104,Exurbs
+41007,37039,Clatsop County, Oregon,0.082,Graying America
+41009,49351,Columbia County, Oregon,0.126,Rural Middle America
+41011,63043,Coos County, Oregon,0.117,Graying America
+41013,20978,Crook County, Oregon,0.161,Graying America
+41015,22364,Curry County, Oregon,0.112,Graying America
+41017,157733,Deschutes County, Oregon,0.135,Exurbs
+41019,107667,Douglas County, Oregon,0.14,Rural Middle America
+41021,1871,Gilliam County, Oregon,0.056,Graying America
+41023,7445,Grant County, Oregon,0.099,Graying America
+41025,7422,Harney County, Oregon,0.15,Graying America
+41027,22346,Hood River County, Oregon,0.066,Exurbs
+41029,203206,Jackson County, Oregon,0.115,College Towns
+41031,21720,Jefferson County, Oregon,0.129,Graying America
+41033,82713,Josephine County, Oregon,0.133,Graying America
+41035,66380,Klamath County, Oregon,0.12,Graying America
+41037,7895,Lake County, Oregon,0.101,Graying America
+41039,351715,Lane County, Oregon,0.115,College Towns
+41041,46034,Lincoln County, Oregon,0.094,Graying America
+41043,116672,Linn County, Oregon,0.136,Rural Middle America
+41045,31313,Malheur County, Oregon,0.093,Hispanic Centers
+41047,315335,Marion County, Oregon,0.103,Exurbs
+41049,11173,Morrow County, Oregon,0.074,Hispanic Centers
+41051,735334,Multnomah County, Oregon,0.109,Big Cities
+41053,75403,Polk County, Oregon,0.093,College Towns
+41055,1765,Sherman County, Oregon,0.076,Aging Farmlands
+41057,25250,Tillamook County, Oregon,0.082,Graying America
+41059,75889,Umatilla County, Oregon,0.078,Graying America
+41061,25748,Union County, Oregon,0.102,Rural Middle America
+41063,7008,Wallowa County, Oregon,0.087,Graying America
+41065,25213,Wasco County, Oregon,0.08,Graying America
+41067,529710,Washington County, Oregon,0.096,Urban Burbs
+41069,1441,Wheeler County, Oregon,0.067,Graying America
+41071,99193,Yamhill County, Oregon,0.11,Exurbs
+42001,101407,Adams County, Pennsylvania,0.074,Rural Middle America
+42003,1223348,Allegheny County, Pennsylvania,0.072,Urban Burbs
+42005,68941,Armstrong County, Pennsylvania,0.08,Rural Middle America
+42007,170539,Beaver County, Pennsylvania,0.084,Middle Suburbs
+42009,49762,Bedford County, Pennsylvania,0.109,Rural Middle America
+42011,411442,Berks County, Pennsylvania,0.091,Middle Suburbs
+42013,127089,Blair County, Pennsylvania,0.074,Rural Middle America
+42015,62622,Bradford County, Pennsylvania,0.076,Rural Middle America
+42017,625249,Bucks County, Pennsylvania,0.073,Exurbs
+42019,183862,Butler County, Pennsylvania,0.071,Rural Middle America
+42021,143679,Cambria County, Pennsylvania,0.088,Rural Middle America
+42023,5085,Cameron County, Pennsylvania,0.167,Graying America
+42025,65249,Carbon County, Pennsylvania,0.1,Rural Middle America
+42027,153990,Centre County, Pennsylvania,0.056,College Towns
+42029,498886,Chester County, Pennsylvania,0.063,Exurbs
+42031,39988,Clarion County, Pennsylvania,0.083,Rural Middle America
+42033,81642,Clearfield County, Pennsylvania,0.098,Working Class Country
+42035,39238,Clinton County, Pennsylvania,0.082,Rural Middle America
+42037,67295,Columbia County, Pennsylvania,0.082,Rural Middle America
+42039,88765,Crawford County, Pennsylvania,0.101,Rural Middle America
+42041,235406,Cumberland County, Pennsylvania,0.068,Exurbs
+42043,268100,Dauphin County, Pennsylvania,0.081,College Towns
+42045,558979,Delaware County, Pennsylvania,0.079,Urban Burbs
+42047,31946,Elk County, Pennsylvania,0.129,Rural Middle America
+42049,280566,Erie County, Pennsylvania,0.092,Middle Suburbs
+42051,136606,Fayette County, Pennsylvania,0.091,Working Class Country
+42053,7716,Forest County, Pennsylvania,0.102,Graying America
+42055,149618,Franklin County, Pennsylvania,0.086,Rural Middle America
+42057,14845,Fulton County, Pennsylvania,0.143,Rural Middle America
+42059,38686,Greene County, Pennsylvania,0.078,Rural Middle America
+42061,45913,Huntingdon County, Pennsylvania,0.102,Rural Middle America
+42063,88880,Indiana County, Pennsylvania,0.078,Rural Middle America
+42065,45200,Jefferson County, Pennsylvania,0.095,Rural Middle America
+42067,24636,Juniata County, Pennsylvania,0.076,Rural Middle America
+42069,214437,Lackawanna County, Pennsylvania,0.083,Middle Suburbs
+42071,519445,Lancaster County, Pennsylvania,0.075,Exurbs
+42073,91108,Lawrence County, Pennsylvania,0.089,Rural Middle America
+42075,133568,Lebanon County, Pennsylvania,0.07,Middle Suburbs
+42077,349497,Lehigh County, Pennsylvania,0.093,Urban Burbs
+42079,320918,Luzerne County, Pennsylvania,0.092,Middle Suburbs
+42081,116111,Lycoming County, Pennsylvania,0.093,Rural Middle America
+42083,43450,McKean County, Pennsylvania,0.1,Rural Middle America
+42085,116638,Mercer County, Pennsylvania,0.113,Rural Middle America
+42087,46682,Mifflin County, Pennsylvania,0.104,Rural Middle America
+42089,169842,Monroe County, Pennsylvania,0.09,Exurbs
+42091,799874,Montgomery County, Pennsylvania,0.07,Urban Burbs
+42093,18267,Montour County, Pennsylvania,0.059,Rural Middle America
+42095,297735,Northampton County, Pennsylvania,0.088,Urban Burbs
+42097,94528,Northumberland County, Pennsylvania,0.094,Rural Middle America
+42099,45969,Perry County, Pennsylvania,0.081,Rural Middle America
+42101,1526006,Philadelphia County, Pennsylvania,0.11,Big Cities
+42103,57369,Pike County, Pennsylvania,0.086,Graying America
+42105,17457,Potter County, Pennsylvania,0.103,Working Class Country
+42107,148289,Schuylkill County, Pennsylvania,0.101,Rural Middle America
+42109,39702,Snyder County, Pennsylvania,0.086,Rural Middle America
+42111,77742,Somerset County, Pennsylvania,0.085,Working Class Country
+42113,6428,Sullivan County, Pennsylvania,0.079,Graying America
+42115,43356,Susquehanna County, Pennsylvania,0.078,Graying America
+42117,41981,Tioga County, Pennsylvania,0.078,Rural Middle America
+42119,44947,Union County, Pennsylvania,0.088,Rural Middle America
+42121,54984,Venango County, Pennsylvania,0.087,Rural Middle America
+42123,41815,Warren County, Pennsylvania,0.073,Rural Middle America
+42125,207820,Washington County, Pennsylvania,0.079,Rural Middle America
+42127,52822,Wayne County, Pennsylvania,0.066,Graying America
+42129,365169,Westmoreland County, Pennsylvania,0.078,Middle Suburbs
+42131,28276,Wyoming County, Pennsylvania,0.069,Rural Middle America
+42133,434972,York County, Pennsylvania,0.084,Middle Suburbs
+44001,49875,Bristol County, Rhode Island,0.111,Exurbs
+44003,166158,Kent County, Rhode Island,0.119,Middle Suburbs
+44005,82888,Newport County, Rhode Island,0.1,Exurbs
+44007,626667,Providence County, Rhode Island,0.135,Urban Burbs
+44009,126979,Washington County, Rhode Island,0.092,Exurbs
+45001,25417,Abbeville County, South Carolina,0.148,Working Class Country
+45003,160099,Aiken County, South Carolina,0.094,Working Class Country
+45005,10419,Allendale County, South Carolina,0.225,African American South
+45007,187126,Anderson County, South Carolina,0.125,Working Class Country
+45009,15987,Bamberg County, South Carolina,0.181,African American South
+45011,22621,Barnwell County, South Carolina,0.19,African American South
+45013,162233,Beaufort County, South Carolina,0.087,Military Posts
+45015,177843,Berkeley County, South Carolina,0.107,Military Posts
+45017,15175,Calhoun County, South Carolina,0.144,African American South
+45019,350209,Charleston County, South Carolina,0.09,College Towns
+45021,55342,Cherokee County, South Carolina,0.162,Working Class Country
+45023,33140,Chester County, South Carolina,0.211,African American South
+45025,46734,Chesterfield County, South Carolina,0.168,African American South
+45027,34971,Clarendon County, South Carolina,0.161,African American South
+45029,38892,Colleton County, South Carolina,0.142,African American South
+45031,68681,Darlington County, South Carolina,0.13,African American South
+45033,32062,Dillon County, South Carolina,0.172,African American South
+45035,136555,Dorchester County, South Carolina,0.103,Military Posts
+45037,26985,Edgefield County, South Carolina,0.107,Working Class Country
+45039,23956,Fairfield County, South Carolina,0.129,African American South
+45041,136885,Florence County, South Carolina,0.117,African American South
+45043,60158,Georgetown County, South Carolina,0.125,Graying America
+45045,451225,Greenville County, South Carolina,0.102,Urban Burbs
+45047,69661,Greenwood County, South Carolina,0.137,African American South
+45049,21090,Hampton County, South Carolina,0.161,African American South
+45051,269291,Horry County, South Carolina,0.109,Graying America
+45053,24777,Jasper County, South Carolina,0.107,African American South
+45055,61697,Kershaw County, South Carolina,0.104,Working Class Country
+45057,76652,Lancaster County, South Carolina,0.179,Exurbs
+45059,66537,Laurens County, South Carolina,0.117,Working Class Country
+45061,19220,Lee County, South Carolina,0.157,African American South
+45063,262391,Lexington County, South Carolina,0.083,Urban Burbs
+45065,10233,McCormick County, South Carolina,0.157,Graying America
+45067,33062,Marion County, South Carolina,0.21,African American South
+45069,28933,Marlboro County, South Carolina,0.202,African American South
+45071,37508,Newberry County, South Carolina,0.117,Working Class Country
+45073,74273,Oconee County, South Carolina,0.142,Working Class Country
+45075,92501,Orangeburg County, South Carolina,0.187,African American South
+45077,119224,Pickens County, South Carolina,0.106,College Towns
+45079,384504,Richland County, South Carolina,0.095,College Towns
+45081,19875,Saluda County, South Carolina,0.094,Working Class Country
+45083,284307,Spartanburg County, South Carolina,0.122,Working Class Country
+45085,107456,Sumter County, South Carolina,0.139,African American South
+45087,28961,Union County, South Carolina,0.206,African American South
+45089,34423,Williamsburg County, South Carolina,0.154,African American South
+45091,226073,York County, South Carolina,0.141,Urban Burbs
+46003,2710,Aurora County, South Dakota,0.04,Aging Farmlands
+46005,17398,Beadle County, South Dakota,0.03,Rural Middle America
+46007,3431,Bennett County, South Dakota,0.06,Native American Lands
+46009,7070,Bon Homme County, South Dakota,0.049,Aging Farmlands
+46011,31965,Brookings County, South Dakota,0.032,College Towns
+46013,36531,Brown County, South Dakota,0.031,Rural Middle America
+46015,5255,Brule County, South Dakota,0.027,Aging Farmlands
+46017,1912,Buffalo County, South Dakota,0.172,Native American Lands
+46019,10110,Butte County, South Dakota,0.039,Rural Middle America
+46021,1466,Campbell County, South Dakota,0.045,Aging Farmlands
+46023,9129,Charles Mix County, South Dakota,0.048,Native American Lands
+46025,3691,Clark County, South Dakota,0.047,Aging Farmlands
+46027,13864,Clay County, South Dakota,0.037,College Towns
+46029,27227,Codington County, South Dakota,0.058,Rural Middle America
+46031,4050,Corson County, South Dakota,0.056,Native American Lands
+46033,8216,Custer County, South Dakota,0.03,Graying America
+46035,19504,Davison County, South Dakota,0.043,Rural Middle America
+46037,5710,Day County, South Dakota,0.053,Aging Farmlands
+46039,4364,Deuel County, South Dakota,0.048,Rural Middle America
+46041,5301,Dewey County, South Dakota,0.104,Native American Lands
+46043,3002,Douglas County, South Dakota,0.031,Aging Farmlands
+46045,4071,Edmunds County, South Dakota,0.027,Aging Farmlands
+46047,7094,Fall River County, South Dakota,0.049,Graying America
+46049,2364,Faulk County, South Dakota,0.031,Aging Farmlands
+46051,7356,Grant County, South Dakota,0.035,Rural Middle America
+46053,4271,Gregory County, South Dakota,0.031,Aging Farmlands
+46055,1937,Haakon County, South Dakota,0.036,Aging Farmlands
+46057,5903,Hamlin County, South Dakota,0.051,Rural Middle America
+46059,3431,Hand County, South Dakota,0.028,Aging Farmlands
+46061,3331,Hanson County, South Dakota,0.03,Rural Middle America
+46063,1255,Harding County, South Dakota,0.023,Aging Farmlands
+46065,17022,Hughes County, South Dakota,0.027,Graying America
+46067,7343,Hutchinson County, South Dakota,0.039,Aging Farmlands
+46069,1420,Hyde County, South Dakota,0.036,Aging Farmlands
+46071,3031,Jackson County, South Dakota,0.062,Native American Lands
+46073,2071,Jerauld County, South Dakota,0.026,Aging Farmlands
+46075,1006,Jones County, South Dakota,0.024,Aging Farmlands
+46077,5148,Kingsbury County, South Dakota,0.051,Aging Farmlands
+46079,11200,Lake County, South Dakota,0.058,Rural Middle America
+46081,24097,Lawrence County, South Dakota,0.038,Graying America
+46083,44828,Lincoln County, South Dakota,0.039,Exurbs
+46085,3755,Lyman County, South Dakota,0.057,Native American Lands
+46087,5618,McCook County, South Dakota,0.045,Aging Farmlands
+46089,2459,McPherson County, South Dakota,0.05,Aging Farmlands
+46091,4656,Marshall County, South Dakota,0.047,Aging Farmlands
+46093,25434,Meade County, South Dakota,0.04,Military Posts
+46095,2048,Mellette County, South Dakota,0.068,Native American Lands
+46097,2389,Miner County, South Dakota,0.057,Aging Farmlands
+46099,169468,Minnehaha County, South Dakota,0.047,Exurbs
+46101,6486,Moody County, South Dakota,0.061,Rural Middle America
+46103,100948,Pennington County, South Dakota,0.044,Military Posts
+46105,2982,Perkins County, South Dakota,0.039,Aging Farmlands
+46107,2329,Potter County, South Dakota,0.032,Aging Farmlands
+46109,10149,Roberts County, South Dakota,0.048,Native American Lands
+46111,2355,Sanborn County, South Dakota,0.038,Aging Farmlands
+46113,13586,Shannon County, South Dakota,0.126,Native American Lands
+46115,6415,Spink County, South Dakota,0.034,Aging Farmlands
+46117,2966,Stanley County, South Dakota,0.021,Aging Farmlands
+46119,1373,Sully County, South Dakota,0.024,Aging Farmlands
+46121,9612,Todd County, South Dakota,0.084,Native American Lands
+46123,5644,Tripp County, South Dakota,0.029,Aging Farmlands
+46125,8347,Turner County, South Dakota,0.044,Rural Middle America
+46127,14399,Union County, South Dakota,0.053,Rural Middle America
+46129,5438,Walworth County, South Dakota,0.04,Aging Farmlands
+46135,22438,Yankton County, South Dakota,0.053,Rural Middle America
+46137,2801,Ziebach County, South Dakota,0.078,Native American Lands
+47001,75129,Anderson County, Tennessee,0.097,Working Class Country
+47003,45058,Bedford County, Tennessee,0.121,Evangelical Hubs
+47005,16489,Benton County, Tennessee,0.128,Evangelical Hubs
+47007,12876,Bledsoe County, Tennessee,0.137,Evangelical Hubs
+47009,123010,Blount County, Tennessee,0.093,Rural Middle America
+47011,98963,Bradley County, Tennessee,0.093,Evangelical Hubs
+47013,40716,Campbell County, Tennessee,0.131,Evangelical Hubs
+47015,13801,Cannon County, Tennessee,0.108,Evangelical Hubs
+47017,28522,Carroll County, Tennessee,0.164,Evangelical Hubs
+47019,57424,Carter County, Tennessee,0.098,Evangelical Hubs
+47021,39105,Cheatham County, Tennessee,0.094,Rural Middle America
+47023,17131,Chester County, Tennessee,0.115,Evangelical Hubs
+47025,32213,Claiborne County, Tennessee,0.111,Evangelical Hubs
+47027,7861,Clay County, Tennessee,0.126,Evangelical Hubs
+47029,35662,Cocke County, Tennessee,0.122,Evangelical Hubs
+47031,52796,Coffee County, Tennessee,0.102,Evangelical Hubs
+47033,14586,Crockett County, Tennessee,0.134,Evangelical Hubs
+47035,56053,Cumberland County, Tennessee,0.108,Evangelical Hubs
+47037,626681,Davidson County, Tennessee,0.092,Big Cities
+47039,11757,Decatur County, Tennessee,0.142,Evangelical Hubs
+47041,18723,DeKalb County, Tennessee,0.102,Evangelical Hubs
+47043,49666,Dickson County, Tennessee,0.098,Rural Middle America
+47045,38335,Dyer County, Tennessee,0.14,Evangelical Hubs
+47047,38413,Fayette County, Tennessee,0.108,Working Class Country
+47049,17959,Fentress County, Tennessee,0.13,Evangelical Hubs
+47051,41052,Franklin County, Tennessee,0.104,Rural Middle America
+47053,49683,Gibson County, Tennessee,0.157,Working Class Country
+47055,29485,Giles County, Tennessee,0.14,Evangelical Hubs
+47057,22657,Grainger County, Tennessee,0.135,Evangelical Hubs
+47059,68831,Greene County, Tennessee,0.143,Evangelical Hubs
+47061,13703,Grundy County, Tennessee,0.13,Evangelical Hubs
+47063,62544,Hamblen County, Tennessee,0.125,Evangelical Hubs
+47065,336463,Hamilton County, Tennessee,0.087,Urban Burbs
+47067,6819,Hancock County, Tennessee,0.183,Evangelical Hubs
+47069,27253,Hardeman County, Tennessee,0.127,African American South
+47071,26026,Hardin County, Tennessee,0.111,Evangelical Hubs
+47073,56833,Hawkins County, Tennessee,0.103,Evangelical Hubs
+47075,18787,Haywood County, Tennessee,0.18,African American South
+47077,27769,Henderson County, Tennessee,0.181,Evangelical Hubs
+47079,32330,Henry County, Tennessee,0.131,Evangelical Hubs
+47081,24690,Hickman County, Tennessee,0.124,Evangelical Hubs
+47083,8426,Houston County, Tennessee,0.116,Evangelical Hubs
+47085,18538,Humphreys County, Tennessee,0.119,Evangelical Hubs
+47087,11638,Jackson County, Tennessee,0.127,Evangelical Hubs
+47089,51407,Jefferson County, Tennessee,0.118,Evangelical Hubs
+47091,18244,Johnson County, Tennessee,0.122,Evangelical Hubs
+47093,432226,Knox County, Tennessee,0.081,College Towns
+47095,7832,Lake County, Tennessee,0.107,African American South
+47097,27815,Lauderdale County, Tennessee,0.189,African American South
+47099,41869,Lawrence County, Tennessee,0.146,Evangelical Hubs
+47101,12161,Lewis County, Tennessee,0.149,Evangelical Hubs
+47103,33361,Lincoln County, Tennessee,0.069,Evangelical Hubs
+47105,48556,Loudon County, Tennessee,0.095,Rural Middle America
+47107,52266,McMinn County, Tennessee,0.13,Evangelical Hubs
+47109,26075,McNairy County, Tennessee,0.127,Evangelical Hubs
+47111,22248,Macon County, Tennessee,0.112,Evangelical Hubs
+47113,98294,Madison County, Tennessee,0.11,African American South
+47115,28237,Marion County, Tennessee,0.121,Evangelical Hubs
+47117,30617,Marshall County, Tennessee,0.163,Evangelical Hubs
+47119,80956,Maury County, Tennessee,0.119,Exurbs
+47121,11753,Meigs County, Tennessee,0.136,Evangelical Hubs
+47123,44519,Monroe County, Tennessee,0.161,Evangelical Hubs
+47125,172331,Montgomery County, Tennessee,0.09,Military Posts
+47127,6362,Moore County, Tennessee,0.097,Rural Middle America
+47129,21987,Morgan County, Tennessee,0.116,Evangelical Hubs
+47131,31807,Obion County, Tennessee,0.104,Evangelical Hubs
+47133,22083,Overton County, Tennessee,0.12,Evangelical Hubs
+47135,7915,Perry County, Tennessee,0.176,Evangelical Hubs
+47137,5077,Pickett County, Tennessee,0.134,Evangelical Hubs
+47139,16825,Polk County, Tennessee,0.114,Evangelical Hubs
+47141,72321,Putnam County, Tennessee,0.097,College Towns
+47143,31809,Rhea County, Tennessee,0.127,Evangelical Hubs
+47145,54181,Roane County, Tennessee,0.089,Evangelical Hubs
+47147,66283,Robertson County, Tennessee,0.101,Rural Middle America
+47149,262604,Rutherford County, Tennessee,0.095,Urban Burbs
+47151,22228,Scott County, Tennessee,0.184,Evangelical Hubs
+47153,14112,Sequatchie County, Tennessee,0.128,Evangelical Hubs
+47155,89889,Sevier County, Tennessee,0.092,Evangelical Hubs
+47157,927644,Shelby County, Tennessee,0.102,African American South
+47159,19166,Smith County, Tennessee,0.128,Evangelical Hubs
+47161,13324,Stewart County, Tennessee,0.111,Evangelical Hubs
+47163,156823,Sullivan County, Tennessee,0.088,Evangelical Hubs
+47165,160645,Sumner County, Tennessee,0.097,Exurbs
+47167,61081,Tipton County, Tennessee,0.116,Evangelical Hubs
+47169,7870,Trousdale County, Tennessee,0.12,Evangelical Hubs
+47171,18313,Unicoi County, Tennessee,0.103,Evangelical Hubs
+47173,19109,Union County, Tennessee,0.107,Evangelical Hubs
+47175,5548,Van Buren County, Tennessee,0.142,Evangelical Hubs
+47177,39839,Warren County, Tennessee,0.125,Evangelical Hubs
+47179,122979,Washington County, Tennessee,0.086,College Towns
+47181,17021,Wayne County, Tennessee,0.129,Evangelical Hubs
+47183,35021,Weakley County, Tennessee,0.13,Evangelical Hubs
+47185,25841,White County, Tennessee,0.135,Evangelical Hubs
+47187,183182,Williamson County, Tennessee,0.075,Exurbs
+47189,113993,Wilson County, Tennessee,0.09,Exurbs
+48001,58458,Anderson County, Texas,0.094,Evangelical Hubs
+48003,14786,Andrews County, Texas,0.076,Hispanic Centers
+48005,86771,Angelina County, Texas,0.089,Working Class Country
+48007,23158,Aransas County, Texas,0.073,Graying America
+48009,9054,Archer County, Texas,0.065,Rural Middle America
+48011,1901,Armstrong County, Texas,0.051,Aging Farmlands
+48013,44911,Atascosa County, Texas,0.079,Hispanic Centers
+48015,28417,Austin County, Texas,0.084,Exurbs
+48017,7165,Bailey County, Texas,0.052,Hispanic Centers
+48019,20485,Bandera County, Texas,0.068,Graying America
+48021,74171,Bastrop County, Texas,0.08,Exurbs
+48023,3726,Baylor County, Texas,0.051,Aging Farmlands
+48025,31861,Bee County, Texas,0.103,Hispanic Centers
+48027,310235,Bell County, Texas,0.071,Military Posts
+48029,1714773,Bexar County, Texas,0.072,Big Cities
+48031,10497,Blanco County, Texas,0.058,Graying America
+48033,641,Borden County, Texas,0.062,Aging Farmlands
+48035,18212,Bosque County, Texas,0.086,Working Class Country
+48037,92565,Bowie County, Texas,0.078,African American South
+48039,313166,Brazoria County, Texas,0.089,Exurbs
+48041,194851,Brazos County, Texas,0.062,College Towns
+48043,9232,Brewster County, Texas,0.051,Hispanic Centers
+48045,1637,Briscoe County, Texas,0.059,Aging Farmlands
+48047,7223,Brooks County, Texas,0.099,Hispanic Centers
+48049,38106,Brown County, Texas,0.072,Working Class Country
+48051,17187,Burleson County, Texas,0.074,Working Class Country
+48053,42750,Burnet County, Texas,0.063,Graying America
+48055,38066,Caldwell County, Texas,0.082,Hispanic Centers
+48057,21381,Calhoun County, Texas,0.095,Hispanic Centers
+48059,13544,Callahan County, Texas,0.063,Evangelical Hubs
+48061,406220,Cameron County, Texas,0.108,Hispanic Centers
+48063,12401,Camp County, Texas,0.096,Working Class Country
+48065,6182,Carson County, Texas,0.067,Aging Farmlands
+48067,30464,Cass County, Texas,0.125,Evangelical Hubs
+48069,8062,Castro County, Texas,0.053,Hispanic Centers
+48071,35096,Chambers County, Texas,0.107,Exurbs
+48073,50845,Cherokee County, Texas,0.097,Working Class Country
+48075,7041,Childress County, Texas,0.064,Graying America
+48077,10752,Clay County, Texas,0.074,Aging Farmlands
+48079,3127,Cochran County, Texas,0.072,Hispanic Centers
+48081,3320,Coke County, Texas,0.086,Aging Farmlands
+48083,8895,Coleman County, Texas,0.069,Aging Farmlands
+48085,782341,Collin County, Texas,0.078,Urban Burbs
+48087,3057,Collingsworth County, Texas,0.059,Working Class Country
+48089,20874,Colorado County, Texas,0.066,Working Class Country
+48091,108472,Comal County, Texas,0.066,Exurbs
+48093,13974,Comanche County, Texas,0.061,Working Class Country
+48095,4087,Concho County, Texas,0.082,Hispanic Centers
+48097,38437,Cooke County, Texas,0.065,Rural Middle America
+48099,75388,Coryell County, Texas,0.087,Military Posts
+48101,1505,Cottle County, Texas,0.056,Graying America
+48103,4375,Crane County, Texas,0.095,Hispanic Centers
+48105,3719,Crockett County, Texas,0.097,Hispanic Centers
+48107,6059,Crosby County, Texas,0.07,Hispanic Centers
+48109,2398,Culberson County, Texas,0.045,Hispanic Centers
+48111,6703,Dallam County, Texas,0.044,Hispanic Centers
+48113,2368139,Dallas County, Texas,0.087,Big Cities
+48115,13833,Dawson County, Texas,0.087,Hispanic Centers
+48117,19372,Deaf Smith County, Texas,0.058,Hispanic Centers
+48119,5231,Delta County, Texas,0.084,Working Class Country
+48121,662614,Denton County, Texas,0.077,Urban Burbs
+48123,20097,DeWitt County, Texas,0.083,Working Class Country
+48125,2444,Dickens County, Texas,0.06,Graying America
+48127,9996,Dimmit County, Texas,0.11,Hispanic Centers
+48129,3677,Donley County, Texas,0.07,Aging Farmlands
+48131,11782,Duval County, Texas,0.125,Hispanic Centers
+48133,18583,Eastland County, Texas,0.084,Evangelical Hubs
+48135,137130,Ector County, Texas,0.092,Hispanic Centers
+48137,2002,Edwards County, Texas,0.067,Hispanic Centers
+48139,149610,Ellis County, Texas,0.086,Exurbs
+48141,800647,El Paso County, Texas,0.098,Hispanic Centers
+48143,37890,Erath County, Texas,0.071,College Towns
+48145,17866,Falls County, Texas,0.095,Graying America
+48147,33915,Fannin County, Texas,0.09,Evangelical Hubs
+48149,24554,Fayette County, Texas,0.057,Graying America
+48151,3974,Fisher County, Texas,0.064,Aging Farmlands
+48153,6446,Floyd County, Texas,0.069,Hispanic Centers
+48155,1336,Foard County, Texas,0.057,Aging Farmlands
+48157,585375,Fort Bend County, Texas,0.083,Urban Burbs
+48159,10605,Franklin County, Texas,0.073,Rural Middle America
+48161,19816,Freestone County, Texas,0.067,Evangelical Hubs
+48163,17217,Frio County, Texas,0.084,Hispanic Centers
+48165,17526,Gaines County, Texas,0.068,Hispanic Centers
+48167,291309,Galveston County, Texas,0.085,Urban Burbs
+48169,6461,Garza County, Texas,0.057,Hispanic Centers
+48171,24837,Gillespie County, Texas,0.049,Graying America
+48173,1226,Glasscock County, Texas,0.052,Hispanic Centers
+48175,7210,Goliad County, Texas,0.079,Aging Farmlands
+48177,19807,Gonzales County, Texas,0.061,Hispanic Centers
+48179,22535,Gray County, Texas,0.089,Evangelical Hubs
+48181,120877,Grayson County, Texas,0.087,Working Class Country
+48183,121730,Gregg County, Texas,0.08,Exurbs
+48185,26604,Grimes County, Texas,0.1,Working Class Country
+48187,131533,Guadalupe County, Texas,0.067,Exurbs
+48189,36273,Hale County, Texas,0.064,Hispanic Centers
+48191,3353,Hall County, Texas,0.089,Hispanic Centers
+48193,8517,Hamilton County, Texas,0.06,Working Class Country
+48195,5613,Hansford County, Texas,0.055,Hispanic Centers
+48197,4139,Hardeman County, Texas,0.072,Aging Farmlands
+48199,54635,Hardin County, Texas,0.101,Working Class Country
+48201,4092459,Harris County, Texas,0.085,Big Cities
+48203,65631,Harrison County, Texas,0.087,Working Class Country
+48205,6062,Hartley County, Texas,0.043,Aging Farmlands
+48207,5899,Haskell County, Texas,0.052,Graying America
+48209,157107,Hays County, Texas,0.068,Urban Burbs
+48211,3807,Hemphill County, Texas,0.03,Hispanic Centers
+48213,78532,Henderson County, Texas,0.085,Working Class Country
+48215,774769,Hidalgo County, Texas,0.116,Hispanic Centers
+48217,35089,Hill County, Texas,0.085,Working Class Country
+48219,22935,Hockley County, Texas,0.07,Hispanic Centers
+48221,51182,Hood County, Texas,0.076,Exurbs
+48223,35161,Hopkins County, Texas,0.065,Evangelical Hubs
+48225,23732,Houston County, Texas,0.103,Evangelical Hubs
+48227,35012,Howard County, Texas,0.075,Hispanic Centers
+48229,3476,Hudspeth County, Texas,0.065,Hispanic Centers
+48231,86129,Hunt County, Texas,0.085,Working Class Country
+48233,22150,Hutchinson County, Texas,0.08,Working Class Country
+48235,1599,Irion County, Texas,0.054,Aging Farmlands
+48237,9044,Jack County, Texas,0.064,Evangelical Hubs
+48239,14075,Jackson County, Texas,0.076,Working Class Country
+48241,35710,Jasper County, Texas,0.119,Evangelical Hubs
+48243,2342,Jeff Davis County, Texas,0.056,Graying America
+48245,252273,Jefferson County, Texas,0.108,African American South
+48247,5300,Jim Hogg County, Texas,0.1,Hispanic Centers
+48249,40838,Jim Wells County, Texas,0.1,Hispanic Centers
+48251,150934,Johnson County, Texas,0.091,Exurbs
+48253,20202,Jones County, Texas,0.082,Graying America
+48255,14824,Karnes County, Texas,0.105,Hispanic Centers
+48257,103350,Kaufman County, Texas,0.088,Exurbs
+48259,33410,Kendall County, Texas,0.06,Exurbs
+48261,416,Kenedy County, Texas,0.061,Hispanic Centers
+48263,808,Kent County, Texas,0.062,Graying America
+48265,49625,Kerr County, Texas,0.06,Graying America
+48267,4607,Kimble County, Texas,0.054,Graying America
+48269,286,King County, Texas,0.054,Graying America
+48271,3598,Kinney County, Texas,0.089,Hispanic Centers
+48273,32061,Kleberg County, Texas,0.077,Hispanic Centers
+48275,3719,Knox County, Texas,0.064,Aging Farmlands
+48277,49793,Lamar County, Texas,0.078,Working Class Country
+48279,13977,Lamb County, Texas,0.066,Hispanic Centers
+48281,19677,Lampasas County, Texas,0.061,Working Class Country
+48283,6886,La Salle County, Texas,0.099,Hispanic Centers
+48285,19263,Lavaca County, Texas,0.064,Rural Middle America
+48287,16612,Lee County, Texas,0.069,Working Class Country
+48289,16801,Leon County, Texas,0.079,Working Class Country
+48291,75643,Liberty County, Texas,0.112,Hispanic Centers
+48293,23384,Limestone County, Texas,0.072,Graying America
+48295,3302,Lipscomb County, Texas,0.061,Hispanic Centers
+48297,11531,Live Oak County, Texas,0.076,Hispanic Centers
+48299,19301,Llano County, Texas,0.073,Graying America
+48301,82,Loving County, Texas,0.115,Aging Farmlands
+48303,278831,Lubbock County, Texas,0.057,College Towns
+48305,5915,Lynn County, Texas,0.068,Hispanic Centers
+48307,8283,McCulloch County, Texas,0.091,Hispanic Centers
+48309,234906,McLennan County, Texas,0.071,College Towns
+48311,707,McMullen County, Texas,0.078,Hispanic Centers
+48313,13664,Madison County, Texas,0.087,Working Class Country
+48315,10546,Marion County, Texas,0.118,Working Class Country
+48317,4799,Martin County, Texas,0.05,Hispanic Centers
+48319,4012,Mason County, Texas,0.054,Aging Farmlands
+48321,36702,Matagorda County, Texas,0.112,Hispanic Centers
+48323,54258,Maverick County, Texas,0.136,Hispanic Centers
+48325,46006,Medina County, Texas,0.071,Hispanic Centers
+48327,2242,Menard County, Texas,0.09,Graying America
+48329,136872,Midland County, Texas,0.062,Hispanic Centers
+48331,24757,Milam County, Texas,0.102,Working Class Country
+48333,4936,Mills County, Texas,0.06,Graying America
+48335,9403,Mitchell County, Texas,0.087,Hispanic Centers
+48337,19719,Montague County, Texas,0.078,Evangelical Hubs
+48339,455746,Montgomery County, Texas,0.079,Urban Burbs
+48341,21904,Moore County, Texas,0.053,Hispanic Centers
+48343,12934,Morris County, Texas,0.156,Working Class Country
+48345,1210,Motley County, Texas,0.053,Aging Farmlands
+48347,64524,Nacogdoches County, Texas,0.07,College Towns
+48349,47735,Navarro County, Texas,0.084,Hispanic Centers
+48351,14445,Newton County, Texas,0.124,Evangelical Hubs
+48353,15216,Nolan County, Texas,0.064,Hispanic Centers
+48355,340223,Nueces County, Texas,0.077,Hispanic Centers
+48357,10223,Ochiltree County, Texas,0.063,Hispanic Centers
+48359,2052,Oldham County, Texas,0.055,Aging Farmlands
+48361,81837,Orange County, Texas,0.111,Working Class Country
+48363,28111,Palo Pinto County, Texas,0.091,Working Class Country
+48365,23796,Panola County, Texas,0.075,Evangelical Hubs
+48367,116927,Parker County, Texas,0.084,Exurbs
+48369,10269,Parmer County, Texas,0.048,Hispanic Centers
+48371,15507,Pecos County, Texas,0.117,Hispanic Centers
+48373,45413,Polk County, Texas,0.103,Evangelical Hubs
+48375,121073,Potter County, Texas,0.066,Hispanic Centers
+48377,7818,Presidio County, Texas,0.178,Hispanic Centers
+48379,10914,Rains County, Texas,0.085,Evangelical Hubs
+48381,120725,Randall County, Texas,0.051,Exurbs
+48383,3367,Reagan County, Texas,0.058,Hispanic Centers
+48385,3309,Real County, Texas,0.061,Graying America
+48387,12860,Red River County, Texas,0.105,Evangelical Hubs
+48389,13783,Reeves County, Texas,0.14,Hispanic Centers
+48391,7383,Refugio County, Texas,0.07,Hispanic Centers
+48393,929,Roberts County, Texas,0.062,Aging Farmlands
+48395,16622,Robertson County, Texas,0.087,Graying America
+48397,78337,Rockwall County, Texas,0.078,Urban Burbs
+48399,10501,Runnels County, Texas,0.101,Working Class Country
+48401,53330,Rusk County, Texas,0.091,Working Class Country
+48403,10834,Sabine County, Texas,0.159,Graying America
+48405,8865,San Augustine County, Texas,0.108,Working Class Country
+48407,26384,San Jacinto County, Texas,0.1,Working Class Country
+48409,64804,San Patricio County, Texas,0.098,Hispanic Centers
+48411,6131,San Saba County, Texas,0.078,Aging Farmlands
+48413,3461,Schleicher County, Texas,0.111,Hispanic Centers
+48415,16921,Scurry County, Texas,0.072,Hispanic Centers
+48417,3378,Shackelford County, Texas,0.043,Working Class Country
+48419,25448,Shelby County, Texas,0.081,Working Class Country
+48421,3034,Sherman County, Texas,0.049,Hispanic Centers
+48423,209714,Smith County, Texas,0.083,Exurbs
+48425,8490,Somervell County, Texas,0.073,Exurbs
+48427,60968,Starr County, Texas,0.178,Hispanic Centers
+48429,9630,Stephens County, Texas,0.069,Graying America
+48431,1143,Sterling County, Texas,0.046,Hispanic Centers
+48433,1490,Stonewall County, Texas,0.048,Aging Farmlands
+48435,4128,Sutton County, Texas,0.078,Hispanic Centers
+48437,7854,Swisher County, Texas,0.067,Hispanic Centers
+48439,1809034,Tarrant County, Texas,0.082,Big Cities
+48441,131506,Taylor County, Texas,0.061,Military Posts
+48443,984,Terrell County, Texas,0.078,Aging Farmlands
+48445,12651,Terry County, Texas,0.077,Hispanic Centers
+48447,1641,Throckmorton County, Texas,0.056,Aging Farmlands
+48449,32334,Titus County, Texas,0.077,Hispanic Centers
+48451,110224,Tom Green County, Texas,0.07,Military Posts
+48453,1024266,Travis County, Texas,0.07,Big Cities
+48455,14585,Trinity County, Texas,0.088,Working Class Country
+48457,21766,Tyler County, Texas,0.105,Evangelical Hubs
+48459,39309,Upshur County, Texas,0.081,Evangelical Hubs
+48461,3355,Upton County, Texas,0.056,Hispanic Centers
+48463,26405,Uvalde County, Texas,0.089,Hispanic Centers
+48465,48879,Val Verde County, Texas,0.096,Hispanic Centers
+48467,52579,Van Zandt County, Texas,0.074,Evangelical Hubs
+48469,86793,Victoria County, Texas,0.079,Hispanic Centers
+48471,67861,Walker County, Texas,0.078,College Towns
+48473,43205,Waller County, Texas,0.09,Exurbs
+48475,10658,Ward County, Texas,0.085,Hispanic Centers
+48477,33718,Washington County, Texas,0.069,Working Class Country
+48479,250304,Webb County, Texas,0.091,Hispanic Centers
+48481,41280,Wharton County, Texas,0.079,Hispanic Centers
+48483,5410,Wheeler County, Texas,0.056,Evangelical Hubs
+48485,131500,Wichita County, Texas,0.081,Military Posts
+48487,13535,Wilbarger County, Texas,0.055,Graying America
+48489,22134,Willacy County, Texas,0.139,Hispanic Centers
+48491,422679,Williamson County, Texas,0.078,Urban Burbs
+48493,42918,Wilson County, Texas,0.069,Exurbs
+48495,7110,Winkler County, Texas,0.09,Hispanic Centers
+48497,59127,Wise County, Texas,0.096,Exurbs
+48499,41964,Wood County, Texas,0.084,Working Class Country
+48501,7879,Yoakum County, Texas,0.071,Hispanic Centers
+48503,18550,Young County, Texas,0.064,Evangelical Hubs
+48505,14018,Zapata County, Texas,0.126,Hispanic Centers
+48507,11677,Zavala County, Texas,0.163,Hispanic Centers
+49001,6629,Beaver County, Utah,0.042,LDS Enclaves
+49003,49975,Box Elder County, Utah,0.056,LDS Enclaves
+49005,112656,Cache County, Utah,0.042,LDS Enclaves
+49007,21403,Carbon County, Utah,0.065,LDS Enclaves
+49009,1059,Daggett County, Utah,0.027,LDS Enclaves
+49011,306479,Davis County, Utah,0.056,LDS Enclaves
+49013,18607,Duchesne County, Utah,0.069,LDS Enclaves
+49015,10976,Emery County, Utah,0.062,LDS Enclaves
+49017,5172,Garfield County, Utah,0.049,LDS Enclaves
+49019,9225,Grand County, Utah,0.052,LDS Enclaves
+49021,46163,Iron County, Utah,0.063,LDS Enclaves
+49023,10246,Juab County, Utah,0.068,LDS Enclaves
+49025,7125,Kane County, Utah,0.044,LDS Enclaves
+49027,12503,Millard County, Utah,0.04,LDS Enclaves
+49029,9469,Morgan County, Utah,0.053,LDS Enclaves
+49031,1556,Piute County, Utah,0.038,LDS Enclaves
+49033,2264,Rich County, Utah,0.028,LDS Enclaves
+49035,1029655,Salt Lake County, Utah,0.06,LDS Enclaves
+49037,14746,San Juan County, Utah,0.086,Native American Lands
+49039,27822,Sanpete County, Utah,0.056,LDS Enclaves
+49041,20802,Sevier County, Utah,0.057,LDS Enclaves
+49043,36324,Summit County, Utah,0.058,LDS Enclaves
+49045,58218,Tooele County, Utah,0.064,LDS Enclaves
+49047,32588,Uintah County, Utah,0.066,LDS Enclaves
+49049,516564,Utah County, Utah,0.054,LDS Enclaves
+49051,23530,Wasatch County, Utah,0.06,LDS Enclaves
+49053,138115,Washington County, Utah,0.078,LDS Enclaves
+49055,2778,Wayne County, Utah,0.042,LDS Enclaves
+49057,231236,Weber County, Utah,0.07,LDS Enclaves
+50001,36821,Addison County, Vermont,0.058,Graying America
+50003,37125,Bennington County, Vermont,0.068,Graying America
+50005,31227,Caledonia County, Vermont,0.07,Graying America
+50007,156545,Chittenden County, Vermont,0.057,College Towns
+50009,6306,Essex County, Vermont,0.078,Graying America
+50011,47746,Franklin County, Vermont,0.062,Rural Middle America
+50013,6970,Grand Isle County, Vermont,0.07,Graying America
+50015,24475,Lamoille County, Vermont,0.066,Graying America
+50017,28936,Orange County, Vermont,0.055,Graying America
+50019,27231,Orleans County, Vermont,0.083,Graying America
+50021,61642,Rutland County, Vermont,0.087,Graying America
+50023,59534,Washington County, Vermont,0.061,Graying America
+50025,44513,Windham County, Vermont,0.063,Graying America
+50027,56670,Windsor County, Vermont,0.058,Graying America
+51001,33164,Accomack County, Virginia,0.061,Working Class Country
+51003,98970,Albemarle County, Virginia,0.05,College Towns
+51005,16250,Alleghany County, Virginia,0.087,Working Class Country
+51007,12690,Amelia County, Virginia,0.07,Working Class Country
+51009,32353,Amherst County, Virginia,0.07,Rural Middle America
+51011,14973,Appomattox County, Virginia,0.067,Working Class Country
+51013,207627,Arlington County, Virginia,0.042,Urban Burbs
+51015,73750,Augusta County, Virginia,0.058,Rural Middle America
+51017,4731,Bath County, Virginia,0.054,Graying America
+51019,68676,Bedford County, Virginia,0.062,Rural Middle America
+51021,6824,Bland County, Virginia,0.075,Evangelical Hubs
+51023,33148,Botetourt County, Virginia,0.062,Rural Middle America
+51025,17434,Brunswick County, Virginia,0.114,African American South
+51027,24098,Buchanan County, Virginia,0.088,Evangelical Hubs
+51029,17146,Buckingham County, Virginia,0.078,Working Class Country
+51031,54842,Campbell County, Virginia,0.066,Rural Middle America
+51033,28545,Caroline County, Virginia,0.082,Exurbs
+51035,30042,Carroll County, Virginia,0.113,Evangelical Hubs
+51036,7256,Charles City County, Virginia,0.087,African American South
+51037,12586,Charlotte County, Virginia,0.091,Evangelical Hubs
+51041,316236,Chesterfield County, Virginia,0.068,Urban Burbs
+51043,14034,Clarke County, Virginia,0.061,Exurbs
+51045,5190,Craig County, Virginia,0.072,Rural Middle America
+51047,46689,Culpeper County, Virginia,0.075,Exurbs
+51049,10052,Cumberland County, Virginia,0.07,Graying America
+51051,15903,Dickenson County, Virginia,0.083,Evangelical Hubs
+51053,28001,Dinwiddie County, Virginia,0.083,Working Class Country
+51057,11151,Essex County, Virginia,0.077,African American South
+51059,1081726,Fairfax County, Virginia,0.047,Urban Burbs
+51061,65203,Fauquier County, Virginia,0.05,Exurbs
+51063,15279,Floyd County, Virginia,0.071,Rural Middle America
+51065,25691,Fluvanna County, Virginia,0.058,Exurbs
+51067,56159,Franklin County, Virginia,0.078,Rural Middle America
+51069,78305,Frederick County, Virginia,0.073,Exurbs
+51071,17286,Giles County, Virginia,0.085,Rural Middle America
+51073,36858,Gloucester County, Virginia,0.055,Rural Middle America
+51075,21717,Goochland County, Virginia,0.067,Exurbs
+51077,15533,Grayson County, Virginia,0.104,Evangelical Hubs
+51079,18403,Greene County, Virginia,0.058,Exurbs
+51081,12243,Greensville County, Virginia,0.091,African American South
+51083,36241,Halifax County, Virginia,0.115,African American South
+51085,99863,Hanover County, Virginia,0.066,Exurbs
+51087,306935,Henrico County, Virginia,0.072,Urban Burbs
+51089,54151,Henry County, Virginia,0.134,Working Class Country
+51091,2321,Highland County, Virginia,0.059,Graying America
+51093,35270,Isle of Wight County, Virginia,0.063,Exurbs
+51095,67009,James City County, Virginia,0.046,Urban Burbs
+51097,6945,King and Queen County, Virginia,0.075,Graying America
+51099,23584,King George County, Virginia,0.075,Military Posts
+51101,15935,King William County, Virginia,0.064,Exurbs
+51103,11391,Lancaster County, Virginia,0.073,Graying America
+51105,25587,Lee County, Virginia,0.071,Evangelical Hubs
+51107,312311,Loudoun County, Virginia,0.047,Urban Burbs
+51109,33153,Louisa County, Virginia,0.081,Exurbs
+51111,12914,Lunenburg County, Virginia,0.091,Working Class Country
+51113,13308,Madison County, Virginia,0.06,Rural Middle America
+51115,8978,Mathews County, Virginia,0.048,Graying America
+51117,32727,Mecklenburg County, Virginia,0.105,African American South
+51119,10959,Middlesex County, Virginia,0.064,Graying America
+51121,94392,Montgomery County, Virginia,0.063,College Towns
+51125,15020,Nelson County, Virginia,0.062,Graying America
+51127,18429,New Kent County, Virginia,0.069,Exurbs
+51131,12389,Northampton County, Virginia,0.066,Graying America
+51133,12330,Northumberland County, Virginia,0.065,Graying America
+51135,15853,Nottoway County, Virginia,0.079,African American South
+51137,33481,Orange County, Virginia,0.076,Exurbs
+51139,24042,Page County, Virginia,0.098,Evangelical Hubs
+51141,18490,Patrick County, Virginia,0.099,Rural Middle America
+51143,63506,Pittsylvania County, Virginia,0.103,Working Class Country
+51145,28046,Powhatan County, Virginia,0.06,Exurbs
+51147,23368,Prince Edward County, Virginia,0.084,College Towns
+51149,35725,Prince George County, Virginia,0.073,Military Posts
+51153,402002,Prince William County, Virginia,0.053,Urban Burbs
+51155,34872,Pulaski County, Virginia,0.108,Rural Middle America
+51157,7373,Rappahannock County, Virginia,0.056,Graying America
+51159,9254,Richmond County, Virginia,0.072,Graying America
+51161,92376,Roanoke County, Virginia,0.059,Middle Suburbs
+51163,22307,Rockbridge County, Virginia,0.056,Graying America
+51165,76314,Rockingham County, Virginia,0.053,Rural Middle America
+51167,28897,Russell County, Virginia,0.096,Evangelical Hubs
+51169,23177,Scott County, Virginia,0.099,Evangelical Hubs
+51171,41993,Shenandoah County, Virginia,0.076,Rural Middle America
+51173,32208,Smyth County, Virginia,0.102,Evangelical Hubs
+51175,18570,Southampton County, Virginia,0.077,Rural Middle America
+51177,122397,Spotsylvania County, Virginia,0.051,Military Posts
+51179,128961,Stafford County, Virginia,0.051,Military Posts
+51181,7058,Surry County, Virginia,0.073,African American South
+51183,12087,Sussex County, Virginia,0.095,African American South
+51185,45078,Tazewell County, Virginia,0.079,Evangelical Hubs
+51187,37575,Warren County, Virginia,0.066,Rural Middle America
+51191,54876,Washington County, Virginia,0.082,Rural Middle America
+51193,17454,Westmoreland County, Virginia,0.071,African American South
+51195,41452,Wise County, Virginia,0.067,Evangelical Hubs
+51197,29235,Wythe County, Virginia,0.097,Rural Middle America
+51199,65464,York County, Virginia,0.05,Military Posts
+51510,139966,Alexandria city, Virginia,0.048,Urban Burbs
+51515,6222,Bedford city, Virginia,0.089,Working Class Country
+51520,17835,Bristol city, Virginia,0.099,Evangelical Hubs
+51530,6650,Buena Vista city, Virginia,0.087,College Towns
+51540,43475,Charlottesville city, Virginia,0.062,College Towns
+51550,222209,Chesapeake city, Virginia,0.064,Military Posts
+51570,17411,Colonial Heights city, Virginia,0.082,College Towns
+51580,5961,Covington city, Virginia,0.091,Evangelical Hubs
+51590,43055,Danville city, Virginia,0.13,African American South
+51595,5927,Emporia city, Virginia,0.118,African American South
+51600,22565,Fairfax city, Virginia,0.054,Urban Burbs
+51650,137436,Hampton city, Virginia,0.077,African American South
+51660,48914,Harrisonburg city, Virginia,0.064,College Towns
+51670,22591,Hopewell city, Virginia,0.104,African American South
+51678,7042,Lexington city, Virginia,0.092,College Towns
+51680,75568,Lynchburg city, Virginia,0.077,College Towns
+51685,14273,Manassas Park city, Virginia,0.054,Exurbs
+51690,13821,Martinsville city, Virginia,0.2,African American South
+51700,180719,Newport News city, Virginia,0.073,African American South
+51710,242803,Norfolk city, Virginia,0.084,African American South
+51720,3958,Norton city, Virginia,0.055,College Towns
+51730,32420,Petersburg city, Virginia,0.138,African American South
+51735,12150,Poquoson city, Virginia,0.05,Exurbs
+51740,95535,Portsmouth city, Virginia,0.084,African American South
+51760,204214,Richmond city, Virginia,0.1,African American South
+51770,97032,Roanoke city, Virginia,0.086,College Towns
+51790,23746,Staunton city, Virginia,0.073,College Towns
+51800,84585,Suffolk city, Virginia,0.066,Military Posts
+51810,437994,Virginia Beach city, Virginia,0.059,Military Posts
+51820,21006,Waynesboro city, Virginia,0.082,College Towns
+51830,14068,Williamsburg city, Virginia,0.135,College Towns
+51840,26203,Winchester city, Virginia,0.079,College Towns
+53001,18728,Adams County, Washington,0.065,Hispanic Centers
+53003,21623,Asotin County, Washington,0.081,Rural Middle America
+53005,175177,Benton County, Washington,0.058,Exurbs
+53007,72453,Chelan County, Washington,0.065,Exurbs
+53009,71404,Clallam County, Washington,0.085,Graying America
+53011,425363,Clark County, Washington,0.127,Urban Burbs
+53013,4078,Columbia County, Washington,0.084,Graying America
+53015,102410,Cowlitz County, Washington,0.128,Rural Middle America
+53017,38431,Douglas County, Washington,0.066,Exurbs
+53019,7551,Ferry County, Washington,0.113,Graying America
+53021,78163,Franklin County, Washington,0.062,Hispanic Centers
+53023,2266,Garfield County, Washington,0.053,Aging Farmlands
+53025,89120,Grant County, Washington,0.073,Hispanic Centers
+53027,72797,Grays Harbor County, Washington,0.117,Graying America
+53029,78506,Island County, Washington,0.081,Military Posts
+53031,29872,Jefferson County, Washington,0.074,Graying America
+53033,1931249,King County, Washington,0.088,Big Cities
+53035,251133,Kitsap County, Washington,0.071,Military Posts
+53037,40915,Kittitas County, Washington,0.073,College Towns
+53039,20318,Klickitat County, Washington,0.081,Graying America
+53041,75455,Lewis County, Washington,0.12,Rural Middle America
+53043,10570,Lincoln County, Washington,0.074,Aging Farmlands
+53045,60699,Mason County, Washington,0.094,Graying America
+53047,41120,Okanogan County, Washington,0.074,Graying America
+53049,20920,Pacific County, Washington,0.107,Graying America
+53051,13001,Pend Oreille County, Washington,0.121,Graying America
+53053,795225,Pierce County, Washington,0.088,Urban Burbs
+53055,15769,San Juan County, Washington,0.047,Graying America
+53057,116901,Skagit County, Washington,0.091,Exurbs
+53059,11066,Skamania County, Washington,0.094,Graying America
+53061,713335,Snohomish County, Washington,0.101,Urban Burbs
+53063,471221,Spokane County, Washington,0.083,College Towns
+53065,43531,Stevens County, Washington,0.105,Graying America
+53067,252264,Thurston County, Washington,0.071,Military Posts
+53069,3978,Wahkiakum County, Washington,0.114,Graying America
+53071,58781,Walla Walla County, Washington,0.055,College Towns
+53073,201140,Whatcom County, Washington,0.078,College Towns
+53075,44776,Whitman County, Washington,0.047,College Towns
+53077,243231,Yakima County, Washington,0.068,Hispanic Centers
+54001,16589,Barbour County, West Virginia,0.092,Working Class Country
+54003,104169,Berkeley County, West Virginia,0.085,Middle Suburbs
+54005,24629,Boone County, West Virginia,0.094,Evangelical Hubs
+54007,14523,Braxton County, West Virginia,0.08,Working Class Country
+54009,24069,Brooke County, West Virginia,0.111,Rural Middle America
+54011,96319,Cabell County, West Virginia,0.066,College Towns
+54013,7627,Calhoun County, West Virginia,0.121,Evangelical Hubs
+54015,9386,Clay County, West Virginia,0.119,Evangelical Hubs
+54017,8202,Doddridge County, West Virginia,0.074,Aging Farmlands
+54019,46039,Fayette County, West Virginia,0.086,Evangelical Hubs
+54021,8693,Gilmer County, West Virginia,0.065,Evangelical Hubs
+54023,11937,Grant County, West Virginia,0.112,Working Class Country
+54025,35480,Greenbrier County, West Virginia,0.083,Graying America
+54027,23964,Hampshire County, West Virginia,0.078,Working Class Country
+54029,30676,Hancock County, West Virginia,0.118,Middle Suburbs
+54031,14025,Hardy County, West Virginia,0.097,Rural Middle America
+54033,69099,Harrison County, West Virginia,0.071,Rural Middle America
+54035,29211,Jackson County, West Virginia,0.129,Evangelical Hubs
+54037,53498,Jefferson County, West Virginia,0.066,Exurbs
+54039,193063,Kanawha County, West Virginia,0.071,Working Class Country
+54041,16372,Lewis County, West Virginia,0.075,Evangelical Hubs
+54043,21720,Lincoln County, West Virginia,0.106,Evangelical Hubs
+54045,36743,Logan County, West Virginia,0.098,Evangelical Hubs
+54047,22113,McDowell County, West Virginia,0.127,Evangelical Hubs
+54049,56418,Marion County, West Virginia,0.065,Rural Middle America
+54051,33107,Marshall County, West Virginia,0.087,Working Class Country
+54053,27324,Mason County, West Virginia,0.121,Rural Middle America
+54055,62264,Mercer County, West Virginia,0.069,Evangelical Hubs
+54057,28212,Mineral County, West Virginia,0.079,Evangelical Hubs
+54059,26839,Mingo County, West Virginia,0.107,Evangelical Hubs
+54061,96189,Monongalia County, West Virginia,0.046,College Towns
+54063,13502,Monroe County, West Virginia,0.065,Evangelical Hubs
+54065,17541,Morgan County, West Virginia,0.091,Graying America
+54067,26233,Nicholas County, West Virginia,0.091,Evangelical Hubs
+54069,44443,Ohio County, West Virginia,0.078,College Towns
+54071,7695,Pendleton County, West Virginia,0.075,Graying America
+54073,7605,Pleasants County, West Virginia,0.102,Rural Middle America
+54075,8719,Pocahontas County, West Virginia,0.113,Graying America
+54077,33520,Preston County, West Virginia,0.07,Working Class Country
+54079,55486,Putnam County, West Virginia,0.063,Rural Middle America
+54081,78859,Raleigh County, West Virginia,0.08,Working Class Country
+54083,29405,Randolph County, West Virginia,0.085,Working Class Country
+54085,10449,Ritchie County, West Virginia,0.088,Evangelical Hubs
+54087,14926,Roane County, West Virginia,0.13,Evangelical Hubs
+54089,13927,Summers County, West Virginia,0.078,Graying America
+54091,16895,Taylor County, West Virginia,0.079,Working Class Country
+54093,7141,Tucker County, West Virginia,0.109,Graying America
+54095,9208,Tyler County, West Virginia,0.108,Aging Farmlands
+54097,24254,Upshur County, West Virginia,0.089,Evangelical Hubs
+54099,42481,Wayne County, West Virginia,0.077,Evangelical Hubs
+54101,9154,Webster County, West Virginia,0.104,Evangelical Hubs
+54103,16583,Wetzel County, West Virginia,0.123,Working Class Country
+54105,5717,Wirt County, West Virginia,0.114,Evangelical Hubs
+54107,86956,Wood County, West Virginia,0.088,Rural Middle America
+54109,23796,Wyoming County, West Virginia,0.115,Evangelical Hubs
+55001,20875,Adams County, Wisconsin,0.083,Graying America
+55003,16157,Ashland County, Wisconsin,0.083,Graying America
+55005,45870,Barron County, Wisconsin,0.071,Rural Middle America
+55007,15014,Bayfield County, Wisconsin,0.062,Graying America
+55009,248007,Brown County, Wisconsin,0.071,Middle Suburbs
+55011,13587,Buffalo County, Wisconsin,0.057,Rural Middle America
+55013,15457,Burnett County, Wisconsin,0.091,Graying America
+55015,48971,Calumet County, Wisconsin,0.067,Rural Middle America
+55017,62415,Chippewa County, Wisconsin,0.066,Rural Middle America
+55019,34690,Clark County, Wisconsin,0.076,Rural Middle America
+55021,56833,Columbia County, Wisconsin,0.071,Rural Middle America
+55023,16644,Crawford County, Wisconsin,0.081,Rural Middle America
+55025,488073,Dane County, Wisconsin,0.054,College Towns
+55027,88759,Dodge County, Wisconsin,0.084,Rural Middle America
+55029,27785,Door County, Wisconsin,0.066,Graying America
+55031,44159,Douglas County, Wisconsin,0.065,Rural Middle America
+55033,43857,Dunn County, Wisconsin,0.058,College Towns
+55035,98736,Eau Claire County, Wisconsin,0.06,College Towns
+55037,4423,Florence County, Wisconsin,0.081,Graying America
+55039,101633,Fond du Lac County, Wisconsin,0.078,Rural Middle America
+55041,9304,Forest County, Wisconsin,0.081,Graying America
+55043,51208,Grant County, Wisconsin,0.061,Rural Middle America
+55045,36842,Green County, Wisconsin,0.078,Rural Middle America
+55047,19051,Green Lake County, Wisconsin,0.075,Rural Middle America
+55049,23687,Iowa County, Wisconsin,0.062,Rural Middle America
+55051,5916,Iron County, Wisconsin,0.094,Graying America
+55053,20449,Jackson County, Wisconsin,0.072,Rural Middle America
+55055,83686,Jefferson County, Wisconsin,0.08,Rural Middle America
+55057,26664,Juneau County, Wisconsin,0.085,Rural Middle America
+55059,166426,Kenosha County, Wisconsin,0.098,Middle Suburbs
+55061,20574,Kewaunee County, Wisconsin,0.073,Rural Middle America
+55063,114638,La Crosse County, Wisconsin,0.059,College Towns
+55065,16836,Lafayette County, Wisconsin,0.06,Rural Middle America
+55067,19977,Langlade County, Wisconsin,0.085,Rural Middle America
+55069,28743,Lincoln County, Wisconsin,0.096,Rural Middle America
+55071,81442,Manitowoc County, Wisconsin,0.085,Rural Middle America
+55073,134063,Marathon County, Wisconsin,0.077,Rural Middle America
+55075,41749,Marinette County, Wisconsin,0.102,Rural Middle America
+55077,15404,Marquette County, Wisconsin,0.083,Rural Middle America
+55078,4232,Menominee County, Wisconsin,0.127,Native American Lands
+55079,947735,Milwaukee County, Wisconsin,0.093,Big Cities
+55081,44673,Monroe County, Wisconsin,0.064,Rural Middle America
+55083,37660,Oconto County, Wisconsin,0.091,Rural Middle America
+55085,35998,Oneida County, Wisconsin,0.074,Graying America
+55087,176695,Outagamie County, Wisconsin,0.075,Middle Suburbs
+55089,86395,Ozaukee County, Wisconsin,0.072,Exurbs
+55091,7469,Pepin County, Wisconsin,0.054,Rural Middle America
+55093,41019,Pierce County, Wisconsin,0.061,Rural Middle America
+55095,44205,Polk County, Wisconsin,0.084,Rural Middle America
+55097,70019,Portage County, Wisconsin,0.058,College Towns
+55099,14159,Price County, Wisconsin,0.094,Graying America
+55101,195408,Racine County, Wisconsin,0.093,Middle Suburbs
+55103,18021,Richland County, Wisconsin,0.075,Rural Middle America
+55105,160331,Rock County, Wisconsin,0.111,Rural Middle America
+55107,14755,Rusk County, Wisconsin,0.101,Rural Middle America
+55109,84345,St. Croix County, Wisconsin,0.068,Exurbs
+55111,61976,Sauk County, Wisconsin,0.07,Rural Middle America
+55113,16557,Sawyer County, Wisconsin,0.071,Graying America
+55115,41949,Shawano County, Wisconsin,0.082,Rural Middle America
+55117,115507,Sheboygan County, Wisconsin,0.083,Rural Middle America
+55119,20689,Taylor County, Wisconsin,0.096,Rural Middle America
+55121,28816,Trempealeau County, Wisconsin,0.064,Rural Middle America
+55123,29773,Vernon County, Wisconsin,0.066,Rural Middle America
+55125,21430,Vilas County, Wisconsin,0.071,Graying America
+55127,102228,Walworth County, Wisconsin,0.077,Rural Middle America
+55129,15911,Washburn County, Wisconsin,0.078,Graying America
+55131,131887,Washington County, Wisconsin,0.081,Middle Suburbs
+55133,389891,Waukesha County, Wisconsin,0.072,Exurbs
+55135,52410,Waupaca County, Wisconsin,0.082,Rural Middle America
+55137,24496,Waushara County, Wisconsin,0.082,Graying America
+55139,166994,Winnebago County, Wisconsin,0.07,Middle Suburbs
+55141,74749,Wood County, Wisconsin,0.074,Rural Middle America
+56001,36299,Albany County, Wyoming,0.036,College Towns
+56003,11668,Big Horn County, Wyoming,0.082,Rural Middle America
+56005,46133,Campbell County, Wyoming,0.057,Exurbs
+56007,15885,Carbon County, Wyoming,0.068,Graying America
+56009,13833,Converse County, Wyoming,0.059,Aging Farmlands
+56011,7083,Crook County, Wyoming,0.049,Aging Farmlands
+56013,40123,Fremont County, Wyoming,0.074,Graying America
+56015,13249,Goshen County, Wyoming,0.053,Rural Middle America
+56017,4812,Hot Springs County, Wyoming,0.058,Aging Farmlands
+56019,8569,Johnson County, Wyoming,0.067,Graying America
+56021,91738,Laramie County, Wyoming,0.063,Exurbs
+56023,18106,Lincoln County, Wyoming,0.065,Rural Middle America
+56025,75450,Natrona County, Wyoming,0.073,Rural Middle America
+56027,2484,Niobrara County, Wyoming,0.045,Aging Farmlands
+56029,28205,Park County, Wyoming,0.051,Rural Middle America
+56031,8667,Platte County, Wyoming,0.062,Aging Farmlands
+56033,29116,Sheridan County, Wyoming,0.066,Graying America
+56035,10247,Sublette County, Wyoming,0.045,Aging Farmlands
+56037,43806,Sweetwater County, Wyoming,0.074,Exurbs
+56039,21294,Teton County, Wyoming,0.052,Exurbs
+56041,21118,Uinta County, Wyoming,0.072,Rural Middle America
+56043,8533,Washakie County, Wyoming,0.059,Rural Middle America
+56045,7208,Weston County, Wyoming,0.059,Aging Farmlands
