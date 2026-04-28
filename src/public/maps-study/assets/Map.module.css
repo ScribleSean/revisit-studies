@@ -1,0 +1,80 @@
+.chartWrapper {
+  position: relative;
+  height: 400px;
+}
+
+.mapTooltip {
+  position: absolute;
+  background: white;
+  padding: 4px;
+  pointer-events: none;
+  transition: 200ms linear;
+  transform: translate(-50%, 0%);
+  width: 180px;
+  border: 1px solid #777;
+  font-size: 0.75rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25);
+  border-radius: 4px;
+  z-index: 1000;
+}
+
+.mapRow {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.mapWrapper {
+  position: relative;
+  overflow: visible;
+  border-left: 1px solid #CCC;
+  border-top: 1px solid #CCC;
+  border-bottom: 1px solid #CCC;
+  margin: 0.25rem 0;
+  flex: 0 0 auto;
+  background: #fff;
+}
+
+.mapWrapperUnivariate {
+  position: relative;
+  overflow: visible;
+  border: 1px solid #CCC;
+  margin: 0.25rem 0;
+  flex: 0 0 auto;
+  background: #fff;
+}
+
+.univariateLegend {
+  background: white;
+  border-top: 0px solid #CCC;
+}
+
+.bivariateLegend {
+  position: relative;
+  margin-top: 4px;
+  border: 1px solid #CCC;
+  border-left: 0;
+  background: #fff;
+  overflow: hidden;
+  height: 402px;
+  padding-top: 150px;
+}
+
+.drawOverlay {
+  position: absolute;
+  left: 0;
+  top: 0;
+  border: 0;
+  background: transparent;
+  height: 100%;
+  width: 100%;
+}
+
+.mapSvgActiveCounty {
+  stroke-width: 3px;
+  stroke: #000;
+}
+
+.mapsPageBg {
+  background: #f7f7f7;
+}
