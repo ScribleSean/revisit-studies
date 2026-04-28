@@ -1,6 +1,3 @@
-#!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
-
 MSG_FILE="$1"
 
 # Hard stop / sanitize: never allow "Made-with: Cursor" (or similar) trailers.
