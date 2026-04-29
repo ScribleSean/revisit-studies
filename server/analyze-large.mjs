@@ -20,7 +20,9 @@ import { readJsonCache, sha256Hex, writeJsonCache } from './cache.mjs';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
-const PORT = Number(process.env.MASS_API_PORT || process.env.VITE_MASS_API_PORT || 3001, 10);
+// Render/Heroku-style platforms provide PORT and expect the service to bind to 0.0.0.0.
+const PORT = Number(process.env.PORT || process.env.MASS_API_PORT || process.env.VITE_MASS_API_PORT || 3001, 10);
+const HOST = process.env.HOST || '0.0.0.0';
 const MAX_UPLOAD_BYTES = 512 * 1024 * 1024;
 
 function getApiKey() {
@@ -224,9 +226,9 @@ app.use((err, _req, res, _next) => {
   });
 });
 
-app.listen(PORT, '127.0.0.1', () => {
+app.listen(PORT, HOST, () => {
   // eslint-disable-next-line no-console
   console.log(
-    `[mqp] API http://127.0.0.1:${PORT} — POST /api/analyze-large, POST /api/analyze-local, POST /api/analyze-gpt4v, POST /api/analyze-timeline, POST /api/extract-ocr, POST /api/confusion-score, POST /api/embed-summary, GET /api/health`,
+    `[mqp] API listening on http://${HOST}:${PORT} — POST /api/analyze-large, POST /api/analyze-local, POST /api/analyze-gpt4v, POST /api/analyze-timeline, POST /api/extract-ocr, POST /api/confusion-score, POST /api/embed-summary, GET /api/health`,
   );
 });
