@@ -6,7 +6,6 @@ import type {
   Objects,
   GeometryCollection,
 } from 'topojson-specification';
-import type { FeatureCollection } from 'geojson';
 
 import * as d3 from 'd3';
 import { useSVGMap } from './useSVGMap';
@@ -29,8 +28,9 @@ const typedUS = us as unknown as Topology<USObjectData>;
 const simplifiedTopology = topojsonSimplify.presimplify(typedUS);
 const simplified = topojsonSimplify.simplify(simplifiedTopology, 0.25);
 
-const simplifiedCounties = (
-  topojson.feature(simplified, simplified.objects.counties) as unknown as FeatureCollection<GeoJSON.Geometry>
+const simplifiedCounties = topojson.feature(
+  simplified,
+  simplified.objects.counties,
 ).features;
 
 // const width = 600;

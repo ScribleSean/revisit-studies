@@ -84,7 +84,6 @@
     "rehype-raw": "^7.0.0",
     "remark-gfm": "^4.0.1",
     "topojson-client": "^3.1.0",
-    "topojson-simplify": "^3.0.3",
     "ts-json-schema-generator": "^2.4.0",
     "typedoc": "^0.28.13",
     "typedoc-plugin-markdown": "^4.9.0",

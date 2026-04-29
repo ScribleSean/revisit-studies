@@ -62,9 +62,13 @@ export function AuthProvider({ children } : { children: ReactNode }) {
     adminVerification: true,
   };
 
-  const [user, setUser] = useState(loadingNullUser);
+  // Start as "resolved" until the storage engine exists; avoids an indefinite overlay when
+  // AuthProvider mounts before initializeStorageEngine() finishes (same render as globalConfig).
+  const [user, setUser] = useState(nonLoadingNullUser);
   const [enableAuthTrigger, setEnableAuthTrigger] = useState(false);
   const { storageEngine } = useStorageEngine();
+
+  const showAuthLoadingOverlay = user.determiningStatus && storageEngine !== undefined;
 
   // Logs the user out by removing the user and navigating to '/login'
   const logout = async () => {
@@ -107,8 +111,9 @@ export function AuthProvider({ children } : { children: ReactNode }) {
   };
 
   useEffect(() => {
-    // Set initialUser
-    setUser(loadingNullUser);
+    if (!storageEngine) {
+      return () => {};
+    }
 
     // Handle auth state changes for Firebase
     const handleAuthStateChanged = async (cloudUser: StoredUser | null) => {
@@ -135,26 +140,28 @@ export function AuthProvider({ children } : { children: ReactNode }) {
       }
     };
 
-    // Determine authentication listener based on storageEngine and authEnabled variable
     const determineAuthentication = async () => {
-      if (storageEngine && isCloudStorageEngine(storageEngine)) {
-        try {
-          const authInfo = await storageEngine.getUserManagementData('authentication');
-          if (authInfo?.isEnabled) {
-            storageEngine.unsubscribe(handleAuthStateChanged);
-          } else {
-            setUser(nonAuthUser);
-          }
-        } catch (err) {
-          // Firestore `getDocs` on `user-management` throws if rules/App Check block reads — leaves the app stuck on LoadingOverlay otherwise.
-          console.error(
-            '[useAuth] Failed to read Firestore user-management (check Firestore rules, Anonymous auth, and App Check debug token).',
-            err,
-          );
-          setUser(nonLoadingNullUser);
-        }
-      } else if (storageEngine) {
+      if (!isCloudStorageEngine(storageEngine)) {
         setUser(nonAuthUser);
+        return () => {};
+      }
+
+      setUser(loadingNullUser);
+
+      try {
+        const authInfo = await storageEngine.getUserManagementData('authentication');
+        if (authInfo?.isEnabled) {
+          storageEngine.unsubscribe(handleAuthStateChanged);
+        } else {
+          setUser(nonAuthUser);
+        }
+      } catch (err) {
+        // Firestore `getDocs` on `user-management` throws if rules/App Check block reads — leaves the app stuck on LoadingOverlay otherwise.
+        console.error(
+          '[useAuth] Failed to read Firestore user-management (check Firestore rules, Anonymous auth, and App Check debug token).',
+          err,
+        );
+        setUser(nonLoadingNullUser);
       }
       return () => {};
     };
@@ -177,7 +184,7 @@ export function AuthProvider({ children } : { children: ReactNode }) {
 
   return (
     <AuthContext.Provider value={value}>
-      {user.determiningStatus ? <LoadingOverlay visible /> : children }
+      {showAuthLoadingOverlay ? <LoadingOverlay visible /> : children }
     </AuthContext.Provider>
   );
 }
