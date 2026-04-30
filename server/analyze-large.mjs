@@ -30,7 +30,8 @@ function getApiKey() {
 }
 
 function getOpenAiKey() {
-  return process.env.OPENAI_API_KEY || '';
+  // Prefer OPENAI_API_KEY; accept VITE_OPENAI_API_KEY so Render env matches common mis-naming.
+  return process.env.OPENAI_API_KEY || process.env.VITE_OPENAI_API_KEY || '';
 }
 
 function normalizeModelId(model) {

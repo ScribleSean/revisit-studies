@@ -3,6 +3,10 @@
 #
 # Requires: Settings → Pages → Source = "Deploy from a branch" → Branch gh-pages / (root).
 # .env is not committed; set Repository variables / Secrets for anything you need at build time.
+#
+# Mass API (Render etc.): set variable VITE_GEMINI_MASS_API_URL to the origin only, e.g.
+#   https://revisit-studies-mass-api.onrender.com
+# (no trailing slash). The client will call ${VITE_GEMINI_MASS_API_URL}/api/health, /api/analyze-large, …
 name: Deploy To GitHub Pages
 
 on:
@@ -36,6 +40,8 @@ jobs:
       - name: Build with .env file
         if: ${{ vars.VITE_STORAGE_ENGINE == '' }}
         run: yarn build
+        env:
+          VITE_GEMINI_MASS_API_URL: ${{ vars.VITE_GEMINI_MASS_API_URL }}
 
       # If on main with env vars, build with github environment variables
       - name: Build with github environment variables
@@ -43,6 +49,7 @@ jobs:
         run: VITE_STORAGE_ENGINE=$VITE_STORAGE_ENGINE yarn build
         env:
           VITE_STORAGE_ENGINE: ${{ vars.VITE_STORAGE_ENGINE }}
+          VITE_GEMINI_MASS_API_URL: ${{ vars.VITE_GEMINI_MASS_API_URL }}
 
       - uses: peaceiris/actions-gh-pages@v3
         name: Deploy
@@ -73,6 +80,7 @@ jobs:
         run: VITE_BASE_PATH=/dev yarn build
         env:
           VITE_BASE_PATH: "/dev/"
+          VITE_GEMINI_MASS_API_URL: ${{ vars.VITE_GEMINI_MASS_API_URL }}
 
       - uses: peaceiris/actions-gh-pages@v3
         name: Deploy dev branch
@@ -117,6 +125,7 @@ jobs:
         env:
           VITE_STORAGE_ENGINE: ${{ vars.VITE_STORAGE_ENGINE }}
           VITE_BASE_PATH: "/study/PR${{ github.event.number }}/"
+          VITE_GEMINI_MASS_API_URL: ${{ vars.VITE_GEMINI_MASS_API_URL }}
 
       - name: Push PR deploy preview
         uses: peaceiris/actions-gh-pages@v3
