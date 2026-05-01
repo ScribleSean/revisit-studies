@@ -1,5 +1,9 @@
 /**
  * POST /api/analyze-timeline — Whisper + PySceneDetect via scripts/mqp_timeline_events.py
+ *
+ * Multipart fields:
+ *   - video (required)
+ *   - companionAudio (optional) — study microphone audio from Firebase audio/{participant}_{task} when screen capture has no muxed audio track
  */
 import { randomUUID } from 'node:crypto';
 import { writeFile, unlink } from 'node:fs/promises';
@@ -15,10 +19,23 @@ function extFromMime(mime) {
   return 'webm';
 }
 
+function companionAudioExtFromMime(mime) {
+  if (!mime || typeof mime !== 'string') return 'wav';
+  if (mime.includes('webm')) return 'webm';
+  if (mime.includes('mpeg') || mime.includes('mp3')) return 'mp3';
+  return 'wav';
+}
+
 export function registerTimelineRoutes(app, upload) {
-  app.post('/api/analyze-timeline', upload.single('video'), async (req, res) => {
+  const tlUpload = upload.fields([
+    { name: 'video', maxCount: 1 },
+    { name: 'companionAudio', maxCount: 1 },
+  ]);
+
+  app.post('/api/analyze-timeline', tlUpload, async (req, res) => {
     const started = Date.now();
-    if (!req.file?.buffer) {
+    const videoFile = req.files?.video?.[0];
+    if (!videoFile?.buffer) {
       res.status(400).json({
         error: 'Missing video file (multipart field "video").',
         code: 'MISSING_FILE',
@@ -35,7 +52,9 @@ export function registerTimelineRoutes(app, upload) {
       .join(',');
 
     const whisperModel = String(process.env.WHISPER_MODEL || 'base');
-    const cacheKey = sha256Hex([req.file.buffer, confusionWordsArg, whisperModel]);
+    const audioPart = req.files?.companionAudio?.[0];
+    const companionBuf = audioPart?.buffer || Buffer.alloc(0);
+    const cacheKey = sha256Hex([videoFile.buffer, companionBuf, confusionWordsArg, whisperModel]);
     const cached = await readJsonCache(cacheKey);
     if (cached && Array.isArray(cached.events)) {
       // eslint-disable-next-line no-console
@@ -51,12 +70,23 @@ export function registerTimelineRoutes(app, upload) {
     // eslint-disable-next-line no-console
     console.log(`[mqp-cache] miss analyze-timeline ${cacheKey.slice(0, 12)}`);
 
-    const ext = extFromMime(req.file.mimetype);
+    const ext = extFromMime(videoFile.mimetype);
     const tmp = path.join(tmpdir(), `mqp-timeline-${randomUUID()}.${ext}`);
 
+    let companionTmp = '';
+    if (audioPart?.buffer?.length) {
+      const aext = companionAudioExtFromMime(audioPart.mimetype);
+      companionTmp = path.join(tmpdir(), `mqp-companion-audio-${randomUUID()}.${aext}`);
+    }
+
     try {
-      await writeFile(tmp, req.file.buffer);
+      await writeFile(tmp, videoFile.buffer);
+      if (companionTmp) {
+        await writeFile(companionTmp, audioPart.buffer);
+      }
     } catch (e) {
+      await unlink(tmp).catch(() => {});
+      if (companionTmp) await unlink(companionTmp).catch(() => {});
       res.status(500).json({
         error: e instanceof Error ? e.message : 'Failed to write temp file',
         code: 'TEMP_WRITE_FAILED',
@@ -68,11 +98,10 @@ export function registerTimelineRoutes(app, upload) {
     let events;
     let meta;
     try {
-      const out = await runTimelineOnVideoPath(tmp, confusionWordsArg);
+      const out = await runTimelineOnVideoPath(tmp, confusionWordsArg, companionTmp || null);
       events = out.events;
       meta = out.meta || {};
     } catch (e) {
-      await unlink(tmp).catch(() => {});
       res.status(422).json({
         error: e instanceof Error ? e.message : String(e),
         code: 'TIMELINE_SCRIPT_FAILED',
@@ -81,6 +110,7 @@ export function registerTimelineRoutes(app, upload) {
       return;
     } finally {
       await unlink(tmp).catch(() => {});
+      if (companionTmp) await unlink(companionTmp).catch(() => {});
     }
 
     res.json({

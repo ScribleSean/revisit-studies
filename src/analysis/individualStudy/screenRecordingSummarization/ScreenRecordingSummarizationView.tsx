@@ -190,6 +190,30 @@ async function clipDurationFromPlayUrl(playUrl: string): Promise<number> {
   });
 }
 
+/** Same Firebase path as think-aloud/coding: audio/{participant}_{task}. Whisper uses it when the WebM has no muxed audio. */
+async function companionStudyAudioFileForTimeline(
+  storageEngine: { getAudio: (task: string, participantId: string) => Promise<string | null> },
+  taskIdentifier: string,
+  participantId: string,
+): Promise<File | null> {
+  let audioObjectUrl: string | null = null;
+  try {
+    audioObjectUrl = await storageEngine.getAudio(taskIdentifier, participantId);
+  } catch {
+    return null;
+  }
+  if (!audioObjectUrl) return null;
+  try {
+    const blob = await (await fetch(audioObjectUrl)).blob();
+    if (!blob.size) return null;
+    const mime = blob.type || 'audio/webm';
+    const ext = mime.includes('webm') ? 'webm' : mime.includes('mpeg') || mime.includes('mp3') ? 'mp3' : 'wav';
+    return new File([blob], `companion-audio.${ext}`, { type: mime });
+  } finally {
+    URL.revokeObjectURL(audioObjectUrl);
+  }
+}
+
 function globalTimeToClipAndLocal(
   clips: Array<{ offsetSec: number; durationSec: number }>,
   t: number,
@@ -819,6 +843,14 @@ export function ScreenRecordingSummarizationView({
       if (confusionWords) {
         fd.append('confusionWords', confusionWords.join(','));
       }
+      const companionAudio = await companionStudyAudioFileForTimeline(
+        storageEngine,
+        storedRecordingIdentifier,
+        storedParticipantId,
+      );
+      if (companionAudio) {
+        fd.append('companionAudio', companionAudio);
+      }
 
       const res = await fetch(timelineApiUrl, { method: 'POST', body: fd });
       const json = (await res.json().catch(() => ({}))) as {
@@ -833,10 +865,13 @@ export function ScreenRecordingSummarizationView({
       const normalized = parseTimelineEventsJson(JSON.stringify({ events: json.events }));
       setStoredTimelineEvents(normalized);
       if (normalized.length === 0) {
-        const audioSkipped = Boolean(json.meta && (json.meta as Record<string, unknown>).audio_skipped);
+        const m = (json.meta || {}) as Record<string, unknown>;
+        const usedCompanionMic = m.whisper_source === 'companion_audio';
+        const audioSkipped = Boolean(m.audio_skipped);
+        const noMuxedAndNoCompanionPath = audioSkipped && !usedCompanionMic;
         setTimelineError(
-          audioSkipped
-            ? 'Timeline generated, but 0 events were detected (this recording appears to have no audio track, so only scene changes can be detected).'
+          noMuxedAndNoCompanionPath
+            ? 'Timeline generated, but 0 events were detected (screen WebM has no muxed audio). Study microphone audio is sent automatically when present at audio/{participant}_{task} (same task id as this recording).'
             : 'Timeline generated, but 0 events were detected for this recording.',
         );
       }
@@ -927,6 +962,14 @@ export function ScreenRecordingSummarizationView({
       fd.append('video', file);
       if (confusionWords) {
         fd.append('confusionWords', confusionWords.join(','));
+      }
+      const companionForFusion = await companionStudyAudioFileForTimeline(
+        storageEngine,
+        storedRecordingIdentifier,
+        storedParticipantId,
+      );
+      if (companionForFusion) {
+        fd.append('companionAudio', companionForFusion);
       }
 
       const res = await fetch(confusionScoreApiUrl, { method: 'POST', body: fd });
@@ -1021,6 +1064,10 @@ export function ScreenRecordingSummarizationView({
         if (confusionWords) {
           fdTimeline.append('confusionWords', confusionWords.join(','));
         }
+        const batchCompanion = await companionStudyAudioFileForTimeline(storageEngine, rec.identifier, storedParticipantId);
+        if (batchCompanion) {
+          fdTimeline.append('companionAudio', batchCompanion);
+        }
         const resT = await fetch(timelineApiUrl, { method: 'POST', body: fdTimeline });
         const jsonT = (await resT.json().catch(() => ({}))) as { events?: TimelineEvent[]; error?: string };
         if (!resT.ok) {
@@ -1084,6 +1131,9 @@ export function ScreenRecordingSummarizationView({
         fdC.append('video', file);
         if (confusionWords) {
           fdC.append('confusionWords', confusionWords.join(','));
+        }
+        if (batchCompanion) {
+          fdC.append('companionAudio', batchCompanion);
         }
         const resC = await fetch(confusionScoreApiUrl, { method: 'POST', body: fdC });
         const jsonC = (await resC.json().catch(() => ({}))) as {

@@ -23,9 +23,10 @@ export function defaultTimelinePythonExecutable() {
 /**
  * @param {string} videoPath absolute path to temp video
  * @param {string} confusionWordsCsv comma-separated phrases (optional)
+ * @param {string | null} companionAudioPath absolute path to temp study mic audio (optional)
  * @returns {Promise<{ events: unknown[]; meta: Record<string, unknown>; stderr: string }>}
  */
-export async function runTimelineOnVideoPath(videoPath, confusionWordsCsv = '') {
+export async function runTimelineOnVideoPath(videoPath, confusionWordsCsv = '', companionAudioPath = null) {
   const py = process.env.MQP_TIMELINE_PYTHON || defaultTimelinePythonExecutable();
   const scriptPath = process.env.MQP_TIMELINE_SCRIPT || DEFAULT_SCRIPT;
   const confusionWordsArg = String(confusionWordsCsv || '')
@@ -40,6 +41,9 @@ export async function runTimelineOnVideoPath(videoPath, confusionWordsCsv = '') 
     const args = [scriptPath, videoPath];
     if (confusionWordsArg) {
       args.push('--confusion-words', confusionWordsArg);
+    }
+    if (companionAudioPath) {
+      args.push('--audio-path', companionAudioPath);
     }
     const child = spawn(py, args, {
       cwd: REPO_ROOT,

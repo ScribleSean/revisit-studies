@@ -339,6 +339,12 @@ def main() -> int:
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument("video_path")
     parser.add_argument("--confusion-words", dest="confusion_words", default="")
+    parser.add_argument(
+        "--audio-path",
+        dest="audio_path",
+        default="",
+        help="Optional separate mic/track WAV/WebM (ReVISit study audio path); Whisper runs on this while scenes stay on the video.",
+    )
     args, _unknown = parser.parse_known_args()
 
     video_path = Path(args.video_path).resolve()
@@ -364,7 +370,28 @@ def main() -> int:
 
         audio_events: list[dict] = []
         segments: list[dict] = []
-        if not has_audio_stream(video_path):
+
+        companion_audio: Path | None = None
+        if isinstance(args.audio_path, str) and args.audio_path.strip():
+            cap = Path(args.audio_path).resolve()
+            if cap.is_file():
+                companion_audio = cap
+
+        whisper_media = companion_audio if companion_audio is not None else video_path
+
+        if companion_audio is not None:
+            meta["whisper_source"] = "companion_audio"
+            meta["companion_audio"] = str(companion_audio)
+            try:
+                segments, audio_meta = whisper_segments(whisper_media, model_size)
+                meta.update(audio_meta)
+                audio_events = hesitation_confusion_events(segments, confusion_phrases)
+            except Exception as e:  # noqa: BLE001
+                meta["audio_skipped"] = True
+                meta["audio_skip_reason"] = str(e)[:300]
+                audio_events = []
+                segments = []
+        elif not has_audio_stream(video_path):
             meta["audio_skipped"] = True
             meta["audio_skip_reason"] = "no_audio_stream_detected"
         else:

@@ -1,5 +1,9 @@
 /**
  * POST /api/confusion-score — run timeline + OCR, then scripts/mqp_confusion_score.py
+ *
+ * Multipart fields:
+ *   - video (required)
+ *   - companionAudio (optional) — study microphone audio when screen capture has no muxed audio (same as /api/analyze-timeline)
  */
 import { spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
@@ -22,6 +26,13 @@ function extFromMime(mime) {
   return 'webm';
 }
 
+function companionAudioExtFromMime(mime) {
+  if (!mime || typeof mime !== 'string') return 'wav';
+  if (mime.includes('webm')) return 'webm';
+  if (mime.includes('mpeg') || mime.includes('mp3')) return 'mp3';
+  return 'wav';
+}
+
 function defaultPythonExecutable() {
   const unixVenv = path.join(REPO_ROOT, '.venv', 'bin', 'python');
   if (existsSync(unixVenv)) return unixVenv;
@@ -31,9 +42,15 @@ function defaultPythonExecutable() {
 }
 
 export function registerConfusionScoreRoutes(app, upload) {
-  app.post('/api/confusion-score', upload.single('video'), async (req, res) => {
+  const csUpload = upload.fields([
+    { name: 'video', maxCount: 1 },
+    { name: 'companionAudio', maxCount: 1 },
+  ]);
+
+  app.post('/api/confusion-score', csUpload, async (req, res) => {
     const started = Date.now();
-    if (!req.file?.buffer) {
+    const videoFile = req.files?.video?.[0];
+    if (!videoFile?.buffer) {
       res.status(400).json({
         error: 'Missing video file (multipart field "video").',
         code: 'MISSING_FILE',
@@ -49,12 +66,25 @@ export function registerConfusionScoreRoutes(app, upload) {
       .filter(Boolean)
       .join(',');
 
-    const ext = extFromMime(req.file.mimetype);
+    const audioPart = req.files?.companionAudio?.[0];
+
+    const ext = extFromMime(videoFile.mimetype);
     const tmp = path.join(tmpdir(), `mqp-confusion-${randomUUID()}.${ext}`);
 
+    let companionTmp = '';
+    if (audioPart?.buffer?.length) {
+      const aext = companionAudioExtFromMime(audioPart.mimetype);
+      companionTmp = path.join(tmpdir(), `mqp-companion-audio-${randomUUID()}.${aext}`);
+    }
+
     try {
-      await writeFile(tmp, req.file.buffer);
+      await writeFile(tmp, videoFile.buffer);
+      if (companionTmp) {
+        await writeFile(companionTmp, audioPart.buffer);
+      }
     } catch (e) {
+      await unlink(tmp).catch(() => {});
+      if (companionTmp) await unlink(companionTmp).catch(() => {});
       res.status(500).json({
         error: e instanceof Error ? e.message : 'Failed to write temp file',
         code: 'TEMP_WRITE_FAILED',
@@ -64,11 +94,15 @@ export function registerConfusionScoreRoutes(app, upload) {
     }
 
     try {
-      const { events, meta: timelineMeta, stderr: tlStderr } = await runTimelineOnVideoPath(tmp, confusionWordsArg);
+      const { events, meta: timelineMeta, stderr: tlStderr } = await runTimelineOnVideoPath(
+        tmp,
+        confusionWordsArg,
+        companionTmp || null,
+      );
       let frames = [];
       let ocrMeta = {};
       try {
-        const ocr = await runOcrOnVideoPath(tmp, req.file.mimetype || 'video/webm');
+        const ocr = await runOcrOnVideoPath(tmp, videoFile.mimetype || 'video/webm');
         frames = ocr.frames;
         ocrMeta = ocr.meta || {};
       } catch (ocrErr) {
@@ -163,6 +197,7 @@ export function registerConfusionScoreRoutes(app, upload) {
       });
     } finally {
       await unlink(tmp).catch(() => {});
+      if (companionTmp) await unlink(companionTmp).catch(() => {});
     }
   });
 }

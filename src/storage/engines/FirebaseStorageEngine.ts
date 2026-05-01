@@ -76,8 +76,9 @@ export class FirebaseStorageEngine extends CloudStorageEngine {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (window as any).FIREBASE_APPCHECK_DEBUG_TOKEN = true;
     }
+    const disableAppCheck = import.meta.env.VITE_FIREBASE_DISABLE_APP_CHECK === 'true';
     const recaptchaKey = typeof this.RECAPTCHAV3TOKEN === 'string' ? this.RECAPTCHAV3TOKEN.trim() : '';
-    if (recaptchaKey) {
+    if (!disableAppCheck && recaptchaKey) {
       try {
         initializeAppCheck(firebaseApp, {
           provider: new ReCaptchaV3Provider(recaptchaKey),
@@ -471,7 +472,6 @@ export class FirebaseStorageEngine extends CloudStorageEngine {
     try {
       return await getDownloadURL(audioRef);
     } catch {
-      console.warn(`Audio for task ${task} and participant ${participantId} not found.`);
       return null;
     }
   }

@@ -174,7 +174,15 @@ export function StudyCrossClipDashboardView({
       });
       const qJson = (await qRes.json().catch(() => ({}))) as { embedding?: number[]; error?: string };
       if (!qRes.ok || !Array.isArray(qJson.embedding)) {
-        setSemanticErr(typeof qJson.error === 'string' ? qJson.error : `Embedding failed (HTTP ${qRes.status})`);
+        const detail = typeof qJson.error === 'string' ? qJson.error.trim() : '';
+        if (qRes.status === 422) {
+          setSemanticErr(
+            detail
+              || 'Embedding service returned HTTP 422 (often missing Python embed deps on the mass API). On the Render host, run yarn setup:embed-python (see repo docs) and redeploy.',
+          );
+          return;
+        }
+        setSemanticErr(detail || `Embedding failed (HTTP ${qRes.status})`);
         return;
       }
       const qEmb = qJson.embedding;
