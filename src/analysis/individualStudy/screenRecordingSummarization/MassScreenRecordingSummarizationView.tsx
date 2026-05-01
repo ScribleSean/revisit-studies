@@ -22,6 +22,8 @@ import type {
   ScreenRecordingSummarizationPipeline,
   StorageEngine,
 } from '../../../storage/engines/types';
+import type { MassApiHealthSnapshot } from './massApiHealthTypes';
+import { INITIAL_MASS_API_HEALTH } from './massApiHealthTypes';
 
 type GeminiAnalyzeResponse = {
   summary?: string;
@@ -119,10 +121,12 @@ export function MassScreenRecordingSummarizationView({
   visibleParticipants,
   summarizationPipeline = 'gemini',
   openAiAvailable = false,
+  massApiHealth = INITIAL_MASS_API_HEALTH,
 }: {
   visibleParticipants: ParticipantData[];
   summarizationPipeline?: ScreenRecordingSummarizationPipeline;
   openAiAvailable?: boolean;
+  massApiHealth?: MassApiHealthSnapshot;
 }) {
   const { storageEngine } = useStorageEngine();
 
@@ -217,6 +221,14 @@ export function MassScreenRecordingSummarizationView({
     status: 'ok' | 'skipped' | 'failed' | 'too_large';
     error?: string;
   }>>({});
+
+  const geminiServerFallback = Boolean(massApiHealth.loaded && massApiHealth.hasGeminiServerKey);
+
+  const participantIdsForBulk = useMemo(
+    () => [...new Set(recordings.map((r) => r.participantId))].sort(),
+    [recordings],
+  );
+  const [bulkParticipantId, setBulkParticipantId] = useState<string | null>(null);
 
   const geminiMassApiBase = env.VITE_GEMINI_MASS_API_URL;
   const massApiAnalyzeUrl = useMemo(() => {
@@ -364,8 +376,8 @@ export function MassScreenRecordingSummarizationView({
 
   const analyzeSelected = async () => {
     if (!storageEngine) return;
-    if (summarizationPipeline === 'gemini' && !apiKey) {
-      setError('Missing VITE_GEMINI_API_KEY');
+    if (summarizationPipeline === 'gemini' && !apiKey && !geminiServerFallback) {
+      setError('Missing Gemini client key and mass API reports no server Gemini key.');
       return;
     }
     if (summarizationPipeline === 'gpt4o' && !openAiAvailable) {
@@ -422,7 +434,8 @@ export function MassScreenRecordingSummarizationView({
           let summaryText: string | undefined;
           let persistedModel = effectiveModel;
 
-          if (!canBeInlineSummarized(blob.size, maxInlineBytes)) {
+          const forceServerGemini = summarizationPipeline === 'gemini' && !apiKey && geminiServerFallback;
+          if (!canBeInlineSummarized(blob.size, maxInlineBytes) || forceServerGemini) {
             const large = await analyzeViaFilesApi(file);
             if ('error' in large) {
               setResults((prev) => ({
@@ -521,34 +534,63 @@ export function MassScreenRecordingSummarizationView({
               ).
             </Text>
           </div>
-          <Group gap="xs">
+          <Group gap="xs" align="flex-end" wrap="wrap">
             <Button variant="default" onClick={selectAll} disabled={recordings.length === 0 || isRunning}>Select all</Button>
             <Button variant="default" onClick={clearSelection} disabled={isRunning}>Clear</Button>
+            <Select
+              placeholder="Participant (all trials)"
+              data={participantIdsForBulk.map((id) => ({ value: id, label: id }))}
+              value={bulkParticipantId}
+              onChange={(v) => setBulkParticipantId(v)}
+              clearable
+              disabled={isRunning || participantIdsForBulk.length === 0}
+              w={260}
+            />
+            <Button
+              variant="light"
+              disabled={!bulkParticipantId || isRunning}
+              onClick={() => {
+                if (!bulkParticipantId) return;
+                setSelectedKeys(new Set(
+                  recordings
+                    .filter((r) => r.participantId === bulkParticipantId)
+                    .map((r) => `${r.participantId}::${r.identifier}`),
+                ));
+              }}
+            >
+              Select all clips for participant
+            </Button>
           </Group>
         </Group>
 
-        {summarizationPipeline === 'gemini' && !apiKey && (
-          <Alert title="Missing API key" color="red" variant="light">
-            Gemini inline mode needs
+        {summarizationPipeline === 'gemini' && !apiKey && massApiHealth.loaded && !geminiServerFallback && (
+          <Alert title="Missing Gemini credentials" color="red" variant="light">
+            Set
+            {' '}
             <code>VITE_GEMINI_API_KEY</code>
             {' '}
-            set in your environment (Vite client env).
+            for this build, or configure
+            {' '}
+            <code>GEMINI_API_KEY</code>
+            {' '}
+            on the mass API so all clip sizes can use
+            {' '}
+            <code>/api/analyze-large</code>
+            .
           </Alert>
         )}
 
         {summarizationPipeline === 'gpt4o' && !openAiAvailable && (
           <Alert title="GPT-4o unavailable" color="orange" variant="light">
-            The mass API reports no
+            The mass API reports no OpenAI key. Set
             {' '}
             <code>OPENAI_API_KEY</code>
-            . Add it to the server
             {' '}
-            <code>.env</code>
+            or
             {' '}
-            and restart
+            <code>VITE_OPENAI_API_KEY</code>
             {' '}
-            <code>yarn serve:mass-api</code>
-            .
+            on the server and restart the service.
           </Alert>
         )}
 
@@ -655,7 +697,7 @@ export function MassScreenRecordingSummarizationView({
                 disabled={
                   isRunning
                   || storageEngine === undefined
-                  || (summarizationPipeline === 'gemini' && !apiKey)
+                  || (summarizationPipeline === 'gemini' && !apiKey && !geminiServerFallback)
                   || (summarizationPipeline === 'gpt4o' && !openAiAvailable)
                 }
               >

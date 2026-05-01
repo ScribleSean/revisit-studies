@@ -16,6 +16,7 @@ import { registerGpt4vRoutes } from './gpt4v-route.mjs';
 import { registerConfusionScoreRoutes } from './confusion-score-route.mjs';
 import { registerEmbedSummaryRoutes } from './embed-summary-route.mjs';
 import { readJsonCache, sha256Hex, writeJsonCache } from './cache.mjs';
+import { getMassApiCapabilities } from './mass-api-capabilities.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.join(__dirname, '..', '.env') });
@@ -69,6 +70,7 @@ app.get('/api/health', (_req, res) => {
     ok: true,
     hasKey: Boolean(getApiKey()),
     hasOpenAiKey: Boolean(getOpenAiKey()),
+    capabilities: getMassApiCapabilities(),
     ollamaBaseUrl: process.env.OLLAMA_BASE_URL || 'http://127.0.0.1:11434',
     ollamaModel: process.env.OLLAMA_VLM_MODEL || 'llava:7b',
   });

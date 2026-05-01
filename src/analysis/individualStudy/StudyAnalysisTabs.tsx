@@ -36,6 +36,10 @@ import { ThinkAloudAnalysis } from './thinkAloud/ThinkAloudAnalysis';
 import { FirebaseStorageEngine } from '../../storage/engines/FirebaseStorageEngine';
 import { ConfigView } from './config/ConfigView';
 import { ScreenRecordingSummarizationView } from './screenRecordingSummarization/ScreenRecordingSummarizationView';
+import {
+  INITIAL_MASS_API_HEALTH,
+  type MassApiHealthSnapshot,
+} from './screenRecordingSummarization/massApiHealthTypes';
 import { StudyCrossClipDashboardView } from './screenRecordingSummarization/StudyCrossClipDashboardView';
 
 const TABLE_HEADER_HEIGHT = 37; // Height of the tabs header
@@ -88,7 +92,7 @@ export function StudyAnalysisTabs({ globalConfig }: { globalConfig: GlobalConfig
   const { user } = useAuth();
   const [ref, { width }] = useResizeObserver();
   const [summarizationPipeline, setSummarizationPipeline] = useState<ScreenRecordingSummarizationPipeline>('gemini');
-  const [openAiAvailable, setOpenAiAvailable] = useState(false);
+  const [massApiHealth, setMassApiHealth] = useState<MassApiHealthSnapshot>(INITIAL_MASS_API_HEALTH);
   const [summarizationJump, setSummarizationJump] = useState<{ participantId: string; identifier: string } | null>(null);
   const clearSummarizationJump = useCallback(() => setSummarizationJump(null), []);
 
@@ -285,13 +289,25 @@ export function StudyAnalysisTabs({ globalConfig }: { globalConfig: GlobalConfig
     if (!storageEngine) return () => { cancelled = true; };
     (async () => {
       let openAi = false;
+      let nextHealth: MassApiHealthSnapshot = { ...INITIAL_MASS_API_HEALTH, loaded: true };
       try {
         const hr = await fetch(massApiHealthUrl);
-        const hj = (await hr.json().catch(() => ({}))) as { hasOpenAiKey?: boolean };
+        const hj = (await hr.json().catch(() => ({}))) as {
+          hasOpenAiKey?: boolean;
+          hasKey?: boolean;
+          capabilities?: MassApiHealthSnapshot['capabilities'];
+        };
         openAi = Boolean(hj.hasOpenAiKey);
-        if (!cancelled) setOpenAiAvailable(openAi);
+        const caps = hj.capabilities && typeof hj.capabilities === 'object' ? hj.capabilities : {};
+        nextHealth = {
+          loaded: true,
+          hasGeminiServerKey: Boolean(hj.hasKey),
+          hasOpenAiKey: openAi,
+          capabilities: caps,
+        };
+        if (!cancelled) setMassApiHealth(nextHealth);
       } catch {
-        if (!cancelled) setOpenAiAvailable(false);
+        if (!cancelled) setMassApiHealth({ ...INITIAL_MASS_API_HEALTH, loaded: true });
       }
       try {
         const s = await storageEngine.getScreenRecordingAnalysisSettings();
@@ -306,7 +322,7 @@ export function StudyAnalysisTabs({ globalConfig }: { globalConfig: GlobalConfig
   }, [storageEngine, studyId, massApiHealthUrl]);
 
   useEffect(() => {
-    if (summarizationPipeline === 'gpt4o' && !openAiAvailable) {
+    if (summarizationPipeline === 'gpt4o' && !massApiHealth.hasOpenAiKey) {
       setSummarizationPipeline('gemini');
       storageEngine
         ?.saveScreenRecordingAnalysisSettings({
@@ -315,7 +331,7 @@ export function StudyAnalysisTabs({ globalConfig }: { globalConfig: GlobalConfig
         })
         .catch(() => undefined);
     }
-  }, [openAiAvailable, summarizationPipeline, storageEngine]);
+  }, [massApiHealth.hasOpenAiKey, summarizationPipeline, storageEngine]);
 
   useEffect(() => {
     if (!studyId) return () => { };
@@ -381,13 +397,13 @@ export function StudyAnalysisTabs({ globalConfig }: { globalConfig: GlobalConfig
                   label="Screen recording pipeline"
                   data={[
                     { value: 'gemini', label: 'Gemini (cloud)' },
-                    { value: 'gpt4o', label: 'GPT-4o vision (cloud)', disabled: !openAiAvailable },
+                    { value: 'gpt4o', label: 'GPT-4o vision (cloud)', disabled: !massApiHealth.hasOpenAiKey },
                     { value: 'local', label: 'Local model (Ollama)' },
                   ]}
                   value={summarizationPipeline}
                   onChange={(v) => {
                     const next = (v === 'gpt4o' || v === 'local' ? v : 'gemini') as ScreenRecordingSummarizationPipeline;
-                    const normalized = next === 'gpt4o' && !openAiAvailable ? 'gemini' : next;
+                    const normalized = next === 'gpt4o' && !massApiHealth.hasOpenAiKey ? 'gemini' : next;
                     setSummarizationPipeline(normalized);
                     storageEngine
                       ?.saveScreenRecordingAnalysisSettings({
@@ -573,7 +589,8 @@ export function StudyAnalysisTabs({ globalConfig }: { globalConfig: GlobalConfig
                       visibleParticipants={participantsForScreenRecording}
                       studyConfig={studyConfig}
                       summarizationPipeline={summarizationPipeline}
-                      openAiAvailable={openAiAvailable}
+                      openAiAvailable={massApiHealth.hasOpenAiKey}
+                      massApiHealth={massApiHealth}
                       preferredStoredSelection={summarizationJump}
                       onPreferredStoredSelectionApplied={clearSummarizationJump}
                     />

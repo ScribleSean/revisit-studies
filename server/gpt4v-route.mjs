@@ -12,7 +12,7 @@ import {
 } from './frame-sampler.mjs';
 
 function getOpenAiKey() {
-  return process.env.OPENAI_API_KEY || '';
+  return process.env.OPENAI_API_KEY || process.env.VITE_OPENAI_API_KEY || '';
 }
 
 function pickModel() {

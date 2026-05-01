@@ -25,6 +25,8 @@ import { useStorageEngine } from '../../../storage/storageEngineHooks';
 import type { StudyConfig } from '../../../parser/types';
 import type { ScreenRecordingSummarizationPipeline } from '../../../storage/engines/types';
 import { MassScreenRecordingSummarizationView } from './MassScreenRecordingSummarizationView';
+import type { MassApiHealthSnapshot } from './massApiHealthTypes';
+import { INITIAL_MASS_API_HEALTH } from './massApiHealthTypes';
 import { RecordingTagsPanel } from './RecordingTagsPanel';
 import { RecordingTimelineStrip } from './RecordingTimelineStrip';
 import type { RecordingTag } from './recordingTagTypes';
@@ -185,6 +187,7 @@ export function ScreenRecordingSummarizationView({
   studyConfig,
   summarizationPipeline = 'gemini',
   openAiAvailable = false,
+  massApiHealth = INITIAL_MASS_API_HEALTH,
   preferredStoredSelection = null,
   onPreferredStoredSelectionApplied,
 }: {
@@ -192,6 +195,7 @@ export function ScreenRecordingSummarizationView({
   studyConfig?: StudyConfig;
   summarizationPipeline?: ScreenRecordingSummarizationPipeline;
   openAiAvailable?: boolean;
+  massApiHealth?: MassApiHealthSnapshot;
   /** When set, selects this participant + recording once (e.g. jump from cross-clip dashboard). */
   preferredStoredSelection?: { participantId: string; identifier: string } | null;
   onPreferredStoredSelectionApplied?: () => void;
@@ -337,6 +341,13 @@ export function ScreenRecordingSummarizationView({
     [model],
   );
 
+  const timelineServerReady = massApiHealth.capabilities?.timelineReady === true;
+  const ocrServerReady = massApiHealth.capabilities?.ocrReady === true;
+  const confusionServerReady = massApiHealth.capabilities?.confusionReady === true;
+  const massApiBaseConfigured = Boolean((geminiMassApiBase || '').trim());
+  /** When using a remote mass API, wait for /api/health before enabling media tooling. */
+  const waitForMassApiHealth = massApiBaseConfigured && !massApiHealth.loaded;
+
   const largeUploadEndpointLabel = useMemo(() => {
     if (summarizationPipeline === 'local') return '/api/analyze-local';
     if (summarizationPipeline === 'gpt4o') return '/api/analyze-gpt4v';
@@ -366,12 +377,15 @@ export function ScreenRecordingSummarizationView({
     return videoFile.size <= 20 * 1024 * 1024;
   }, [videoFile]);
 
+  const geminiServerFallback = Boolean(massApiHealth.loaded && massApiHealth.hasGeminiServerKey);
+
   const analyzeSingleClipDisabled = useMemo(() => {
     if (!videoFile || isAnalyzing) return true;
-    if (summarizationPipeline === 'gemini' && canInlineUpload && !apiKey) return true;
+    const geminiNeedsClientOrServer = summarizationPipeline === 'gemini' && canInlineUpload && !apiKey && !geminiServerFallback;
+    if (geminiNeedsClientOrServer) return true;
     if (summarizationPipeline === 'gpt4o' && !openAiAvailable) return true;
     return false;
-  }, [apiKey, canInlineUpload, isAnalyzing, openAiAvailable, summarizationPipeline, videoFile]);
+  }, [apiKey, canInlineUpload, geminiServerFallback, isAnalyzing, openAiAvailable, summarizationPipeline, videoFile]);
 
   async function analyzeVideo(file: File): Promise<GeminiAnalyzeResponse> {
     if (summarizationPipeline === 'local') {
@@ -648,9 +662,10 @@ export function ScreenRecordingSummarizationView({
     setIsAnalyzing(true);
 
     try {
-      const result = canInlineUpload
-        ? await analyzeVideo(videoFile)
-        : await analyzeVideoLarge(videoFile);
+      const useServerGemini = summarizationPipeline === 'gemini' && !apiKey && geminiServerFallback;
+      const result = useServerGemini || !canInlineUpload
+        ? await analyzeVideoLarge(videoFile)
+        : await analyzeVideo(videoFile);
       if (!result.summary) {
         const raw = result.raw as { error?: unknown; status?: unknown } | undefined;
         const rawErr = raw?.error;
@@ -1017,7 +1032,13 @@ export function ScreenRecordingSummarizationView({
                         <Button
                           variant="light"
                           loading={timelineLoading}
-                          disabled={!storageEngine || timelineLoading || !storedVideoUrl}
+                          disabled={
+                            !storageEngine
+                            || timelineLoading
+                            || !storedVideoUrl
+                            || waitForMassApiHealth
+                            || (massApiHealth.loaded && !timelineServerReady)
+                          }
                           onClick={handleGenerateTimeline}
                         >
                           Generate timeline
@@ -1025,7 +1046,13 @@ export function ScreenRecordingSummarizationView({
                         <Button
                           variant="light"
                           loading={ocrLoading}
-                          disabled={!storageEngine || ocrLoading || !storedVideoUrl}
+                          disabled={
+                            !storageEngine
+                            || ocrLoading
+                            || !storedVideoUrl
+                            || waitForMassApiHealth
+                            || (massApiHealth.loaded && !ocrServerReady)
+                          }
                           onClick={handleExtractOcr}
                         >
                           Extract OCR
@@ -1033,7 +1060,13 @@ export function ScreenRecordingSummarizationView({
                         <Button
                           variant="light"
                           loading={confusionScoreLoading}
-                          disabled={!storageEngine || confusionScoreLoading || !storedVideoUrl}
+                          disabled={
+                            !storageEngine
+                            || confusionScoreLoading
+                            || !storedVideoUrl
+                            || waitForMassApiHealth
+                            || (massApiHealth.loaded && !confusionServerReady)
+                          }
                           onClick={handleComputeConfusionScore}
                         >
                           Compute confusion score
@@ -1051,6 +1084,22 @@ export function ScreenRecordingSummarizationView({
                           .
                         </Text>
                       </GroupRow>
+                      {massApiHealth.loaded && massApiBaseConfigured && !timelineServerReady && (
+                        <Alert title="Timeline / OCR stack not ready on mass API" color="yellow" variant="light" mt="xs">
+                          This host reports missing ffmpeg, Whisper/Python timeline setup, or Tesseract. OCR and timeline
+                          buttons stay disabled until those are installed (see
+                          {' '}
+                          <code>yarn setup:timeline-python</code>
+                          {' '}
+                          and system
+                          {' '}
+                          <code>tesseract</code>
+                          ). For Render, use a Docker deploy that installs them (see
+                          {' '}
+                          <code>server/Dockerfile</code>
+                          ).
+                        </Alert>
+                      )}
                       {timelineError && (
                         <Alert color="red" variant="light" mt="xs">
                           {timelineError}
@@ -1108,28 +1157,36 @@ export function ScreenRecordingSummarizationView({
               Gemini, GPT-4o vision, or local Ollama). This one-off run is not persisted to the study.
             </Text>
 
-            {summarizationPipeline === 'gemini' && !apiKey && (
-              <Alert title="Missing API key" color="red" variant="light" icon={<Text>!</Text>}>
-                Gemini inline mode needs
+            {summarizationPipeline === 'gemini' && !apiKey && massApiHealth.loaded && !massApiHealth.hasGeminiServerKey && (
+              <Alert title="Missing Gemini credentials" color="red" variant="light" icon={<Text>!</Text>}>
+                Set either
+                {' '}
                 <code>VITE_GEMINI_API_KEY</code>
                 {' '}
-                set in your environment (Vite client env).
+                for this Pages build, or
+                {' '}
+                <code>GEMINI_API_KEY</code>
+                /
+                <code>VITE_GEMINI_API_KEY</code>
+                {' '}
+                on the mass API host so small clips can use
+                {' '}
+                <code>/api/analyze-large</code>
+                .
               </Alert>
             )}
 
             {summarizationPipeline === 'gpt4o' && !openAiAvailable && (
               <Alert title="GPT-4o unavailable" color="orange" variant="light" icon={<Text>!</Text>}>
-                The mass API server reports no
+                The mass API server reports no OpenAI key. Set
                 {' '}
                 <code>OPENAI_API_KEY</code>
-                . Add it to
                 {' '}
-                <code>.env</code>
+                or
                 {' '}
-                for
+                <code>VITE_OPENAI_API_KEY</code>
                 {' '}
-                <code>yarn serve:mass-api</code>
-                , then refresh this page.
+                in the server environment and restart the service.
               </Alert>
             )}
 
@@ -1208,6 +1265,7 @@ export function ScreenRecordingSummarizationView({
           visibleParticipants={visibleParticipants}
           summarizationPipeline={summarizationPipeline}
           openAiAvailable={openAiAvailable}
+          massApiHealth={massApiHealth}
         />
       </Stack>
     </Box>
