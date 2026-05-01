@@ -2,15 +2,12 @@
 #   https://<owner>.github.io/<repository>/
 #
 # Requires: Settings → Pages → Source = "Deploy from a branch" → Branch gh-pages / (root).
-# .env is not committed; set Repository variables / Secrets for anything you need at build time.
 #
-# Mass API (Render etc.): set variable VITE_GEMINI_MASS_API_URL to the origin only, e.g.
-#   https://revisit-studies-mass-api.onrender.com
-# (no trailing slash). The client will call ${VITE_GEMINI_MASS_API_URL}/api/health, /api/analyze-large, …
+# Main branch: match maps-study — do NOT pass VITE_STORAGE_ENGINE / VITE_FIREBASE_CONFIG when
+# vars.VITE_STORAGE_ENGINE is empty, or GitHub injects "" and Vite overrides .env / breaks Firebase.
 #
-# Gemini inline (small clips in the browser): set secret VITE_GEMINI_API_KEY, or repository variable
-# VITE_GEMINI_API_KEY, so Vite can embed it at build time. Server-side Gemini on the mass API uses
-# GEMINI_API_KEY or VITE_GEMINI_API_KEY on Render only (not the Pages build).
+# Mass API / Gemini (optional on every build path):
+#   VITE_GEMINI_MASS_API_URL (repo variable), VITE_GEMINI_API_KEY (secret or variable).
 name: Deploy To GitHub Pages
 
 on:
@@ -40,8 +37,18 @@ jobs:
 
       - run: yarn install --frozen-lockfile
 
-      - name: Build for GitHub Pages
+      # If on main without env vars, build with .env file (do not inject empty Firebase vars).
+      - name: Build with .env file
+        if: ${{ vars.VITE_STORAGE_ENGINE == '' }}
         run: yarn build
+        env:
+          VITE_GEMINI_MASS_API_URL: ${{ vars.VITE_GEMINI_MASS_API_URL }}
+          VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY != '' && secrets.VITE_GEMINI_API_KEY || vars.VITE_GEMINI_API_KEY }}
+
+      # If on main with env vars, build with github environment variables
+      - name: Build with github environment variables
+        if: ${{ vars.VITE_STORAGE_ENGINE != '' }}
+        run: VITE_STORAGE_ENGINE=$VITE_STORAGE_ENGINE yarn build
         env:
           VITE_STORAGE_ENGINE: ${{ vars.VITE_STORAGE_ENGINE }}
           VITE_FIREBASE_CONFIG: ${{ vars.VITE_FIREBASE_CONFIG }}
@@ -74,11 +81,9 @@ jobs:
       - run: yarn install --frozen-lockfile
 
       - name: Build dev branch
-        run: yarn build
+        run: VITE_BASE_PATH=/dev yarn build
         env:
           VITE_BASE_PATH: "/dev/"
-          VITE_STORAGE_ENGINE: ${{ vars.VITE_STORAGE_ENGINE }}
-          VITE_FIREBASE_CONFIG: ${{ vars.VITE_FIREBASE_CONFIG }}
           VITE_GEMINI_MASS_API_URL: ${{ vars.VITE_GEMINI_MASS_API_URL }}
           VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY != '' && secrets.VITE_GEMINI_API_KEY || vars.VITE_GEMINI_API_KEY }}
 
@@ -118,8 +123,10 @@ jobs:
 
       - run: yarn install --frozen-lockfile
 
-      - name: Build PR preview
-        run: yarn build
+      # Build with github environment variables (same guard as maps-study)
+      - name: Build with github environment variables
+        if: ${{ vars.VITE_STORAGE_ENGINE != '' }}
+        run: VITE_STORAGE_ENGINE=$VITE_STORAGE_ENGINE VITE_BASE_PATH=$VITE_BASE_PATH yarn build
         env:
           VITE_STORAGE_ENGINE: ${{ vars.VITE_STORAGE_ENGINE }}
           VITE_FIREBASE_CONFIG: ${{ vars.VITE_FIREBASE_CONFIG }}
