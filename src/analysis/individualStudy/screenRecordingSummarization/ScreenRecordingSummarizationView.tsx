@@ -440,23 +440,26 @@ export function ScreenRecordingSummarizationView({
     [model],
   );
 
-  const timelineServerReady = massApiHealth.capabilities?.timelineReady === true;
-  const ocrServerReady = massApiHealth.capabilities?.ocrReady === true;
-  const confusionServerReady = massApiHealth.capabilities?.confusionReady === true;
+  const caps = massApiHealth.capabilities;
+  /** Only disable when /api/health explicitly reports false — unknown/empty caps stay enabled so GitHub Pages still tries the API. */
+  const timelineServerBlocked = massApiHealth.loaded && caps != null && caps.timelineReady === false;
+  const ocrServerBlocked = massApiHealth.loaded && caps != null && caps.ocrReady === false;
+  const confusionServerBlocked = massApiHealth.loaded && caps != null && caps.confusionReady === false;
   const massApiBaseConfigured = Boolean((geminiMassApiBase || '').trim());
   /** When using a remote mass API, wait for /api/health before enabling media tooling. */
   const waitForMassApiHealth = massApiBaseConfigured && !massApiHealth.loaded;
 
   const massApiMediaMissingParts = useMemo(() => {
     const c = massApiHealth.capabilities;
+    if (!massApiHealth.loaded || !c) return [];
     const parts: string[] = [];
-    if (!c?.ffmpeg) parts.push('ffmpeg');
-    if (!c?.tesseract) parts.push('Tesseract');
-    if (!c?.timelineReady) parts.push('timeline (Python + Whisper + scenedetect)');
-    if (c?.timelineReady && !c?.ocrReady) parts.push('OCR stack');
-    if (c?.timelineReady && c?.ocrReady && !c?.confusionReady) parts.push('confusion script');
+    if (c.ffmpeg === false) parts.push('ffmpeg');
+    if (c.tesseract === false) parts.push('Tesseract');
+    if (c.timelineReady === false) parts.push('timeline (Python + Whisper + scenedetect)');
+    if (c.ocrReady === false) parts.push('OCR stack');
+    if (c.confusionReady === false) parts.push('confusion script');
     return parts;
-  }, [massApiHealth.capabilities]);
+  }, [massApiHealth.capabilities, massApiHealth.loaded]);
 
   const largeUploadEndpointLabel = useMemo(() => {
     if (summarizationPipeline === 'local') return '/api/analyze-local';
@@ -1234,7 +1237,7 @@ export function ScreenRecordingSummarizationView({
                           !storageEngine
                           || participantSessionLoading
                           || waitForMassApiHealth
-                          || (massApiHealth.loaded && (!timelineServerReady || !ocrServerReady || !confusionServerReady))
+                          || (timelineServerBlocked || ocrServerBlocked || confusionServerBlocked)
                           || timelineLoading
                           || ocrLoading
                           || confusionScoreLoading
@@ -1385,7 +1388,7 @@ export function ScreenRecordingSummarizationView({
                             || timelineLoading
                             || !storedVideoUrl
                             || waitForMassApiHealth
-                            || (massApiHealth.loaded && !timelineServerReady)
+                            || timelineServerBlocked
                           }
                           onClick={handleGenerateTimeline}
                         >
@@ -1399,7 +1402,7 @@ export function ScreenRecordingSummarizationView({
                             || ocrLoading
                             || !storedVideoUrl
                             || waitForMassApiHealth
-                            || (massApiHealth.loaded && !ocrServerReady)
+                            || ocrServerBlocked
                           }
                           onClick={handleExtractOcr}
                         >
@@ -1413,7 +1416,7 @@ export function ScreenRecordingSummarizationView({
                             || confusionScoreLoading
                             || !storedVideoUrl
                             || waitForMassApiHealth
-                            || (massApiHealth.loaded && !confusionServerReady)
+                            || confusionServerBlocked
                           }
                           onClick={handleComputeConfusionScore}
                         >

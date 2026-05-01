@@ -76,13 +76,16 @@ export class FirebaseStorageEngine extends CloudStorageEngine {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (window as any).FIREBASE_APPCHECK_DEBUG_TOKEN = true;
     }
-    try {
-      initializeAppCheck(firebaseApp, {
-        provider: new ReCaptchaV3Provider(this.RECAPTCHAV3TOKEN),
-        isTokenAutoRefreshEnabled: false,
-      });
-    } catch {
-      console.warn('Failed to initialize Firebase App Check');
+    const recaptchaKey = typeof this.RECAPTCHAV3TOKEN === 'string' ? this.RECAPTCHAV3TOKEN.trim() : '';
+    if (recaptchaKey) {
+      try {
+        initializeAppCheck(firebaseApp, {
+          provider: new ReCaptchaV3Provider(recaptchaKey),
+          isTokenAutoRefreshEnabled: false,
+        });
+      } catch {
+        console.warn('Failed to initialize Firebase App Check');
+      }
     }
   }
 
@@ -483,7 +486,6 @@ export class FirebaseStorageEngine extends CloudStorageEngine {
     try {
       return await getDownloadURL(screenRecordingRef);
     } catch {
-      console.warn(`Screen recording for task ${task} and participant ${participantId} not found.`);
       return null;
     }
   }
@@ -512,7 +514,6 @@ export class FirebaseStorageEngine extends CloudStorageEngine {
     try {
       return await getDownloadURL(fallbackRef);
     } catch {
-      console.warn(`ScreenRecording summary for task ${task} and participant ${participantId} not found.`);
       return null;
     }
   }
@@ -531,7 +532,6 @@ export class FirebaseStorageEngine extends CloudStorageEngine {
     try {
       return await getDownloadURL(eventsRef);
     } catch {
-      console.warn(`ScreenRecording events for task ${task} and participant ${participantId} not found.`);
       return null;
     }
   }
@@ -550,7 +550,6 @@ export class FirebaseStorageEngine extends CloudStorageEngine {
     try {
       return await getDownloadURL(tagsRef);
     } catch {
-      console.warn(`ScreenRecording tags for task ${task} and participant ${participantId} not found.`);
       return null;
     }
   }
@@ -569,7 +568,6 @@ export class FirebaseStorageEngine extends CloudStorageEngine {
     try {
       return await getDownloadURL(refPath);
     } catch {
-      console.warn(`ScreenRecording OCR frames for task ${task} and participant ${participantId} not found.`);
       return null;
     }
   }
@@ -588,7 +586,6 @@ export class FirebaseStorageEngine extends CloudStorageEngine {
     try {
       return await getDownloadURL(refPath);
     } catch {
-      console.warn(`ScreenRecording confusion score for task ${task} and participant ${participantId} not found.`);
       return null;
     }
   }
@@ -607,7 +604,6 @@ export class FirebaseStorageEngine extends CloudStorageEngine {
     try {
       return await getDownloadURL(refPath);
     } catch {
-      console.warn(`ScreenRecording embedding for task ${task} and participant ${participantId} not found.`);
       return null;
     }
   }
@@ -622,7 +618,6 @@ export class FirebaseStorageEngine extends CloudStorageEngine {
     try {
       return await getDownloadURL(transcriptRef);
     } catch {
-      console.warn(`Transcript for task ${task} and participant ${participantId} not found.`);
       return null;
     }
   }
