@@ -3,9 +3,11 @@ import {
   Box,
   Button,
   Card,
+  Divider,
   FileInput,
   Group,
   LoadingOverlay,
+  Progress,
   Select,
   Stack,
   Text,
@@ -173,6 +175,42 @@ function computeOcrGroundingMask(
   return { eventGrounded, ocrGrounded };
 }
 
+async function clipDurationFromPlayUrl(playUrl: string): Promise<number> {
+  return new Promise((resolve, reject) => {
+    const v = document.createElement('video');
+    v.preload = 'metadata';
+    v.onloadedmetadata = () => {
+      const d = v.duration;
+      v.removeAttribute('src');
+      v.load();
+      resolve(Number.isFinite(d) && d > 0 ? d : 0);
+    };
+    v.onerror = () => reject(new Error('Could not read video duration'));
+    v.src = playUrl;
+  });
+}
+
+function globalTimeToClipAndLocal(
+  clips: Array<{ offsetSec: number; durationSec: number }>,
+  t: number,
+): { clipIndex: number; localT: number } | null {
+  if (clips.length === 0) return null;
+  const x = Number.isFinite(t) ? Math.max(0, t) : 0;
+  for (let i = 0; i < clips.length; i += 1) {
+    const { offsetSec, durationSec } = clips[i];
+    const end = offsetSec + durationSec;
+    if (x < end + 1e-3) {
+      const localT = Math.min(Math.max(0, x - offsetSec), Math.max(0, durationSec - 0.05));
+      return { clipIndex: i, localT };
+    }
+  }
+  const last = clips[clips.length - 1];
+  return {
+    clipIndex: clips.length - 1,
+    localT: Math.max(0, last.durationSec - 0.05),
+  };
+}
+
 function GroupRow({ children }: { children: ReactNode }) {
   return (
     <Box>
@@ -248,6 +286,40 @@ export function ScreenRecordingSummarizationView({
   const [confusionScoreLoading, setConfusionScoreLoading] = useState(false);
   const [confusionScoreError, setConfusionScoreError] = useState<string | null>(null);
   const storedVideoRef = useRef<HTMLVideoElement | null>(null);
+  const sessionMergedVideoRef = useRef<HTMLVideoElement | null>(null);
+
+  type ParticipantSessionClip = {
+    identifier: string;
+    label: string;
+    offsetSec: number;
+    durationSec: number;
+    playUrl: string;
+  };
+
+  type ParticipantSessionViewState = {
+    clips: ParticipantSessionClip[];
+    totalSec: number;
+    mergedEvents: TimelineEvent[];
+    mergedOcrFrames: Array<{ index: number; timestampSec: number; text: string; wordCount: number }>;
+    mergedConfusion: StoredConfusionScore;
+  };
+
+  const [participantSessionView, setParticipantSessionView] = useState<ParticipantSessionViewState | null>(null);
+  const [participantSessionLoading, setParticipantSessionLoading] = useState(false);
+  const [participantSessionError, setParticipantSessionError] = useState<string | null>(null);
+  const [participantSessionProgress, setParticipantSessionProgress] = useState<{
+    label: string;
+    done: number;
+    total: number;
+  } | null>(null);
+
+  const participantSessionViewRef = useRef(participantSessionView);
+  participantSessionViewRef.current = participantSessionView;
+
+  useEffect(() => () => {
+    const v = participantSessionViewRef.current;
+    if (v) v.clips.forEach((c) => URL.revokeObjectURL(c.playUrl));
+  }, []);
 
   // Keep selected participant valid if the visible participants list changes.
   useEffect(() => {
@@ -266,6 +338,17 @@ export function ScreenRecordingSummarizationView({
     setStoredRecordingIdentifier(preferredStoredSelection.identifier);
     onPreferredStoredSelectionApplied?.();
   }, [preferredStoredSelection, onPreferredStoredSelectionApplied]);
+
+  useEffect(() => {
+    setParticipantSessionView((prev) => {
+      if (prev) {
+        prev.clips.forEach((c) => URL.revokeObjectURL(c.playUrl));
+      }
+      return null;
+    });
+    setParticipantSessionError(null);
+    setParticipantSessionProgress(null);
+  }, [storedParticipantId]);
 
   const envVars = import.meta.env as unknown as {
     VITE_GEMINI_API_KEY?: string;
@@ -318,6 +401,22 @@ export function ScreenRecordingSummarizationView({
     return { ocrEventGrounded: m.eventGrounded, ocrFrameGrounded: m.ocrGrounded };
   }, [storedTimelineEvents, storedOcrFrames]);
 
+  const sessionOcrStripFrames = useMemo(
+    () => (participantSessionView?.mergedOcrFrames ?? []).map((f) => ({ timestampSec: f.timestampSec, text: f.text })),
+    [participantSessionView?.mergedOcrFrames],
+  );
+
+  const { sessionOcrEventGrounded, sessionOcrFrameGrounded } = useMemo(() => {
+    if (!participantSessionView || sessionOcrStripFrames.length === 0 || participantSessionView.mergedEvents.length === 0) {
+      return {
+        sessionOcrEventGrounded: undefined as boolean[] | undefined,
+        sessionOcrFrameGrounded: undefined as boolean[] | undefined,
+      };
+    }
+    const m = computeOcrGroundingMask(participantSessionView.mergedEvents, sessionOcrStripFrames);
+    return { sessionOcrEventGrounded: m.eventGrounded, sessionOcrFrameGrounded: m.ocrGrounded };
+  }, [participantSessionView, sessionOcrStripFrames]);
+
   const analyzeLargeApiUrl = useMemo(() => {
     const base = (geminiMassApiBase || '').replace(/\/$/, '');
     if (base) return `${base}/api/analyze-large`;
@@ -347,6 +446,17 @@ export function ScreenRecordingSummarizationView({
   const massApiBaseConfigured = Boolean((geminiMassApiBase || '').trim());
   /** When using a remote mass API, wait for /api/health before enabling media tooling. */
   const waitForMassApiHealth = massApiBaseConfigured && !massApiHealth.loaded;
+
+  const massApiMediaMissingParts = useMemo(() => {
+    const c = massApiHealth.capabilities;
+    const parts: string[] = [];
+    if (!c?.ffmpeg) parts.push('ffmpeg');
+    if (!c?.tesseract) parts.push('Tesseract');
+    if (!c?.timelineReady) parts.push('timeline (Python + Whisper + scenedetect)');
+    if (c?.timelineReady && !c?.ocrReady) parts.push('OCR stack');
+    if (c?.timelineReady && c?.ocrReady && !c?.confusionReady) parts.push('confusion script');
+    return parts;
+  }, [massApiHealth.capabilities]);
 
   const largeUploadEndpointLabel = useMemo(() => {
     if (summarizationPipeline === 'local') return '/api/analyze-local';
@@ -866,6 +976,189 @@ export function ScreenRecordingSummarizationView({
     }
   };
 
+  const handleParticipantAllTrialsMedia = async () => {
+    if (!storageEngine || !storedParticipantId) return;
+    const recs = recordingsByParticipantId.get(storedParticipantId) ?? [];
+    if (recs.length === 0) return;
+
+    setParticipantSessionView((prev) => {
+      if (prev) prev.clips.forEach((c) => URL.revokeObjectURL(c.playUrl));
+      return null;
+    });
+    setParticipantSessionError(null);
+    setParticipantSessionLoading(true);
+    const totalSteps = recs.length * 3;
+    let stepDone = 0;
+    setParticipantSessionProgress({ label: 'Starting', done: 0, total: totalSteps });
+
+    const mergedEvents: TimelineEvent[] = [];
+    const mergedOcr: Array<{ index: number; timestampSec: number; text: string; wordCount: number }> = [];
+    const mergedWindows: ConfusionScoreWindow[] = [];
+    const clips: ParticipantSessionClip[] = [];
+    let offsetSec = 0;
+    let ocrGlobalIndex = 0;
+    let totalConfScore = 0;
+
+    /* eslint-disable no-await-in-loop -- process clips sequentially to avoid overloading the mass API */
+    try {
+      for (const rec of recs) {
+        const recordingUrl = await storageEngine.getScreenRecording(rec.identifier, storedParticipantId);
+        if (!recordingUrl) {
+          throw new Error(`No recording for ${rec.label}`);
+        }
+        const blob = await (await fetch(recordingUrl)).blob();
+        URL.revokeObjectURL(recordingUrl);
+        const playUrl = URL.createObjectURL(blob);
+        const durationSec = await clipDurationFromPlayUrl(playUrl);
+        const file = new File([blob], `${rec.identifier}.webm`, { type: blob.type || 'video/webm' });
+
+        setParticipantSessionProgress({ label: `Timeline · ${rec.label}`, done: stepDone, total: totalSteps });
+        const fdTimeline = new FormData();
+        fdTimeline.append('video', file);
+        if (confusionWords) {
+          fdTimeline.append('confusionWords', confusionWords.join(','));
+        }
+        const resT = await fetch(timelineApiUrl, { method: 'POST', body: fdTimeline });
+        const jsonT = (await resT.json().catch(() => ({}))) as { events?: TimelineEvent[]; error?: string };
+        if (!resT.ok) {
+          throw new Error(typeof jsonT.error === 'string' ? jsonT.error : `Timeline HTTP ${resT.status} (${rec.label})`);
+        }
+        const evLocal = parseTimelineEventsJson(JSON.stringify({ events: jsonT.events }));
+        for (let ei = 0; ei < evLocal.length; ei += 1) {
+          const e = evLocal[ei];
+          mergedEvents.push({
+            type: e.type,
+            timestamp: e.timestamp + offsetSec,
+            evidence: e.evidence,
+          });
+        }
+        await storageEngine.saveScreenRecordingEvents(
+          new Blob([JSON.stringify({ events: evLocal, generatedAt: new Date().toISOString() }, null, 2)], { type: 'application/json' }),
+          rec.identifier,
+          storedParticipantId,
+        );
+        stepDone += 1;
+        setParticipantSessionProgress({ label: `OCR · ${rec.label}`, done: stepDone, total: totalSteps });
+
+        const fdOcr = new FormData();
+        fdOcr.append('video', file);
+        const resO = await fetch(ocrApiUrl, { method: 'POST', body: fdOcr });
+        const jsonO = (await resO.json().catch(() => ({}))) as { frames?: unknown[]; error?: string };
+        if (!resO.ok) {
+          throw new Error(typeof jsonO.error === 'string' ? jsonO.error : `OCR HTTP ${resO.status} (${rec.label})`);
+        }
+        const framesRaw = Array.isArray(jsonO.frames) ? jsonO.frames : [];
+        const ocrLocal = framesRaw
+          .map((f) => {
+            const obj = f as Record<string, unknown>;
+            return {
+              index: Number(obj.index || 0),
+              timestampSec: Number(obj.timestampSec || 0),
+              text: typeof obj.text === 'string' ? obj.text : '',
+              wordCount: Number(obj.wordCount || 0),
+            };
+          })
+          .filter((f) => Number.isFinite(f.timestampSec));
+        await storageEngine.saveScreenRecordingOcrFrames(
+          new Blob([JSON.stringify({ frames: ocrLocal, generatedAt: new Date().toISOString() }, null, 2)], { type: 'application/json' }),
+          rec.identifier,
+          storedParticipantId,
+        );
+        for (let oi = 0; oi < ocrLocal.length; oi += 1) {
+          const f = ocrLocal[oi];
+          mergedOcr.push({
+            index: ocrGlobalIndex,
+            timestampSec: f.timestampSec + offsetSec,
+            text: f.text,
+            wordCount: f.wordCount,
+          });
+          ocrGlobalIndex += 1;
+        }
+        stepDone += 1;
+        setParticipantSessionProgress({ label: `Confusion · ${rec.label}`, done: stepDone, total: totalSteps });
+
+        const fdC = new FormData();
+        fdC.append('video', file);
+        if (confusionWords) {
+          fdC.append('confusionWords', confusionWords.join(','));
+        }
+        const resC = await fetch(confusionScoreApiUrl, { method: 'POST', body: fdC });
+        const jsonC = (await resC.json().catch(() => ({}))) as {
+          windows?: unknown;
+          totalScore?: unknown;
+          maxWindow?: unknown;
+          meta?: unknown;
+          error?: string;
+        };
+        if (!resC.ok) {
+          throw new Error(typeof jsonC.error === 'string' ? jsonC.error : `Confusion HTTP ${resC.status} (${rec.label})`);
+        }
+        const parsed = parseStoredConfusionScoreJson(
+          JSON.stringify({
+            windows: jsonC.windows,
+            totalScore: jsonC.totalScore,
+            maxWindow: jsonC.maxWindow,
+            meta: jsonC.meta,
+          }),
+        );
+        if (!parsed || parsed.windows.length === 0) {
+          throw new Error(`Confusion score returned no windows for ${rec.label}`);
+        }
+        totalConfScore += parsed.totalScore;
+        for (let wi = 0; wi < parsed.windows.length; wi += 1) {
+          const w = parsed.windows[wi];
+          mergedWindows.push({
+            startSec: w.startSec + offsetSec,
+            endSec: w.endSec + offsetSec,
+            score: w.score,
+          });
+        }
+        await storageEngine.saveScreenRecordingConfusionScore(
+          new Blob([JSON.stringify({ ...parsed, generatedAt: new Date().toISOString() }, null, 2)], { type: 'application/json' }),
+          rec.identifier,
+          storedParticipantId,
+        );
+        stepDone += 1;
+
+        clips.push({
+          identifier: rec.identifier,
+          label: rec.label,
+          offsetSec,
+          durationSec,
+          playUrl,
+        });
+        offsetSec += durationSec;
+      }
+
+      const maxWindow = mergedWindows.reduce<ConfusionScoreWindow | null>((best, w) => {
+        if (!best || Math.abs(w.score) > Math.abs(best.score)) return w;
+        return best;
+      }, null);
+
+      setParticipantSessionView({
+        clips,
+        totalSec: offsetSec,
+        mergedEvents,
+        mergedOcrFrames: mergedOcr,
+        mergedConfusion: {
+          windows: mergedWindows,
+          totalScore: totalConfScore,
+          maxWindow,
+          generatedAt: new Date().toISOString(),
+        },
+      });
+      setParticipantSessionProgress({ label: 'Done', done: totalSteps, total: totalSteps });
+    } catch (e) {
+      for (let ci = 0; ci < clips.length; ci += 1) {
+        URL.revokeObjectURL(clips[ci].playUrl);
+      }
+      setParticipantSessionError(e instanceof Error ? e.message : 'Batch media pipeline failed');
+    } finally {
+      setParticipantSessionLoading(false);
+    }
+    /* eslint-enable no-await-in-loop */
+  };
+
   const persistRecordingTags = useCallback(
     async (next: RecordingTag[]) => {
       if (!storageEngine || !storedParticipantId || !storedRecordingIdentifier) return;
@@ -923,6 +1216,61 @@ export function ScreenRecordingSummarizationView({
                     />
                   )}
                 </Stack>
+
+                {storedParticipantId && (recordingsByParticipantId.get(storedParticipantId) ?? []).length > 0 && (
+                  <Box mt="md">
+                    <Text fw={600} size="sm">
+                      All trials for this participant
+                    </Text>
+                    <Text size="xs" c="dimmed" mb="xs">
+                      Run timeline, OCR, and confusion for every saved trial below, then review one continuous session
+                      strip and stacked videos (trial order).
+                    </Text>
+                    <Group gap="xs" wrap="wrap">
+                      <Button
+                        variant="light"
+                        loading={participantSessionLoading}
+                        disabled={
+                          !storageEngine
+                          || participantSessionLoading
+                          || waitForMassApiHealth
+                          || (massApiHealth.loaded && (!timelineServerReady || !ocrServerReady || !confusionServerReady))
+                          || timelineLoading
+                          || ocrLoading
+                          || confusionScoreLoading
+                        }
+                        onClick={() => {
+                          handleParticipantAllTrialsMedia().catch(() => undefined);
+                        }}
+                      >
+                        Run timeline, OCR, and confusion for all trials
+                      </Button>
+                    </Group>
+                    {participantSessionProgress && (
+                      <Box mt="xs">
+                        <Text size="xs" c="dimmed" mb={4}>
+                          {participantSessionProgress.label}
+                          {' '}
+                          (
+                          {participantSessionProgress.done}
+                          /
+                          {participantSessionProgress.total}
+                          )
+                        </Text>
+                        <Progress
+                          value={(participantSessionProgress.done / Math.max(1, participantSessionProgress.total)) * 100}
+                        />
+                      </Box>
+                    )}
+                    {participantSessionError && (
+                      <Alert color="red" variant="light" mt="xs">
+                        {participantSessionError}
+                      </Alert>
+                    )}
+                  </Box>
+                )}
+
+                <Divider my="md" />
 
                 <Box pos="relative">
                   <LoadingOverlay visible={storedIsLoading} overlayProps={{ blur: 2 }} />
@@ -1084,21 +1432,22 @@ export function ScreenRecordingSummarizationView({
                           .
                         </Text>
                       </GroupRow>
-                      {massApiHealth.loaded && massApiBaseConfigured && !timelineServerReady && (
-                        <Alert title="Timeline / OCR stack not ready on mass API" color="yellow" variant="light" mt="xs">
-                          This host reports missing ffmpeg, Whisper/Python timeline setup, or Tesseract. OCR and timeline
-                          buttons stay disabled until those are installed (see
+                      {massApiHealth.loaded && massApiBaseConfigured && massApiMediaMissingParts.length > 0 && (
+                        <Text size="xs" c="dimmed" mt="xs">
+                          Mass API host is missing
+                          {' '}
+                          {massApiMediaMissingParts.join(', ')}
+                          . Install those on the server (e.g.
                           {' '}
                           <code>yarn setup:timeline-python</code>
-                          {' '}
-                          and system
+                          ,
                           {' '}
                           <code>tesseract</code>
-                          ). For Render, use a Docker deploy that installs them (see
+                          , or
                           {' '}
                           <code>server/Dockerfile</code>
                           ).
-                        </Alert>
+                        </Text>
                       )}
                       {timelineError && (
                         <Alert color="red" variant="light" mt="xs">
@@ -1128,6 +1477,137 @@ export function ScreenRecordingSummarizationView({
                         </Alert>
                       )}
                     </Box>
+                  )}
+
+                  {participantSessionView && (
+                    <Card withBorder shadow="sm" padding="md" mt="md">
+                      <Stack gap="sm">
+                        <Text fw={600}>Participant session (all trials)</Text>
+                        <Text size="xs" c="dimmed">
+                          Merged timeline length
+                          {' '}
+                          {participantSessionView.totalSec.toFixed(1)}
+                          s. Seeking the strip loads the matching trial clip in the player above; scroll down for every
+                          trial back-to-back.
+                        </Text>
+                        <video
+                          ref={sessionMergedVideoRef}
+                          controls
+                          src={participantSessionView.clips[0]?.playUrl}
+                          style={{ width: '100%', borderRadius: 8, background: 'black' }}
+                        />
+                        <RecordingTimelineStrip
+                          events={participantSessionView.mergedEvents}
+                          tags={[]}
+                          durationSeconds={participantSessionView.totalSec}
+                          onSeek={(t) => {
+                            const el = sessionMergedVideoRef.current;
+                            if (!el) return;
+                            const hit = globalTimeToClipAndLocal(participantSessionView.clips, t);
+                            if (!hit) return;
+                            const clip = participantSessionView.clips[hit.clipIndex];
+                            const applyTime = () => {
+                              el.currentTime = hit.localT;
+                            };
+                            if (el.src !== clip.playUrl) {
+                              el.src = clip.playUrl;
+                              el.addEventListener('loadeddata', applyTime, { once: true });
+                            } else {
+                              applyTime();
+                            }
+                          }}
+                          ocrFrames={sessionOcrStripFrames.length > 0 ? sessionOcrStripFrames : undefined}
+                          eventGrounded={sessionOcrEventGrounded}
+                          ocrFrameGrounded={sessionOcrFrameGrounded}
+                        />
+                        {participantSessionView.mergedConfusion.windows.length > 0 && (
+                          <Box mt="sm">
+                            <Text size="sm" fw={600}>
+                              Session confusion (merged windows)
+                            </Text>
+                            <Text size="xs" c="dimmed">
+                              Total score
+                              {' '}
+                              {typeof participantSessionView.mergedConfusion.totalScore === 'number'
+                                ? participantSessionView.mergedConfusion.totalScore.toFixed(2)
+                                : String(participantSessionView.mergedConfusion.totalScore)}
+                            </Text>
+                            <div
+                              role="img"
+                              aria-label="Session confusion score by time window"
+                              style={{
+                                display: 'flex',
+                                alignItems: 'flex-end',
+                                gap: 2,
+                                height: 72,
+                                marginTop: 8,
+                                paddingBottom: 2,
+                                borderBottom: '1px solid var(--mantine-color-gray-3)',
+                              }}
+                            >
+                              {(() => {
+                                const wins = participantSessionView.mergedConfusion.windows;
+                                const scores = wins.map((w) => w.score);
+                                const maxAbs = Math.max(0.01, ...scores.map((s) => Math.abs(s)));
+                                return wins.map((w, i) => {
+                                  const hPct = (Math.abs(w.score) / maxAbs) * 100;
+                                  const neg = w.score < 0;
+                                  return (
+                                    <button
+                                      type="button"
+                                      key={`sess-${w.startSec}-${i}`}
+                                      title={`${w.startSec.toFixed(0)}s–${w.endSec.toFixed(0)}s: score ${w.score}`}
+                                      onClick={() => {
+                                        const el = sessionMergedVideoRef.current;
+                                        if (!el) return;
+                                        const mid = (w.startSec + w.endSec) / 2;
+                                        const hit = globalTimeToClipAndLocal(participantSessionView.clips, mid);
+                                        if (!hit) return;
+                                        const clip = participantSessionView.clips[hit.clipIndex];
+                                        const applyTime = () => {
+                                          el.currentTime = hit.localT;
+                                        };
+                                        if (el.src !== clip.playUrl) {
+                                          el.src = clip.playUrl;
+                                          el.addEventListener('loadeddata', applyTime, { once: true });
+                                        } else {
+                                          applyTime();
+                                        }
+                                      }}
+                                      style={{
+                                        flex: 1,
+                                        minWidth: 2,
+                                        height: `${hPct}%`,
+                                        padding: 0,
+                                        border: 'none',
+                                        cursor: 'pointer',
+                                        background: neg ? 'var(--mantine-color-blue-3)' : 'var(--mantine-color-red-4)',
+                                        borderRadius: '3px 3px 0 0',
+                                      }}
+                                    />
+                                  );
+                                });
+                              })()}
+                            </div>
+                          </Box>
+                        )}
+                        <Text size="sm" fw={500} mt="sm">
+                          All trial videos (continuous scroll)
+                        </Text>
+                        {participantSessionView.clips.map((c) => (
+                          <Box key={c.identifier}>
+                            <Text size="xs" c="dimmed" mb={4}>
+                              {c.label}
+                              {' '}
+                              (
+                              {c.durationSec.toFixed(1)}
+                              s)
+                            </Text>
+                            <video src={c.playUrl} controls style={{ width: '100%', borderRadius: 8, background: 'black' }} />
+                          </Box>
+                        ))}
+                      </Stack>
+                    </Card>
                   )}
 
                   <Box mt="sm">

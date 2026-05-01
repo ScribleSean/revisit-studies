@@ -551,15 +551,20 @@ export function MassScreenRecordingSummarizationView({
               disabled={!bulkParticipantId || isRunning}
               onClick={() => {
                 if (!bulkParticipantId) return;
-                setSelectedKeys(new Set(
+                setSelectedKeys((prev) => {
+                  const next = new Set(prev);
                   recordings
                     .filter((r) => r.participantId === bulkParticipantId)
-                    .map((r) => `${r.participantId}::${r.identifier}`),
-                ));
+                    .forEach((r) => next.add(`${r.participantId}::${r.identifier}`));
+                  return next;
+                });
               }}
             >
-              Select all clips for participant
+              Add all clips for participant
             </Button>
+            <Text size="xs" c="dimmed" style={{ flexBasis: '100%', maxWidth: 420 }}>
+              Adds that participant’s clips to the current selection (does not clear other participants’ selections).
+            </Text>
           </Group>
         </Group>
 

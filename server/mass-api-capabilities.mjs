@@ -33,18 +33,22 @@ export function getMassApiCapabilities() {
 
   const ffmpeg = binaryOnPath('ffmpeg');
   const tesseract = binaryOnPath('tesseract');
+  const python3 = binaryOnPath('python3');
   const pythonVenv = existsSync(unixVenv) || existsSync(winVenv);
+  /** Timeline script can run with repo .venv or system python3 (Render / Docker often have no .venv). */
+  const timelinePythonRuntime = pythonVenv || python3;
   const timelineScriptPresent = existsSync(timelineScript);
   const ocrScriptPresent = existsSync(ocrScript);
   const confusionScriptPresent = existsSync(confusionScript);
 
   const ocrReady = ffmpeg && tesseract && ocrScriptPresent;
-  const timelineReady = ffmpeg && timelineScriptPresent;
+  const timelineReady = ffmpeg && timelineScriptPresent && timelinePythonRuntime;
   const confusionReady = ocrReady && timelineReady && confusionScriptPresent;
 
   return {
     ffmpeg,
     tesseract,
+    python3,
     pythonVenv,
     timelineScriptPresent,
     ocrScriptPresent,

@@ -3,6 +3,7 @@
 export type MassApiCapabilities = {
   ffmpeg?: boolean;
   tesseract?: boolean;
+  python3?: boolean;
   pythonVenv?: boolean;
   timelineScriptPresent?: boolean;
   ocrScriptPresent?: boolean;
