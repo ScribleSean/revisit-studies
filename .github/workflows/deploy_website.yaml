@@ -35,7 +35,7 @@ jobs:
           node-version: lts/*
           cache: "yarn"
 
-      - run: yarn install --frozen-lockfile
+      - run: yarn install --immutable
 
       # If on main without env vars, build with .env file (do not inject empty Firebase vars).
       - name: Build with .env file
@@ -51,7 +51,6 @@ jobs:
         run: VITE_STORAGE_ENGINE=$VITE_STORAGE_ENGINE yarn build
         env:
           VITE_STORAGE_ENGINE: ${{ vars.VITE_STORAGE_ENGINE }}
-          VITE_FIREBASE_CONFIG: ${{ vars.VITE_FIREBASE_CONFIG }}
           VITE_GEMINI_MASS_API_URL: ${{ vars.VITE_GEMINI_MASS_API_URL }}
           VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY != '' && secrets.VITE_GEMINI_API_KEY || vars.VITE_GEMINI_API_KEY }}
 
@@ -78,7 +77,7 @@ jobs:
           node-version: lts/*
           cache: "yarn"
 
-      - run: yarn install --frozen-lockfile
+      - run: yarn install --immutable
 
       - name: Build dev branch
         run: VITE_BASE_PATH=/dev yarn build
@@ -121,7 +120,7 @@ jobs:
           node-version: lts/*
           cache: "yarn"
 
-      - run: yarn install --frozen-lockfile
+      - run: yarn install --immutable
 
       # Build with github environment variables (same guard as maps-study)
       - name: Build with github environment variables
@@ -129,7 +128,6 @@ jobs:
         run: VITE_STORAGE_ENGINE=$VITE_STORAGE_ENGINE VITE_BASE_PATH=$VITE_BASE_PATH yarn build
         env:
           VITE_STORAGE_ENGINE: ${{ vars.VITE_STORAGE_ENGINE }}
-          VITE_FIREBASE_CONFIG: ${{ vars.VITE_FIREBASE_CONFIG }}
           VITE_BASE_PATH: "/study/PR${{ github.event.number }}/"
           VITE_GEMINI_MASS_API_URL: ${{ vars.VITE_GEMINI_MASS_API_URL }}
           VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY != '' && secrets.VITE_GEMINI_API_KEY || vars.VITE_GEMINI_API_KEY }}
