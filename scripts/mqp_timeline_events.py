@@ -267,8 +267,12 @@ def active_interaction_events(
     if not word_starts:
         return []
 
-    min_wpm = float(os.environ.get("MQP_ACTIVE_MIN_WORDS_PER_MIN", "90"))
-    min_scpm = float(os.environ.get("MQP_ACTIVE_MIN_SCENES_PER_MIN", "2.5"))
+    # Defaults tuned for study screen recordings: many clips have few PySceneDetect cuts,
+    # but think-aloud can still be dense — allow "busy navigation" OR "dense speech" cues.
+    min_wpm = float(os.environ.get("MQP_ACTIVE_MIN_WORDS_PER_MIN", "72"))
+    min_scpm = float(os.environ.get("MQP_ACTIVE_MIN_SCENES_PER_MIN", "1.4"))
+    dense_wpm = float(os.environ.get("MQP_ACTIVE_DENSE_SPEECH_WPM", "92"))
+    dense_words = int(os.environ.get("MQP_ACTIVE_DENSE_MIN_WORDS", "18"))
 
     out: list[dict] = []
     t = 0.0
@@ -278,12 +282,19 @@ def active_interaction_events(
         sc = _scenes_in_half_open(t, t1, scene_ts)
         wpm = (wc / window_sec) * 60.0
         scpm = (sc / window_sec) * 60.0
-        if wpm > min_wpm and scpm > min_scpm:
+        busy_navigation = wpm > min_wpm and scpm > min_scpm
+        dense_speech = wpm >= dense_wpm and wc >= dense_words
+        if busy_navigation or dense_speech:
+            why = (
+                f"~{wpm:.0f} wpm, ~{scpm:.1f} scene cuts/min"
+                if busy_navigation
+                else f"~{wpm:.0f} wpm, {wc} word starts (dense speech)"
+            )
             out.append(
                 {
                     "type": "active_interaction",
                     "timestamp": round(t + window_sec / 2.0, 3),
-                    "evidence": f"~{wpm:.0f} wpm, ~{scpm:.1f} scene cuts/min in {window_sec:.0f}s window",
+                    "evidence": f"{why} in {window_sec:.0f}s window",
                 }
             )
         t += window_sec

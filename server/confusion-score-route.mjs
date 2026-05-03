@@ -1,37 +1,20 @@
 /**
- * POST /api/confusion-score — run timeline + OCR, then scripts/mqp_confusion_score.py
+ * GET /api/confusion-score — timeline + OCR + scripts/mqp_confusion_score.py
  *
- * Multipart fields:
- *   - video (required)
- *   - companionAudio (optional) — study microphone audio when screen capture has no muxed audio (same as /api/analyze-timeline)
+ * Same query params as analyze-timeline for video + optional companion audio.
  */
 import { spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
-import { writeFile, unlink } from 'node:fs/promises';
-import { randomUUID } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { runOcrOnVideoPath } from './mqp-ocr-runner.mjs';
 import { runTimelineOnVideoPath } from './mqp-timeline-runner.mjs';
+import { resolveCompanionAudioQueryToTemp, resolveVideoQueryToTemp, safeUnlink } from './resolve-video-input.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.join(__dirname, '..');
 const DEFAULT_SCRIPT = path.join(REPO_ROOT, 'scripts', 'mqp_confusion_score.py');
-
-function extFromMime(mime) {
-  if (!mime || typeof mime !== 'string') return 'webm';
-  if (mime.includes('mp4')) return 'mp4';
-  if (mime.includes('quicktime')) return 'mov';
-  return 'webm';
-}
-
-function companionAudioExtFromMime(mime) {
-  if (!mime || typeof mime !== 'string') return 'wav';
-  if (mime.includes('webm')) return 'webm';
-  if (mime.includes('mpeg') || mime.includes('mp3')) return 'mp3';
-  return 'wav';
-}
 
 function defaultPythonExecutable() {
   const unixVenv = path.join(REPO_ROOT, '.venv', 'bin', 'python');
@@ -41,72 +24,45 @@ function defaultPythonExecutable() {
   return 'python3';
 }
 
-export function registerConfusionScoreRoutes(app, upload) {
-  const csUpload = upload.fields([
-    { name: 'video', maxCount: 1 },
-    { name: 'companionAudio', maxCount: 1 },
-  ]);
-
-  app.post('/api/confusion-score', csUpload, async (req, res) => {
+export function registerConfusionScoreRoutes(app) {
+  app.get('/api/confusion-score', async (req, res) => {
     const started = Date.now();
-    const videoFile = req.files?.video?.[0];
-    if (!videoFile?.buffer) {
-      res.status(400).json({
-        error: 'Missing video file (multipart field "video").',
-        code: 'MISSING_FILE',
-        durationMs: Date.now() - started,
-      });
-      return;
-    }
-
-    const confusionWords = typeof req.body?.confusionWords === 'string' ? req.body.confusionWords : '';
-    const confusionWordsArg = confusionWords
-      .split(',')
-      .map((w) => String(w).trim())
-      .filter(Boolean)
-      .join(',');
-
-    const audioPart = req.files?.companionAudio?.[0];
-
-    const ext = extFromMime(videoFile.mimetype);
-    const tmp = path.join(tmpdir(), `mqp-confusion-${randomUUID()}.${ext}`);
-
+    let videoPath = '';
+    let videoUnlink = false;
     let companionTmp = '';
-    if (audioPart?.buffer?.length) {
-      const aext = companionAudioExtFromMime(audioPart.mimetype);
-      companionTmp = path.join(tmpdir(), `mqp-companion-audio-${randomUUID()}.${aext}`);
-    }
+    let companionUnlink = false;
 
     try {
-      await writeFile(tmp, videoFile.buffer);
-      if (companionTmp) {
-        await writeFile(companionTmp, audioPart.buffer);
+      const resolved = await resolveVideoQueryToTemp(req);
+      videoPath = resolved.path;
+      videoUnlink = resolved.unlinkAfter;
+      const mimeType = resolved.mimeType || 'video/webm';
+
+      const companion = await resolveCompanionAudioQueryToTemp(req);
+      if (companion) {
+        companionTmp = companion.path;
+        companionUnlink = companion.unlinkAfter;
       }
-    } catch (e) {
-      await unlink(tmp).catch(() => {});
-      if (companionTmp) await unlink(companionTmp).catch(() => {});
-      res.status(500).json({
-        error: e instanceof Error ? e.message : 'Failed to write temp file',
-        code: 'TEMP_WRITE_FAILED',
-        durationMs: Date.now() - started,
-      });
-      return;
-    }
 
-    try {
+      const confusionWords = typeof req.query.confusionWords === 'string' ? req.query.confusionWords : '';
+      const confusionWordsArg = confusionWords
+        .split(',')
+        .map((w) => String(w).trim())
+        .filter(Boolean)
+        .join(',');
+
       const { events, meta: timelineMeta, stderr: tlStderr } = await runTimelineOnVideoPath(
-        tmp,
+        videoPath,
         confusionWordsArg,
         companionTmp || null,
       );
       let frames = [];
       let ocrMeta = {};
       try {
-        const ocr = await runOcrOnVideoPath(tmp, videoFile.mimetype || 'video/webm');
+        const ocr = await runOcrOnVideoPath(videoPath, mimeType);
         frames = ocr.frames;
         ocrMeta = ocr.meta || {};
       } catch (ocrErr) {
-        // Fusion can still run with empty OCR (no grounding bonus).
         ocrMeta = { ocr_skipped: true, ocr_error: ocrErr instanceof Error ? ocrErr.message : String(ocrErr) };
       }
 
@@ -144,7 +100,7 @@ export function registerConfusionScoreRoutes(app, upload) {
             errMsg = parsedErr.error;
           }
         } catch {
-          // ignore; use stderr / exit code message
+          // ignore
         }
         res.status(422).json({
           error: errMsg,
@@ -190,14 +146,15 @@ export function registerConfusionScoreRoutes(app, upload) {
       });
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
-      res.status(422).json({
+      const missing = msg.includes('Missing query') || msg.includes('videoUrl');
+      res.status(missing ? 400 : 422).json({
         error: msg,
-        code: 'CONFUSION_SCORE_FAILED',
+        code: missing ? 'MISSING_INPUT' : 'CONFUSION_SCORE_FAILED',
         durationMs: Date.now() - started,
       });
     } finally {
-      await unlink(tmp).catch(() => {});
-      if (companionTmp) await unlink(companionTmp).catch(() => {});
+      if (videoUnlink) await safeUnlink(videoPath);
+      if (companionUnlink) await safeUnlink(companionTmp);
     }
   });
 }

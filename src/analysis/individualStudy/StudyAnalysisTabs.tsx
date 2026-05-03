@@ -40,6 +40,7 @@ import {
   INITIAL_MASS_API_HEALTH,
   type MassApiHealthSnapshot,
 } from './screenRecordingSummarization/massApiHealthTypes';
+import { getMassApiBaseUrl } from './screenRecordingSummarization/massApiBase';
 import { StudyCrossClipDashboardView } from './screenRecordingSummarization/StudyCrossClipDashboardView';
 
 const TABLE_HEADER_HEIGHT = 37; // Height of the tabs header
@@ -97,8 +98,7 @@ export function StudyAnalysisTabs({ globalConfig }: { globalConfig: GlobalConfig
   const clearSummarizationJump = useCallback(() => setSummarizationJump(null), []);
 
   const massApiHealthUrl = useMemo(() => {
-    const env = import.meta.env as unknown as { VITE_GEMINI_MASS_API_URL?: string };
-    const base = (env.VITE_GEMINI_MASS_API_URL || '').replace(/\/$/, '');
+    const base = getMassApiBaseUrl();
     if (base) return `${base}/api/health`;
     return '/api/health';
   }, []);

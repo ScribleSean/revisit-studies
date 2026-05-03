@@ -67,12 +67,18 @@ def confusion_weight_for_event(evidence: str, ocr_blob: str, w_conf: float, grou
 def main() -> int:
     p = argparse.ArgumentParser()
     p.add_argument("--window-sec", type=float, default=30.0)
+    p.add_argument(
+        "--stride-sec",
+        type=float,
+        default=None,
+        help="Window stride in seconds (default: same as window-sec). Set smaller for overlapping windows.",
+    )
     p.add_argument("--w-hesitation", dest="w_hes", type=float, default=1.0)
     p.add_argument("--w-confusion", dest="w_conf", type=float, default=1.5)
     p.add_argument("--w-confused-transition", dest="w_ct", type=float, default=2.0)
     p.add_argument("--w-scene", dest="w_sc", type=float, default=0.5)
     p.add_argument("--w-reading", dest="w_read", type=float, default=0.0)
-    p.add_argument("--w-active", dest="w_ai", type=float, default=0.5)
+    p.add_argument("--w-active", dest="w_ai", type=float, default=1.0)
     p.add_argument("--ocr-grounding-mult", dest="ocr_g", type=float, default=1.5)
     args = p.parse_args()
 
@@ -100,14 +106,27 @@ def main() -> int:
             continue
     duration = max(times + [args.window_sec])
 
-    w = args.window_sec
+    # Adaptive defaults: for short clips, use smaller overlapping windows so the UI isn't one giant bar.
+    w = float(args.window_sec)
+    stride = float(args.stride_sec) if args.stride_sec is not None else w
+    if args.stride_sec is None:
+        if duration <= 40:
+            w = 5.0
+            stride = 2.5
+        elif duration <= 90:
+            w = 10.0
+            stride = 5.0
+        else:
+            stride = w
     windows_out: list[dict[str, Any]] = []
     total = 0.0
     max_win: dict[str, Any] | None = None
 
     t = 0.0
-    while t + w <= duration + 1e-9:
-        end = t + w
+    while t <= duration + 1e-9:
+        end = min(t + w, duration)
+        if end <= t + 1e-9:
+            break
         ocr_blob = ocr_text_for_window(frames, t, end)
 
         counts: dict[str, int] = {
@@ -164,7 +183,7 @@ def main() -> int:
         total += score
         if max_win is None or score > float(max_win.get("score", 0)):
             max_win = win
-        t += w
+        t += stride
 
     out = {
         "windows": windows_out,
@@ -172,6 +191,8 @@ def main() -> int:
         "maxWindow": max_win,
         "meta": {
             "windowSec": w,
+            "strideSec": stride,
+            "durationSec": duration,
             "weights": {
                 "hesitation": args.w_hes,
                 "confusion_word": args.w_conf,

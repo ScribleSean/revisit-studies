@@ -15,6 +15,14 @@ import {
 } from '@mantine/core';
 import { useEffect, useMemo, useState } from 'react';
 
+import { getMassApiBaseUrl } from './massApiBase';
+import {
+  buildMassApiUrl,
+  massApiFetchableMediaUrl,
+  MASS_API_FETCHABLE_URL_HELP,
+  utf8ToBase64Url,
+} from './massApiQuery';
+
 import type { ParticipantData } from '../../../parser/types';
 import { useStorageEngine } from '../../../storage/storageEngineHooks';
 import type {
@@ -86,11 +94,10 @@ async function persistSummaryEmbeddingBestEffort(params: {
   const text = params.summaryText.trim();
   if (!text) return;
   try {
-    const res = await fetch(params.embedApiUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text }),
+    const embedUrl = buildMassApiUrl(params.embedApiUrl, {
+      textUtf8Base64: utf8ToBase64Url(text),
     });
+    const res = await fetch(embedUrl, { method: 'GET' });
     const json = (await res.json().catch(() => ({}))) as {
       embedding?: number[];
       model?: string;
@@ -149,10 +156,10 @@ export function MassScreenRecordingSummarizationView({
   const maxInlineBytes = 20 * 1024 * 1024;
 
   const embedApiUrl = useMemo(() => {
-    const base = (env.VITE_GEMINI_MASS_API_URL || '').replace(/\/$/, '');
+    const base = getMassApiBaseUrl();
     if (base) return `${base}/api/embed-summary`;
     return '/api/embed-summary';
-  }, [env.VITE_GEMINI_MASS_API_URL]);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -230,7 +237,7 @@ export function MassScreenRecordingSummarizationView({
   );
   const [bulkParticipantId, setBulkParticipantId] = useState<string | null>(null);
 
-  const geminiMassApiBase = env.VITE_GEMINI_MASS_API_URL;
+  const geminiMassApiBase = useMemo(() => getMassApiBaseUrl(), []);
   const massApiAnalyzeUrl = useMemo(() => {
     const base = (geminiMassApiBase || '').replace(/\/$/, '');
     if (base) return `${base}/api/analyze-large`;
@@ -264,12 +271,17 @@ export function MassScreenRecordingSummarizationView({
 
   const clearSelection = () => setSelectedKeys(new Set());
 
-  const analyzeInline = async (file: File) => {
+  const analyzeInline = async (file: File, massVideoUrl: string | null) => {
     if (summarizationPipeline === 'local') {
-      const fd = new FormData();
-      fd.append('video', file);
-      fd.append('prompt', prompt);
-      const res = await fetch(massApiAnalyzeLocalUrl, { method: 'POST', body: fd });
+      if (!massVideoUrl) {
+        return { summary: undefined, raw: { error: MASS_API_FETCHABLE_URL_HELP } } as GeminiAnalyzeResponse;
+      }
+      const url = buildMassApiUrl(massApiAnalyzeLocalUrl, {
+        videoUrl: massVideoUrl,
+        prompt,
+        mimeType: file.type || 'video/webm',
+      });
+      const res = await fetch(url, { method: 'GET' });
       const json = (await res.json().catch(() => ({}))) as Record<string, unknown>;
       if (!res.ok) {
         return { summary: undefined, raw: { status: res.status, json } } as GeminiAnalyzeResponse;
@@ -278,10 +290,15 @@ export function MassScreenRecordingSummarizationView({
       return { summary, raw: json } as GeminiAnalyzeResponse;
     }
     if (summarizationPipeline === 'gpt4o') {
-      const fd = new FormData();
-      fd.append('video', file);
-      fd.append('prompt', prompt);
-      const res = await fetch(massApiAnalyzeGpt4vUrl, { method: 'POST', body: fd });
+      if (!massVideoUrl) {
+        return { summary: undefined, raw: { error: MASS_API_FETCHABLE_URL_HELP } } as GeminiAnalyzeResponse;
+      }
+      const url = buildMassApiUrl(massApiAnalyzeGpt4vUrl, {
+        videoUrl: massVideoUrl,
+        prompt,
+        mimeType: file.type || 'video/webm',
+      });
+      const res = await fetch(url, { method: 'GET' });
       const json = (await res.json().catch(() => ({}))) as Record<string, unknown>;
       if (!res.ok) {
         return { summary: undefined, raw: { status: res.status, json } } as GeminiAnalyzeResponse;
@@ -313,14 +330,15 @@ export function MassScreenRecordingSummarizationView({
       body: JSON.stringify({
         contents: [
           {
+            role: 'user',
             parts: [
+              { text: prompt },
               {
                 inlineData: {
                   mimeType,
                   data: base64Data,
                 },
               },
-              { text: prompt },
             ],
           },
         ],
@@ -339,19 +357,27 @@ export function MassScreenRecordingSummarizationView({
   type LargeAnalyzeOk = { summary: string; modelUsed: string; durationMs?: number };
   type LargeAnalyzeErr = { error: string; code?: string; durationMs?: number };
 
-  const analyzeViaFilesApi = async (file: File): Promise<LargeAnalyzeOk | LargeAnalyzeErr> => {
-    const fd = new FormData();
-    fd.append('video', file, file.name);
-    fd.append('prompt', prompt);
-    if (summarizationPipeline === 'gemini') fd.append('model', effectiveModel);
+  const analyzeViaFilesApi = async (
+    videoUrl: string,
+    mimeType: string,
+  ): Promise<LargeAnalyzeOk | LargeAnalyzeErr> => {
     const endpointUrl = summarizationPipeline === 'local'
       ? massApiAnalyzeLocalUrl
       : summarizationPipeline === 'gpt4o'
         ? massApiAnalyzeGpt4vUrl
         : massApiAnalyzeUrl;
+    const params: Record<string, string> = {
+      videoUrl,
+      prompt,
+      mimeType: mimeType || 'video/webm',
+    };
+    if (summarizationPipeline === 'gemini') {
+      params.model = effectiveModel;
+    }
+    const reqUrl = buildMassApiUrl(endpointUrl, params);
     let res: Response;
     try {
-      res = await fetch(endpointUrl, { method: 'POST', body: fd });
+      res = await fetch(reqUrl, { method: 'GET' });
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Network error';
       return {
@@ -413,6 +439,10 @@ export function MassScreenRecordingSummarizationView({
             }
           }
 
+          const massVideoUrl = massApiFetchableMediaUrl(
+            await storageEngine.getScreenRecordingUrl(item.identifier, item.participantId),
+          );
+
           const videoObjectUrl = await storageEngine.getScreenRecording(item.identifier, item.participantId);
           if (!videoObjectUrl) {
             setResults((prev) => ({
@@ -436,7 +466,15 @@ export function MassScreenRecordingSummarizationView({
 
           const forceServerGemini = summarizationPipeline === 'gemini' && !apiKey && geminiServerFallback;
           if (!canBeInlineSummarized(blob.size, maxInlineBytes) || forceServerGemini) {
-            const large = await analyzeViaFilesApi(file);
+            if (!massVideoUrl) {
+              setResults((prev) => ({
+                ...prev,
+                [itemKey]: { status: 'failed', error: MASS_API_FETCHABLE_URL_HELP },
+              }));
+              setProgress((p) => ({ ...p, done: p.done + 1 }));
+              return;
+            }
+            const large = await analyzeViaFilesApi(massVideoUrl, file.type || 'video/webm');
             if ('error' in large) {
               setResults((prev) => ({
                 ...prev,
@@ -448,8 +486,40 @@ export function MassScreenRecordingSummarizationView({
             summaryText = large.summary;
             persistedModel = large.modelUsed;
           } else {
-            const result = await analyzeInline(file);
-            if (!result.summary) {
+            const result = await analyzeInline(file, massVideoUrl);
+            if (result.summary) {
+              summaryText = result.summary;
+            } else if (summarizationPipeline === 'gemini') {
+              if (!massVideoUrl) {
+                setResults((prev) => ({
+                  ...prev,
+                  [itemKey]: { status: 'failed', error: MASS_API_FETCHABLE_URL_HELP },
+                }));
+                setProgress((p) => ({ ...p, done: p.done + 1 }));
+                return;
+              }
+              const large = await analyzeViaFilesApi(massVideoUrl, file.type || 'video/webm');
+              if ('error' in large) {
+                const raw = result.raw as { status?: unknown; json?: { error?: { message?: string } | string } } | undefined;
+                const status = raw?.status;
+                const nested = raw?.json?.error;
+                const apiMsg = nested && typeof nested === 'object' && nested !== null && 'message' in nested
+                  ? String((nested as { message?: string }).message)
+                  : typeof nested === 'string' ? nested : '';
+                const inlineHint = apiMsg || (status ? `inline Gemini HTTP ${status}` : 'inline Gemini failed');
+                setResults((prev) => ({
+                  ...prev,
+                  [itemKey]: {
+                    status: 'failed',
+                    error: `${large.error} (${inlineHint})`,
+                  },
+                }));
+                setProgress((p) => ({ ...p, done: p.done + 1 }));
+                return;
+              }
+              summaryText = large.summary;
+              persistedModel = large.modelUsed;
+            } else {
               const raw = result.raw as { status?: unknown; json?: unknown } | undefined;
               const status = raw?.status;
               const json = raw?.json as { error?: unknown; code?: unknown } | undefined;
@@ -465,7 +535,6 @@ export function MassScreenRecordingSummarizationView({
               setProgress((p) => ({ ...p, done: p.done + 1 }));
               return;
             }
-            summaryText = result.summary;
           }
 
           setResults((prev) => ({
@@ -520,17 +589,19 @@ export function MassScreenRecordingSummarizationView({
           <div>
             <Text fw={700}>Mass screen recording summarization</Text>
             <Text size="sm" color="dimmed">
-              Select multiple stored clips across the study, edit the prompt, then summarize them in bulk. Clips over 20MB use the Gemini Files API via
+              Select multiple stored clips across the study, edit the prompt, then summarize them in bulk. The mass API fetches each recording via HTTPS
               {' '}
-              <code>yarn serve:mass-api</code>
+              <code>videoUrl</code>
               {' '}
-              (proxied as
+              (GET
               {' '}
               <code>/api/analyze-large</code>
+              ,
               {' '}
-              during
+              <code>/api/analyze-local</code>
+              ,
               {' '}
-              <code>yarn serve</code>
+              <code>/api/analyze-gpt4v</code>
               ).
             </Text>
           </div>

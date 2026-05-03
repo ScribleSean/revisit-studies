@@ -7,7 +7,13 @@ import { writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { cleanupFiles, extractJpegFrameBuffer, ffprobeDurationSeconds, sampleTimestamps } from './frame-sampler.mjs';
+import {
+  cleanupFiles,
+  clampSampleTimes,
+  extractJpegFrameBuffer,
+  ffprobeDurationSeconds,
+  sampleTimestamps,
+} from './frame-sampler.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.join(__dirname, '..');
@@ -36,7 +42,7 @@ export async function runOcrOnVideoPath(videoPath, mimeType) {
   } catch {
     duration = null;
   }
-  const times = sampleTimestamps(duration ?? 0, frames, 20);
+  const times = clampSampleTimes(sampleTimestamps(duration ?? 0, frames, 20), duration ?? 0);
 
   const tmpFiles = [];
   const frameInputs = [];

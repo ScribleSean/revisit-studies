@@ -29,6 +29,12 @@ import type { ScreenRecordingSummarizationPipeline } from '../../../storage/engi
 import { MassScreenRecordingSummarizationView } from './MassScreenRecordingSummarizationView';
 import type { MassApiHealthSnapshot } from './massApiHealthTypes';
 import { INITIAL_MASS_API_HEALTH } from './massApiHealthTypes';
+import { getMassApiBaseUrl } from './massApiBase';
+import {
+  buildMassApiUrl,
+  massApiFetchableMediaUrl,
+  MASS_API_FETCHABLE_URL_HELP,
+} from './massApiQuery';
 import { RecordingTagsPanel } from './RecordingTagsPanel';
 import { RecordingTimelineStrip } from './RecordingTimelineStrip';
 import type { RecordingTag } from './recordingTagTypes';
@@ -190,28 +196,21 @@ async function clipDurationFromPlayUrl(playUrl: string): Promise<number> {
   });
 }
 
-/** Same Firebase path as think-aloud/coding: audio/{participant}_{task}. Whisper uses it when the WebM has no muxed audio. */
-async function companionStudyAudioFileForTimeline(
-  storageEngine: { getAudio: (task: string, participantId: string) => Promise<string | null> },
+/** Mic audio URL for GET mass-api (same storage path as think-aloud: audio/{participant}_{task}). */
+async function companionMassApiAudioQuery(
+  storageEngine: { getAudioUrl: (task: string, participantId: string) => Promise<string | null> },
   taskIdentifier: string,
   participantId: string,
-): Promise<File | null> {
-  let audioObjectUrl: string | null = null;
+): Promise<{ companionAudioUrl?: string; companionMimeType?: string }> {
+  let raw: string | null = null;
   try {
-    audioObjectUrl = await storageEngine.getAudio(taskIdentifier, participantId);
+    raw = await storageEngine.getAudioUrl(taskIdentifier, participantId);
   } catch {
-    return null;
+    return {};
   }
-  if (!audioObjectUrl) return null;
-  try {
-    const blob = await (await fetch(audioObjectUrl)).blob();
-    if (!blob.size) return null;
-    const mime = blob.type || 'audio/webm';
-    const ext = mime.includes('webm') ? 'webm' : mime.includes('mpeg') || mime.includes('mp3') ? 'mp3' : 'wav';
-    return new File([blob], `companion-audio.${ext}`, { type: mime });
-  } finally {
-    URL.revokeObjectURL(audioObjectUrl);
-  }
+  const u = massApiFetchableMediaUrl(raw);
+  if (!u) return {};
+  return { companionAudioUrl: u, companionMimeType: 'audio/webm' };
 }
 
 function globalTimeToClipAndLocal(
@@ -377,11 +376,10 @@ export function ScreenRecordingSummarizationView({
   const envVars = import.meta.env as unknown as {
     VITE_GEMINI_API_KEY?: string;
     VITE_GEMINI_VIDEO_MODEL?: string;
-    VITE_GEMINI_MASS_API_URL?: string;
   };
   const apiKey = envVars.VITE_GEMINI_API_KEY;
   const model = envVars.VITE_GEMINI_VIDEO_MODEL;
-  const geminiMassApiBase = envVars.VITE_GEMINI_MASS_API_URL;
+  const geminiMassApiBase = useMemo(() => getMassApiBaseUrl(), []);
 
   const timelineApiUrl = useMemo(() => {
     const base = (geminiMassApiBase || '').replace(/\/$/, '');
@@ -441,24 +439,6 @@ export function ScreenRecordingSummarizationView({
     return { sessionOcrEventGrounded: m.eventGrounded, sessionOcrFrameGrounded: m.ocrGrounded };
   }, [participantSessionView, sessionOcrStripFrames]);
 
-  const analyzeLargeApiUrl = useMemo(() => {
-    const base = (geminiMassApiBase || '').replace(/\/$/, '');
-    if (base) return `${base}/api/analyze-large`;
-    return '/api/analyze-large';
-  }, [geminiMassApiBase]);
-
-  const analyzeLocalApiUrl = useMemo(() => {
-    const base = (geminiMassApiBase || '').replace(/\/$/, '');
-    if (base) return `${base}/api/analyze-local`;
-    return '/api/analyze-local';
-  }, [geminiMassApiBase]);
-
-  const analyzeGpt4vApiUrl = useMemo(() => {
-    const base = (geminiMassApiBase || '').replace(/\/$/, '');
-    if (base) return `${base}/api/analyze-gpt4v`;
-    return '/api/analyze-gpt4v';
-  }, [geminiMassApiBase]);
-
   const effectiveModel = useMemo(
     () => model || 'models/gemini-2.0-flash',
     [model],
@@ -485,12 +465,6 @@ export function ScreenRecordingSummarizationView({
     return parts;
   }, [massApiHealth.capabilities, massApiHealth.loaded]);
 
-  const largeUploadEndpointLabel = useMemo(() => {
-    if (summarizationPipeline === 'local') return '/api/analyze-local';
-    if (summarizationPipeline === 'gpt4o') return '/api/analyze-gpt4v';
-    return '/api/analyze-large';
-  }, [summarizationPipeline]);
-
   useEffect(() => {
     if (!videoFile) return undefined;
     const url = URL.createObjectURL(videoFile);
@@ -514,38 +488,36 @@ export function ScreenRecordingSummarizationView({
     return videoFile.size <= 20 * 1024 * 1024;
   }, [videoFile]);
 
-  const geminiServerFallback = Boolean(massApiHealth.loaded && massApiHealth.hasGeminiServerKey);
+  const uploadClipGeminiInlineOnly = useMemo(() => {
+    if (summarizationPipeline !== 'gemini') return true;
+    if (!apiKey) return true;
+    return false;
+  }, [apiKey, summarizationPipeline]);
 
   const analyzeSingleClipDisabled = useMemo(() => {
     if (!videoFile || isAnalyzing) return true;
-    const geminiNeedsClientOrServer = summarizationPipeline === 'gemini' && canInlineUpload && !apiKey && !geminiServerFallback;
-    if (geminiNeedsClientOrServer) return true;
+    if (uploadClipGeminiInlineOnly) return true;
+    if (!canInlineUpload) return true;
     if (summarizationPipeline === 'gpt4o' && !openAiAvailable) return true;
     return false;
-  }, [apiKey, canInlineUpload, geminiServerFallback, isAnalyzing, openAiAvailable, summarizationPipeline, videoFile]);
+  }, [
+    canInlineUpload,
+    isAnalyzing,
+    openAiAvailable,
+    summarizationPipeline,
+    uploadClipGeminiInlineOnly,
+    videoFile,
+  ]);
 
   async function analyzeVideo(file: File): Promise<GeminiAnalyzeResponse> {
-    if (summarizationPipeline === 'local') {
-      const fd = new FormData();
-      fd.append('video', file);
-      fd.append('prompt', prompt);
-      const res = await fetch(analyzeLocalApiUrl, { method: 'POST', body: fd });
-      const json = (await res.json().catch(() => ({}))) as { summary?: string; error?: string };
-      if (!res.ok) {
-        return { summary: undefined, raw: { status: res.status, json } };
-      }
-      return { summary: typeof json.summary === 'string' ? json.summary : undefined, raw: json };
-    }
-    if (summarizationPipeline === 'gpt4o') {
-      const fd = new FormData();
-      fd.append('video', file);
-      fd.append('prompt', prompt);
-      const res = await fetch(analyzeGpt4vApiUrl, { method: 'POST', body: fd });
-      const json = (await res.json().catch(() => ({}))) as { summary?: string; error?: string };
-      if (!res.ok) {
-        return { summary: undefined, raw: { status: res.status, json } };
-      }
-      return { summary: typeof json.summary === 'string' ? json.summary : undefined, raw: json };
+    if (summarizationPipeline !== 'gemini') {
+      return {
+        summary: undefined,
+        raw: {
+          error:
+            'One-off upload uses browser Gemini only. For Ollama/GPT-4o or Files API summaries, use Mass summarization with stored HTTPS recordings.',
+        },
+      };
     }
     if (!apiKey) {
       return { summary: undefined, raw: { error: 'Missing VITE_GEMINI_API_KEY' } };
@@ -578,14 +550,15 @@ export function ScreenRecordingSummarizationView({
       body: JSON.stringify({
         contents: [
           {
+            role: 'user',
             parts: [
+              { text: prompt },
               {
                 inlineData: {
                   mimeType,
                   data: base64Data,
                 },
               },
-              { text: prompt },
             ],
           },
         ],
@@ -599,38 +572,6 @@ export function ScreenRecordingSummarizationView({
 
     const text = extractGeminiText(json);
     return { summary: text ?? undefined, raw: json };
-  }
-
-  async function analyzeVideoLarge(file: File): Promise<GeminiAnalyzeResponse> {
-    const fd = new FormData();
-    fd.append('video', file);
-    fd.append('prompt', prompt);
-    if (summarizationPipeline === 'gemini' && effectiveModel) fd.append('model', effectiveModel);
-
-    if (summarizationPipeline === 'local') {
-      const res = await fetch(analyzeLocalApiUrl, { method: 'POST', body: fd });
-      const json = (await res.json().catch(() => ({}))) as { summary?: string; error?: string };
-      if (!res.ok) {
-        return { summary: undefined, raw: { status: res.status, json } };
-      }
-      return { summary: typeof json.summary === 'string' ? json.summary : undefined, raw: json };
-    }
-
-    if (summarizationPipeline === 'gpt4o') {
-      const res = await fetch(analyzeGpt4vApiUrl, { method: 'POST', body: fd });
-      const json = (await res.json().catch(() => ({}))) as { summary?: string; error?: string };
-      if (!res.ok) {
-        return { summary: undefined, raw: { status: res.status, json } };
-      }
-      return { summary: typeof json.summary === 'string' ? json.summary : undefined, raw: json };
-    }
-
-    const res = await fetch(analyzeLargeApiUrl, { method: 'POST', body: fd });
-    const json = (await res.json().catch(() => ({}))) as { summary?: string; error?: string };
-    if (!res.ok) {
-      return { summary: undefined, raw: { status: res.status, json } };
-    }
-    return { summary: typeof json.summary === 'string' ? json.summary : undefined, raw: json };
   }
 
   useEffect(() => {
@@ -799,19 +740,18 @@ export function ScreenRecordingSummarizationView({
     setIsAnalyzing(true);
 
     try {
-      const useServerGemini = summarizationPipeline === 'gemini' && !apiKey && geminiServerFallback;
-      const result = useServerGemini || !canInlineUpload
-        ? await analyzeVideoLarge(videoFile)
-        : await analyzeVideo(videoFile);
+      const result = await analyzeVideo(videoFile);
       if (!result.summary) {
-        const raw = result.raw as { error?: unknown; status?: unknown } | undefined;
+        const raw = result.raw as { error?: unknown; status?: unknown; json?: { error?: { message?: string } } } | undefined;
+        const apiMsg = raw?.json && typeof raw.json === 'object' && raw.json !== null && 'error' in raw.json
+          ? (raw.json as { error?: { message?: string } }).error?.message
+          : undefined;
         const rawErr = raw?.error;
         const status = raw?.status;
-        const message = rawErr
-          ? String(rawErr)
-          : status
+        const message = apiMsg
+          || (rawErr ? String(rawErr) : status
             ? `Gemini request failed with status ${status}`
-            : 'Gemini returned no summary.';
+            : 'Gemini returned no summary.');
         setError(message);
         return;
       }
@@ -829,30 +769,27 @@ export function ScreenRecordingSummarizationView({
     setTimelineError(null);
     setTimelineLoading(true);
     try {
-      const recordingUrl = await storageEngine.getScreenRecording(storedRecordingIdentifier, storedParticipantId);
-      if (!recordingUrl) {
-        setTimelineError('No screen recording found for this selection.');
+      const rawVideoUrl = await storageEngine.getScreenRecordingUrl(storedRecordingIdentifier, storedParticipantId);
+      const fetchableVideoUrl = massApiFetchableMediaUrl(rawVideoUrl);
+      if (!fetchableVideoUrl) {
+        setTimelineError(rawVideoUrl ? MASS_API_FETCHABLE_URL_HELP : 'No screen recording found for this selection.');
         return;
       }
-      const blob = await (await fetch(recordingUrl)).blob();
-      URL.revokeObjectURL(recordingUrl);
 
-      const file = new File([blob], `${storedRecordingIdentifier}.webm`, { type: blob.type || 'video/webm' });
-      const fd = new FormData();
-      fd.append('video', file);
-      if (confusionWords) {
-        fd.append('confusionWords', confusionWords.join(','));
+      const companion = await companionMassApiAudioQuery(storageEngine, storedRecordingIdentifier, storedParticipantId);
+      const qs: Record<string, string> = {
+        videoUrl: fetchableVideoUrl,
+        mimeType: 'video/webm',
+      };
+      if (confusionWords?.length) {
+        qs.confusionWords = confusionWords.join(',');
       }
-      const companionAudio = await companionStudyAudioFileForTimeline(
-        storageEngine,
-        storedRecordingIdentifier,
-        storedParticipantId,
-      );
-      if (companionAudio) {
-        fd.append('companionAudio', companionAudio);
+      if (companion.companionAudioUrl) {
+        qs.companionAudioUrl = companion.companionAudioUrl;
+        qs.companionMimeType = companion.companionMimeType || 'audio/webm';
       }
 
-      const res = await fetch(timelineApiUrl, { method: 'POST', body: fd });
+      const res = await fetch(buildMassApiUrl(timelineApiUrl, qs), { method: 'GET' });
       const json = (await res.json().catch(() => ({}))) as {
         events?: TimelineEvent[];
         error?: string;
@@ -898,19 +835,14 @@ export function ScreenRecordingSummarizationView({
     setOcrError(null);
     setOcrLoading(true);
     try {
-      const recordingUrl = await storageEngine.getScreenRecording(storedRecordingIdentifier, storedParticipantId);
-      if (!recordingUrl) {
-        setOcrError('No screen recording found for this selection.');
+      const rawVideoUrl = await storageEngine.getScreenRecordingUrl(storedRecordingIdentifier, storedParticipantId);
+      const fetchableVideoUrl = massApiFetchableMediaUrl(rawVideoUrl);
+      if (!fetchableVideoUrl) {
+        setOcrError(rawVideoUrl ? MASS_API_FETCHABLE_URL_HELP : 'No screen recording found for this selection.');
         return;
       }
-      const blob = await (await fetch(recordingUrl)).blob();
-      URL.revokeObjectURL(recordingUrl);
 
-      const file = new File([blob], `${storedRecordingIdentifier}.webm`, { type: blob.type || 'video/webm' });
-      const fd = new FormData();
-      fd.append('video', file);
-
-      const res = await fetch(ocrApiUrl, { method: 'POST', body: fd });
+      const res = await fetch(buildMassApiUrl(ocrApiUrl, { videoUrl: fetchableVideoUrl, mimeType: 'video/webm' }), { method: 'GET' });
       const json = (await res.json().catch(() => ({}))) as { frames?: unknown; error?: string };
       if (!res.ok) {
         setOcrError(typeof json.error === 'string' ? json.error : `HTTP ${res.status}`);
@@ -949,30 +881,27 @@ export function ScreenRecordingSummarizationView({
     setConfusionScoreError(null);
     setConfusionScoreLoading(true);
     try {
-      const recordingUrl = await storageEngine.getScreenRecording(storedRecordingIdentifier, storedParticipantId);
-      if (!recordingUrl) {
-        setConfusionScoreError('No screen recording found for this selection.');
+      const rawVideoUrl = await storageEngine.getScreenRecordingUrl(storedRecordingIdentifier, storedParticipantId);
+      const fetchableVideoUrl = massApiFetchableMediaUrl(rawVideoUrl);
+      if (!fetchableVideoUrl) {
+        setConfusionScoreError(rawVideoUrl ? MASS_API_FETCHABLE_URL_HELP : 'No screen recording found for this selection.');
         return;
       }
-      const blob = await (await fetch(recordingUrl)).blob();
-      URL.revokeObjectURL(recordingUrl);
 
-      const file = new File([blob], `${storedRecordingIdentifier}.webm`, { type: blob.type || 'video/webm' });
-      const fd = new FormData();
-      fd.append('video', file);
-      if (confusionWords) {
-        fd.append('confusionWords', confusionWords.join(','));
+      const companion = await companionMassApiAudioQuery(storageEngine, storedRecordingIdentifier, storedParticipantId);
+      const qs: Record<string, string> = {
+        videoUrl: fetchableVideoUrl,
+        mimeType: 'video/webm',
+      };
+      if (confusionWords?.length) {
+        qs.confusionWords = confusionWords.join(',');
       }
-      const companionForFusion = await companionStudyAudioFileForTimeline(
-        storageEngine,
-        storedRecordingIdentifier,
-        storedParticipantId,
-      );
-      if (companionForFusion) {
-        fd.append('companionAudio', companionForFusion);
+      if (companion.companionAudioUrl) {
+        qs.companionAudioUrl = companion.companionAudioUrl;
+        qs.companionMimeType = companion.companionMimeType || 'audio/webm';
       }
 
-      const res = await fetch(confusionScoreApiUrl, { method: 'POST', body: fd });
+      const res = await fetch(buildMassApiUrl(confusionScoreApiUrl, qs), { method: 'GET' });
       const json = (await res.json().catch(() => ({}))) as {
         windows?: unknown;
         totalScore?: unknown;
@@ -1048,6 +977,12 @@ export function ScreenRecordingSummarizationView({
     /* eslint-disable no-await-in-loop -- process clips sequentially to avoid overloading the mass API */
     try {
       for (const rec of recs) {
+        const rawVid = await storageEngine.getScreenRecordingUrl(rec.identifier, storedParticipantId);
+        const massVideoUrl = massApiFetchableMediaUrl(rawVid);
+        if (!massVideoUrl) {
+          throw new Error(rawVid ? MASS_API_FETCHABLE_URL_HELP : `No recording for ${rec.label}`);
+        }
+
         const recordingUrl = await storageEngine.getScreenRecording(rec.identifier, storedParticipantId);
         if (!recordingUrl) {
           throw new Error(`No recording for ${rec.label}`);
@@ -1056,19 +991,21 @@ export function ScreenRecordingSummarizationView({
         URL.revokeObjectURL(recordingUrl);
         const playUrl = URL.createObjectURL(blob);
         const durationSec = await clipDurationFromPlayUrl(playUrl);
-        const file = new File([blob], `${rec.identifier}.webm`, { type: blob.type || 'video/webm' });
 
         setParticipantSessionProgress({ label: `Timeline · ${rec.label}`, done: stepDone, total: totalSteps });
-        const fdTimeline = new FormData();
-        fdTimeline.append('video', file);
-        if (confusionWords) {
-          fdTimeline.append('confusionWords', confusionWords.join(','));
+        const batchCompanion = await companionMassApiAudioQuery(storageEngine, rec.identifier, storedParticipantId);
+        const tQs: Record<string, string> = {
+          videoUrl: massVideoUrl,
+          mimeType: 'video/webm',
+        };
+        if (confusionWords?.length) {
+          tQs.confusionWords = confusionWords.join(',');
         }
-        const batchCompanion = await companionStudyAudioFileForTimeline(storageEngine, rec.identifier, storedParticipantId);
-        if (batchCompanion) {
-          fdTimeline.append('companionAudio', batchCompanion);
+        if (batchCompanion.companionAudioUrl) {
+          tQs.companionAudioUrl = batchCompanion.companionAudioUrl;
+          tQs.companionMimeType = batchCompanion.companionMimeType || 'audio/webm';
         }
-        const resT = await fetch(timelineApiUrl, { method: 'POST', body: fdTimeline });
+        const resT = await fetch(buildMassApiUrl(timelineApiUrl, tQs), { method: 'GET' });
         const jsonT = (await resT.json().catch(() => ({}))) as { events?: TimelineEvent[]; error?: string };
         if (!resT.ok) {
           throw new Error(typeof jsonT.error === 'string' ? jsonT.error : `Timeline HTTP ${resT.status} (${rec.label})`);
@@ -1090,9 +1027,10 @@ export function ScreenRecordingSummarizationView({
         stepDone += 1;
         setParticipantSessionProgress({ label: `OCR · ${rec.label}`, done: stepDone, total: totalSteps });
 
-        const fdOcr = new FormData();
-        fdOcr.append('video', file);
-        const resO = await fetch(ocrApiUrl, { method: 'POST', body: fdOcr });
+        const resO = await fetch(
+          buildMassApiUrl(ocrApiUrl, { videoUrl: massVideoUrl, mimeType: 'video/webm' }),
+          { method: 'GET' },
+        );
         const jsonO = (await resO.json().catch(() => ({}))) as { frames?: unknown[]; error?: string };
         if (!resO.ok) {
           throw new Error(typeof jsonO.error === 'string' ? jsonO.error : `OCR HTTP ${resO.status} (${rec.label})`);
@@ -1127,15 +1065,18 @@ export function ScreenRecordingSummarizationView({
         stepDone += 1;
         setParticipantSessionProgress({ label: `Confusion · ${rec.label}`, done: stepDone, total: totalSteps });
 
-        const fdC = new FormData();
-        fdC.append('video', file);
-        if (confusionWords) {
-          fdC.append('confusionWords', confusionWords.join(','));
+        const cQs: Record<string, string> = {
+          videoUrl: massVideoUrl,
+          mimeType: 'video/webm',
+        };
+        if (confusionWords?.length) {
+          cQs.confusionWords = confusionWords.join(',');
         }
-        if (batchCompanion) {
-          fdC.append('companionAudio', batchCompanion);
+        if (batchCompanion.companionAudioUrl) {
+          cQs.companionAudioUrl = batchCompanion.companionAudioUrl;
+          cQs.companionMimeType = batchCompanion.companionMimeType || 'audio/webm';
         }
-        const resC = await fetch(confusionScoreApiUrl, { method: 'POST', body: fdC });
+        const resC = await fetch(buildMassApiUrl(confusionScoreApiUrl, cQs), { method: 'GET' });
         const jsonC = (await resC.json().catch(() => ({}))) as {
           windows?: unknown;
           totalScore?: unknown;
@@ -1378,39 +1319,46 @@ export function ScreenRecordingSummarizationView({
                             role="img"
                             aria-label="Confusion score bar chart by time window"
                             style={{
-                              display: 'flex',
-                              alignItems: 'flex-end',
-                              gap: 2,
+                              position: 'relative',
                               height: 72,
                               marginTop: 8,
                               paddingBottom: 2,
                               borderBottom: '1px solid var(--mantine-color-gray-3)',
+                              background: 'rgba(0,0,0,0.03)',
+                              borderRadius: 6,
+                              overflow: 'hidden',
                             }}
                           >
                             {(() => {
                               const scores = storedConfusionScore.windows.map((w) => w.score);
                               const maxAbs = Math.max(0.01, ...scores.map((s) => Math.abs(s)));
+                              const d = Math.max(0.01, videoDuration || 0);
                               return storedConfusionScore.windows.map((w, i) => {
                                 const hPct = (Math.abs(w.score) / maxAbs) * 100;
                                 const neg = w.score < 0;
+                                const leftPct = Math.min(100, Math.max(0, (w.startSec / d) * 100));
+                                const widthPct = Math.min(100 - leftPct, Math.max(0.4, ((w.endSec - w.startSec) / d) * 100));
                                 return (
                                   <button
                                     type="button"
-                                    key={`${w.startSec}-${i}`}
-                                    title={`${w.startSec.toFixed(0)}s–${w.endSec.toFixed(0)}s: score ${w.score}`}
+                                    key={`${w.startSec}-${w.endSec}-${i}`}
+                                    title={`${w.startSec.toFixed(1)}s–${w.endSec.toFixed(1)}s: score ${w.score}`}
                                     onClick={() => {
                                       const el = storedVideoRef.current;
                                       if (el) el.currentTime = w.startSec;
                                     }}
                                     style={{
-                                      flex: 1,
-                                      minWidth: 2,
+                                      position: 'absolute',
+                                      left: `${leftPct}%`,
+                                      width: `${widthPct}%`,
+                                      bottom: 0,
                                       height: `${hPct}%`,
                                       padding: 0,
                                       border: 'none',
                                       cursor: 'pointer',
                                       background: neg ? 'var(--mantine-color-blue-3)' : 'var(--mantine-color-red-4)',
-                                      borderRadius: '3px 3px 0 0',
+                                      opacity: 0.75,
+                                      borderRadius: 2,
                                     }}
                                   />
                                 );
@@ -1418,7 +1366,7 @@ export function ScreenRecordingSummarizationView({
                             })()}
                           </div>
                           <Text size="xs" color="dimmed" mt={4}>
-                            Each bar is one fusion window (default 30s). Click a bar to seek. Red = positive confusion
+                            Each bar is one fusion window. Click a bar to seek. Red = positive confusion
                             signal; blue = net negative (e.g. active interaction).
                           </Text>
                         </Box>
@@ -1476,13 +1424,12 @@ export function ScreenRecordingSummarizationView({
                           Whisper + scene detection (run
                           {' '}
                           <code>yarn serve:mass-api</code>
-                          ). Requires Python:
                           {' '}
-                          <code>openai-whisper</code>
-                          ,
+                          on port 3001; dev uses the Vite proxy). Python:
                           {' '}
-                          <code>scenedetect[opencv]</code>
-                          .
+                          <code>yarn setup:mass-api-python</code>
+                          {' '}
+                          (timeline + embeddings).
                         </Text>
                       </GroupRow>
                       {massApiHealth.loaded && massApiBaseConfigured && massApiMediaMissingParts.length > 0 && (
@@ -1686,26 +1633,19 @@ export function ScreenRecordingSummarizationView({
         <Card withBorder shadow="sm" padding="md">
           <Stack gap="sm">
             <Text size="sm" color="dimmed">
-              Upload a single screen recording and get a short summary below (pipeline is chosen in the header:
-              Gemini, GPT-4o vision, or local Ollama). This one-off run is not persisted to the study.
+              Upload a small screen recording for a one-off summary with browser Gemini only (≤20MB, requires
+              {' '}
+              <code>VITE_GEMINI_API_KEY</code>
+              ). For GPT-4o, Ollama, or Files API routes, use Mass summarization on stored recordings with HTTPS URLs.
             </Text>
 
-            {summarizationPipeline === 'gemini' && !apiKey && massApiHealth.loaded && !massApiHealth.hasGeminiServerKey && (
+            {summarizationPipeline === 'gemini' && !apiKey && (
               <Alert title="Missing Gemini credentials" color="red" variant="light" icon={<Text>!</Text>}>
-                Set either
+                Set
                 {' '}
                 <code>VITE_GEMINI_API_KEY</code>
                 {' '}
-                for this Pages build, or
-                {' '}
-                <code>GEMINI_API_KEY</code>
-                /
-                <code>VITE_GEMINI_API_KEY</code>
-                {' '}
-                on the mass API host so small clips can use
-                {' '}
-                <code>/api/analyze-large</code>
-                .
+                for one-off uploads here. For server-side Files API summaries on stored recordings, use Mass summarization (HTTPS URLs only).
               </Alert>
             )}
 
@@ -1756,13 +1696,13 @@ export function ScreenRecordingSummarizationView({
 
               {videoFile && !canInlineUpload && (
                 <Alert color="orange" variant="light">
-                  File is too large for inline upload (&gt; 20MB). This tab will send the clip to
+                  File is over 20MB — browser inline Gemini cannot run here. Use Mass summarization on stored recordings (GET
                   {' '}
-                  <code>{largeUploadEndpointLabel}</code>
+                  <code>/api/analyze-large</code>
                   {' '}
-                  (run
+                  with HTTPS
                   {' '}
-                  <code>yarn serve:mass-api</code>
+                  <code>videoUrl</code>
                   ).
                 </Alert>
               )}

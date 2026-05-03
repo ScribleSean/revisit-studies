@@ -30,6 +30,8 @@ import {
   eventsByParticipant,
   eventsByTask,
 } from './aggregations';
+import { getMassApiBaseUrl } from './massApiBase';
+import { buildMassApiUrl, utf8ToBase64Url } from './massApiQuery';
 import { buildStudyReport } from './buildStudyReport';
 import { rebuildStudyEventsIndex } from './rebuildStudyEventsIndex';
 import { renderStudyReportMarkdown } from './renderStudyReportMarkdown';
@@ -95,8 +97,7 @@ export function StudyCrossClipDashboardView({
   const [semanticHasRun, setSemanticHasRun] = useState(false);
 
   const embedApiUrl = useMemo(() => {
-    const env = import.meta.env as unknown as { VITE_GEMINI_MASS_API_URL?: string };
-    const base = (env.VITE_GEMINI_MASS_API_URL || '').replace(/\/$/, '');
+    const base = getMassApiBaseUrl();
     if (base) return `${base}/api/embed-summary`;
     return '/api/embed-summary';
   }, []);
@@ -167,11 +168,10 @@ export function StudyCrossClipDashboardView({
     setSemanticHits([]);
     setSemanticHasRun(true);
     try {
-      const qRes = await fetch(embedApiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: semanticQuery.trim() }),
+      const qEmbedUrl = buildMassApiUrl(embedApiUrl, {
+        textUtf8Base64: utf8ToBase64Url(semanticQuery.trim()),
       });
+      const qRes = await fetch(qEmbedUrl, { method: 'GET' });
       const qJson = (await qRes.json().catch(() => ({}))) as { embedding?: number[]; error?: string };
       if (!qRes.ok || !Array.isArray(qJson.embedding)) {
         const detail = typeof qJson.error === 'string' ? qJson.error.trim() : '';

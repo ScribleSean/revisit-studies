@@ -3,6 +3,8 @@
 interface ImportMetaEnv {
   /** When "true", skip Firebase App Check initialization (e.g. analyst builds where reCAPTCHA domain/token mismatches GitHub Pages). */
   readonly VITE_FIREBASE_DISABLE_APP_CHECK?: string;
+  /** Dev only: when "true", use `VITE_GEMINI_MASS_API_URL` instead of the default Vite proxy to localhost mass-api. */
+  readonly VITE_MASS_API_USE_REMOTE?: string;
 }
 
 interface ImportMeta {

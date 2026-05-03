@@ -1169,6 +1169,19 @@ export abstract class StorageEngine {
     return this.getAsset(url);
   }
 
+  /**
+   * Raw download URL before object-url wrapping (Firebase/Supabase: HTTPS).
+   * Local engine returns blob: URLs — not usable by GET-only mass-api.
+   */
+  async getScreenRecordingUrl(task: string, participantId: string): Promise<string | null> {
+    try {
+      const url = await this._getScreenRecordingUrl(task, participantId);
+      return url ?? null;
+    } catch {
+      return null;
+    }
+  }
+
   // Gets a precomputed summary for the given screen recording task/participant.
   // Returns an object URL string for the summary blob, or null if no summary exists.
   async getScreenRecordingSummary(

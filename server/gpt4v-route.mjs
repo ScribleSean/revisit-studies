@@ -1,15 +1,16 @@
 /**
- * POST /api/analyze-gpt4v — sample frames + OpenAI vision (gpt-4o) summary.
+ * GET /api/analyze-gpt4v — sample frames + OpenAI vision (gpt-4o) summary.
  *
- * Requires OPENAI_API_KEY in .env (server-side only).
+ * Query: videoUrl | localPath, mimeType, prompt (required).
  */
 import {
-  cleanupFiles,
+  clampSampleTimes,
   extractJpegFrameBuffer,
   ffprobeDurationSeconds,
+  guessImageMimeFromBuffer,
   sampleTimestamps,
-  writeTempVideoFromUpload,
 } from './frame-sampler.mjs';
+import { resolveVideoQueryToTemp, safeUnlink } from './resolve-video-input.mjs';
 
 function getOpenAiKey() {
   return process.env.OPENAI_API_KEY || process.env.VITE_OPENAI_API_KEY || '';
@@ -23,8 +24,8 @@ function pickFallbackModel() {
   return process.env.OPENAI_VISION_MODEL_FALLBACK || 'gpt-4-vision-preview';
 }
 
-export function registerGpt4vRoutes(app, upload) {
-  app.post('/api/analyze-gpt4v', upload.single('video'), async (req, res) => {
+export function registerGpt4vRoutes(app) {
+  app.get('/api/analyze-gpt4v', async (req, res) => {
     const started = Date.now();
     const apiKey = getOpenAiKey();
     if (!apiKey) {
@@ -36,52 +37,33 @@ export function registerGpt4vRoutes(app, upload) {
       return;
     }
 
-    if (!req.file?.buffer) {
-      res.status(400).json({
-        error: 'Missing video file (multipart field "video").',
-        code: 'MISSING_FILE',
-        durationMs: Date.now() - started,
-      });
-      return;
-    }
-
-    const prompt = typeof req.body.prompt === 'string' ? req.body.prompt : '';
+    const prompt = typeof req.query.prompt === 'string' ? req.query.prompt : '';
     if (!prompt.trim()) {
       res.status(400).json({
-        error: 'Missing prompt.',
+        error: 'Missing query parameter prompt.',
         code: 'MISSING_PROMPT',
         durationMs: Date.now() - started,
       });
       return;
     }
 
-    const framesEnv = Number(process.env.MQP_GPT4V_FRAMES || 10);
-    const frames = Math.max(1, Math.min(20, Math.floor(framesEnv)));
-
     let tmp = '';
-    try {
-      tmp = await writeTempVideoFromUpload({
-        buffer: req.file.buffer,
-        mimeType: req.file.mimetype,
-        prefix: 'mqp-gpt4v',
-      });
-    } catch (e) {
-      res.status(500).json({
-        error: e instanceof Error ? e.message : 'Failed to write temp file',
-        code: 'TEMP_WRITE_FAILED',
-        durationMs: Date.now() - started,
-      });
-      return;
-    }
+    let unlinkAfter = false;
 
     try {
+      const resolved = await resolveVideoQueryToTemp(req);
+      tmp = resolved.path;
+      unlinkAfter = resolved.unlinkAfter;
+
+      const framesEnv = Number(process.env.MQP_GPT4V_FRAMES || 10);
+      const frames = Math.max(1, Math.min(20, Math.floor(framesEnv)));
+
       const duration = await ffprobeDurationSeconds(tmp);
-      const times = sampleTimestamps(duration ?? 0, frames, 20);
+      const times = clampSampleTimes(sampleTimestamps(duration ?? 0, frames, 20), duration ?? 0);
 
-      let imagesBase64;
+      let frameBuffers = [];
       try {
-        const buffers = await Promise.all(times.map((t) => extractJpegFrameBuffer(tmp, t)));
-        imagesBase64 = buffers.map((b) => b.toString('base64'));
+        frameBuffers = await Promise.all(times.map((t) => extractJpegFrameBuffer(tmp, t)));
       } catch (e) {
         const msg = e instanceof Error ? e.message : String(e);
         res.status(422).json({
@@ -100,9 +82,9 @@ export function registerGpt4vRoutes(app, upload) {
 
       const userContent = [
         { type: 'text', text: `${systemPreamble}\n\nResearcher prompt:\n${prompt.trim()}` },
-        ...imagesBase64.map((b64) => ({
+        ...frameBuffers.map((buf) => ({
           type: 'image_url',
-          image_url: { url: `data:image/jpeg;base64,${b64}` },
+          image_url: { url: `data:${guessImageMimeFromBuffer(buf)};base64,${buf.toString('base64')}` },
         })),
       ];
 
@@ -162,13 +144,14 @@ export function registerGpt4vRoutes(app, upload) {
       });
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
-      res.status(422).json({
+      const status = msg.includes('Missing query') || msg.includes('videoUrl') ? 400 : 422;
+      res.status(status).json({
         error: msg,
         code: 'API_ERROR',
         durationMs: Date.now() - started,
       });
     } finally {
-      await cleanupFiles([tmp].filter(Boolean));
+      if (unlinkAfter) await safeUnlink(tmp);
     }
   });
 }

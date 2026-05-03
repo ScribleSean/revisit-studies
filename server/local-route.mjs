@@ -1,10 +1,15 @@
 /**
- * POST /api/analyze-local — sample frames + local VLM via Ollama.
+ * GET /api/analyze-local — sample frames + local VLM via Ollama.
  *
- * Intended for privacy-preserving local-only analysis when Gemini cannot be used.
- * Requires an Ollama daemon on the same machine (default: http://127.0.0.1:11434).
+ * Query: videoUrl | localPath, mimeType, prompt (required).
  */
-import { cleanupFiles, extractJpegFrameBuffer, ffprobeDurationSeconds, sampleTimestamps, writeTempVideoFromUpload } from './frame-sampler.mjs';
+import {
+  clampSampleTimes,
+  extractJpegFrameBuffer,
+  ffprobeDurationSeconds,
+  sampleTimestamps,
+} from './frame-sampler.mjs';
+import { resolveVideoQueryToTemp, safeUnlink } from './resolve-video-input.mjs';
 
 async function ollamaGenerate({ baseUrl, model, prompt, imagesBase64 }) {
   const url = `${baseUrl.replace(/\/$/, '')}/api/generate`;
@@ -41,37 +46,33 @@ async function ollamaGenerate({ baseUrl, model, prompt, imagesBase64 }) {
   return text.trim();
 }
 
-export function registerLocalRoutes(app, upload) {
-  app.post('/api/analyze-local', upload.single('video'), async (req, res) => {
+export function registerLocalRoutes(app) {
+  app.get('/api/analyze-local', async (req, res) => {
     const started = Date.now();
-    if (!req.file?.buffer) {
-      res.status(400).json({
-        error: 'Missing video file (multipart field "video").',
-        code: 'MISSING_FILE',
-        durationMs: Date.now() - started,
-      });
-      return;
-    }
-
-    const baseUrl = String(process.env.OLLAMA_BASE_URL || 'http://127.0.0.1:11434');
-    const model = String(process.env.OLLAMA_VLM_MODEL || 'llava:7b');
-    const prompt = typeof req.body.prompt === 'string' ? req.body.prompt : '';
-    const frames = Number(process.env.MQP_LOCAL_FRAMES || 6);
     let tmp = '';
-    try {
-      tmp = await writeTempVideoFromUpload({ buffer: req.file.buffer, mimeType: req.file.mimetype, prefix: 'mqp-local' });
-    } catch (e) {
-      res.status(500).json({
-        error: e instanceof Error ? e.message : 'Failed to write temp file',
-        code: 'TEMP_WRITE_FAILED',
-        durationMs: Date.now() - started,
-      });
-      return;
-    }
+    let unlinkAfter = false;
 
     try {
+      const prompt = typeof req.query.prompt === 'string' ? req.query.prompt : '';
+      if (!prompt.trim()) {
+        res.status(400).json({
+          error: 'Missing query parameter prompt.',
+          code: 'MISSING_PROMPT',
+          durationMs: Date.now() - started,
+        });
+        return;
+      }
+
+      const resolved = await resolveVideoQueryToTemp(req);
+      tmp = resolved.path;
+      unlinkAfter = resolved.unlinkAfter;
+
+      const baseUrl = String(process.env.OLLAMA_BASE_URL || 'http://127.0.0.1:11434');
+      const model = String(process.env.OLLAMA_VLM_MODEL || 'llava:7b');
+      const frames = Number(process.env.MQP_LOCAL_FRAMES || 6);
+
       const duration = await ffprobeDurationSeconds(tmp);
-      const times = sampleTimestamps(duration ?? 0, frames, 12);
+      const times = clampSampleTimes(sampleTimestamps(duration ?? 0, frames, 12), duration ?? 0);
 
       const framePrompt = [
         'You are analyzing a usability study screen recording.',
@@ -122,14 +123,14 @@ export function registerLocalRoutes(app, upload) {
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       const code = typeof e?.code === 'string' ? e.code : (msg.includes('Ollama request failed') ? 'OLLAMA_UNAVAILABLE' : 'LOCAL_ANALYZE_FAILED');
-      const status = code === 'OLLAMA_UNAVAILABLE' ? 503 : 422;
+      const status = code === 'OLLAMA_UNAVAILABLE' ? 503 : msg.includes('Missing query') || msg.includes('videoUrl') ? 400 : 422;
       res.status(status).json({
         error: msg,
         code,
         durationMs: Date.now() - started,
       });
     } finally {
-      await cleanupFiles([tmp].filter(Boolean));
+      if (unlinkAfter) await safeUnlink(tmp);
     }
   });
 }

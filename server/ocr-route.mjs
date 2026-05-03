@@ -1,41 +1,23 @@
 /**
- * POST /api/extract-ocr — sample frames + OCR key text.
+ * GET /api/extract-ocr — sample frames + OCR key text.
  *
- * Uses ffmpeg for frame sampling and a Python script that runs pytesseract or the tesseract CLI.
+ * Query: videoUrl | localPath (same rules as analyze-timeline), mimeType optional.
  */
-import { cleanupFiles, writeTempVideoFromUpload } from './frame-sampler.mjs';
 import { runOcrOnVideoPath } from './mqp-ocr-runner.mjs';
+import { resolveVideoQueryToTemp, safeUnlink } from './resolve-video-input.mjs';
 
-export function registerOcrRoutes(app, upload) {
-  app.post('/api/extract-ocr', upload.single('video'), async (req, res) => {
+export function registerOcrRoutes(app) {
+  app.get('/api/extract-ocr', async (req, res) => {
     const started = Date.now();
-    if (!req.file?.buffer) {
-      res.status(400).json({
-        error: 'Missing video file (multipart field "video").',
-        code: 'MISSING_FILE',
-        durationMs: Date.now() - started,
-      });
-      return;
-    }
-
     let videoPath = '';
+    let unlinkAfter = false;
     try {
-      videoPath = await writeTempVideoFromUpload({
-        buffer: req.file.buffer,
-        mimeType: req.file.mimetype,
-        prefix: 'mqp-ocr',
-      });
-    } catch (e) {
-      res.status(500).json({
-        error: e instanceof Error ? e.message : 'Failed to write temp file',
-        code: 'TEMP_WRITE_FAILED',
-        durationMs: Date.now() - started,
-      });
-      return;
-    }
+      const resolved = await resolveVideoQueryToTemp(req);
+      videoPath = resolved.path;
+      unlinkAfter = resolved.unlinkAfter;
+      const mimeType = resolved.mimeType || 'video/webm';
 
-    try {
-      const { frames, meta } = await runOcrOnVideoPath(videoPath, req.file.mimetype || 'video/webm');
+      const { frames, meta } = await runOcrOnVideoPath(videoPath, mimeType);
       res.json({
         frames,
         meta,
@@ -43,14 +25,20 @@ export function registerOcrRoutes(app, upload) {
       });
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
-      const code = msg.includes('ffmpeg') || msg.includes('frame') ? 'FRAME_EXTRACT_FAILED' : 'OCR_SCRIPT_FAILED';
-      res.status(422).json({
+      const low = msg.toLowerCase();
+      const code = low.includes('missing query') || low.includes('videourl')
+        ? 'MISSING_INPUT'
+        : low.includes('ffmpeg') || low.includes('frame')
+          ? 'FRAME_EXTRACT_FAILED'
+          : 'OCR_SCRIPT_FAILED';
+      const status = code === 'MISSING_INPUT' ? 400 : 422;
+      res.status(status).json({
         error: msg,
         code,
         durationMs: Date.now() - started,
       });
     } finally {
-      await cleanupFiles([videoPath].filter(Boolean));
+      if (unlinkAfter) await safeUnlink(videoPath);
     }
   });
 }

@@ -5,6 +5,8 @@
  *   node evaluation/run.mjs --dry-run
  *   node evaluation/run.mjs --runId test-01
  *   node evaluation/run.mjs --runId test-01 --mass-api-url http://127.0.0.1:3001
+ *
+ * Mass API is GET-only: set MQP_ALLOW_LOCAL_VIDEO_PATH=true so endpoints receive corpus files via localPath.
  */
 import { readFile, writeFile, mkdir, readdir } from 'node:fs/promises';
 import path from 'node:path';
@@ -110,16 +112,41 @@ async function fetchJson(url, init) {
   }
 }
 
-async function postMultipartVideo(baseUrl, pathname, videoPath, fields) {
-  const buf = await readFile(videoPath);
-  const filename = path.basename(videoPath);
-  const form = new FormData();
-  form.append('video', new Blob([buf]), filename);
-  for (const [k, v] of Object.entries(fields)) {
-    if (v !== undefined && v !== null) form.append(k, String(v));
+function mimeFromVideoPath(videoPath) {
+  const ext = path.extname(videoPath).toLowerCase();
+  if (ext === '.mp4') return 'video/mp4';
+  if (ext === '.mov' || ext === '.qt') return 'video/quicktime';
+  return 'video/webm';
+}
+
+async function getMassApiWithLocalPath(baseUrl, pathname, videoPath, fields = {}) {
+  const allowLocal = process.env.MQP_ALLOW_LOCAL_VIDEO_PATH === 'true';
+  if (!allowLocal) {
+    return {
+      ok: false,
+      status: 0,
+      json: {
+        code: 'LOCAL_PATH_DISABLED',
+        error:
+          'Set MQP_ALLOW_LOCAL_VIDEO_PATH=true so evaluation can call GET mass-api with localPath (repo corpus files).',
+      },
+    };
   }
-  const url = `${baseUrl.replace(/\/$/, '')}${pathname}`;
-  return fetchJson(url, { method: 'POST', body: form });
+  const resolved = path.resolve(videoPath);
+  if (!resolved.startsWith(REPO_ROOT)) {
+    return {
+      ok: false,
+      status: 0,
+      json: { code: 'PATH_OUTSIDE_REPO', error: `Video path must be under ${REPO_ROOT}` },
+    };
+  }
+  const u = new URL(pathname.replace(/^\//, ''), `${baseUrl.replace(/\/$/, '')}/`);
+  u.searchParams.set('localPath', resolved);
+  u.searchParams.set('mimeType', mimeFromVideoPath(resolved));
+  for (const [k, v] of Object.entries(fields)) {
+    if (v !== undefined && v !== null) u.searchParams.set(k, String(v));
+  }
+  return fetchJson(u.toString(), { method: 'GET' });
 }
 
 async function tryOllamaReachable(baseUrl) {
@@ -251,7 +278,7 @@ async function main() {
         reason: 'GEMINI_API_KEY / VITE_GEMINI_API_KEY not set on mass API',
       });
     } else {
-      const r = await postMultipartVideo(massApiUrl, '/api/analyze-large', videoPath, {
+      const r = await getMassApiWithLocalPath(massApiUrl, '/api/analyze-large', videoPath, {
         prompt: EVAL_PROMPT,
         model: 'gemini-2.0-flash',
       });
@@ -293,7 +320,7 @@ async function main() {
         reason: 'OPENAI_API_KEY not set',
       });
     } else {
-      const r = await postMultipartVideo(massApiUrl, '/api/analyze-gpt4v', videoPath, { prompt: EVAL_PROMPT });
+      const r = await getMassApiWithLocalPath(massApiUrl, '/api/analyze-gpt4v', videoPath, { prompt: EVAL_PROMPT });
       if (r.ok && typeof r.json?.summary === 'string') {
         pushPipeline({
           pipeline: 'B_gpt4o',
@@ -332,7 +359,7 @@ async function main() {
         reason: 'Ollama not reachable (daemon off or wrong OLLAMA_BASE_URL)',
       });
     } else {
-      const r = await postMultipartVideo(massApiUrl, '/api/analyze-local', videoPath, { prompt: EVAL_PROMPT });
+      const r = await getMassApiWithLocalPath(massApiUrl, '/api/analyze-local', videoPath, { prompt: EVAL_PROMPT });
       if (r.ok && typeof r.json?.summary === 'string') {
         pushPipeline({
           pipeline: 'C_ollama_local',
@@ -363,7 +390,7 @@ async function main() {
         reason: 'Mass API unreachable (start yarn serve:mass-api)',
       });
     } else {
-      const r = await postMultipartVideo(massApiUrl, '/api/analyze-timeline', videoPath, {});
+      const r = await getMassApiWithLocalPath(massApiUrl, '/api/analyze-timeline', videoPath, {});
       const events = normalizeTimelineEvents(r.json?.events);
       if (r.ok && Array.isArray(r.json?.events)) {
         pushPipeline({
@@ -391,7 +418,7 @@ async function main() {
     if (massUnreachable) {
       clipResult.ocr = { status: 'skipped', reason: 'Mass API unreachable' };
     } else {
-      const r = await postMultipartVideo(massApiUrl, '/api/extract-ocr', videoPath, {});
+      const r = await getMassApiWithLocalPath(massApiUrl, '/api/extract-ocr', videoPath, {});
       if (r.ok && Array.isArray(r.json?.frames)) {
         clipResult.ocr = {
           status: 'ok',
@@ -412,7 +439,7 @@ async function main() {
     if (massUnreachable) {
       clipResult.confusionScore = { status: 'skipped', reason: 'Mass API unreachable' };
     } else {
-      const r = await postMultipartVideo(massApiUrl, '/api/confusion-score', videoPath, {});
+      const r = await getMassApiWithLocalPath(massApiUrl, '/api/confusion-score', videoPath, {});
       if (r.ok && Array.isArray(r.json?.windows)) {
         clipResult.confusionScore = {
           status: 'ok',

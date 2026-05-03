@@ -1,5 +1,5 @@
 /**
- * POST /api/embed-summary — JSON body { text } → sentence-transformers embedding (CPU).
+ * GET /api/embed-summary — embedding from optional query text or textUtf8Base64 (base64url).
  */
 import { spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
@@ -18,13 +18,27 @@ function defaultPythonExecutable() {
   return 'python3';
 }
 
-export function registerEmbedSummaryRoutes(app, jsonParser) {
-  app.post('/api/embed-summary', jsonParser, async (req, res) => {
+function decodeQueryText(req) {
+  const plain = typeof req.query.text === 'string' ? req.query.text : '';
+  if (plain.trim()) return plain;
+  const b64 = typeof req.query.textUtf8Base64 === 'string' ? req.query.textUtf8Base64.trim() : '';
+  if (!b64) return '';
+  try {
+    const pad = b64.length % 4 === 0 ? b64 : `${b64}${'='.repeat(4 - (b64.length % 4))}`;
+    const standard = pad.replace(/-/g, '+').replace(/_/g, '/');
+    return Buffer.from(standard, 'base64').toString('utf8');
+  } catch {
+    return '';
+  }
+}
+
+export function registerEmbedSummaryRoutes(app) {
+  app.get('/api/embed-summary', async (req, res) => {
     const started = Date.now();
-    const text = typeof req.body?.text === 'string' ? req.body.text : '';
+    const text = decodeQueryText(req);
     if (!text.trim()) {
       res.status(400).json({
-        error: 'Missing JSON field "text" (non-empty string).',
+        error: 'Missing query parameter text or textUtf8Base64 (UTF-8, base64url).',
         code: 'MISSING_TEXT',
         durationMs: Date.now() - started,
       });
@@ -58,8 +72,18 @@ export function registerEmbedSummaryRoutes(app, jsonParser) {
     });
 
     if (result.code !== 0) {
+      let errMsg = result.stderr?.trim() || '';
+      if (!errMsg) {
+        try {
+          const ej = JSON.parse((result.stdout || '').trim() || '{}');
+          if (ej && typeof ej.error === 'string') errMsg = ej.error;
+        } catch {
+          // ignore
+        }
+      }
+      if (!errMsg) errMsg = `Embed script exited with code ${result.code}`;
       res.status(422).json({
-        error: result.stderr?.trim() || `Embed script exited with code ${result.code}`,
+        error: errMsg,
         code: 'EMBED_SCRIPT_FAILED',
         durationMs: Date.now() - started,
       });

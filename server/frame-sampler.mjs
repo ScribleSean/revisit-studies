@@ -1,6 +1,7 @@
 import { spawn } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
-import { writeFile, unlink } from 'node:fs/promises';
+import { existsSync, statSync } from 'node:fs';
+import { readFile, writeFile, unlink } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
@@ -53,34 +54,170 @@ export function sampleTimestamps(durationSeconds, n, maxN = 12) {
   return Array.from({ length: safeN }, (_, i) => ((i + 1) / (safeN + 1)) * durationSeconds);
 }
 
+/** Keeps decode timestamps inside the container duration so ffmpeg does not EOF with “success” and empty output. */
+export function clampSampleTimes(times, durationSeconds) {
+  if (!Array.isArray(times)) return [];
+  if (!Number.isFinite(durationSeconds) || durationSeconds <= 0) return times;
+  const maxT = Math.max(0, durationSeconds - 0.001);
+  return times.map((t) => Math.min(Math.max(0, Number(t) || 0), maxT));
+}
+
+/** Best-effort MIME for data URLs (JPEG vs PNG). */
+export function guessImageMimeFromBuffer(buf) {
+  if (!buf || buf.length < 3) return 'image/jpeg';
+  if (buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff) return 'image/jpeg';
+  if (buf.length >= 4 && buf[0] === 0x89 && buf[1] === 0x50 && buf[2] === 0x4e && buf[3] === 0x47) return 'image/png';
+  if (buf.length >= 2 && buf[0] === 0x42 && buf[1] === 0x4d) return 'image/bmp';
+  return 'image/jpeg';
+}
+
+/**
+ * Decode one frame to an image buffer (JPEG or PNG bytes).
+ * WebM/VP9 clips often produce **exit 0 with zero stdout bytes** when using MJPEG
+ * `image2pipe`; writing to a temp file is much more reliable.
+ */
 export async function extractJpegFrameBuffer(videoPath, seconds) {
-  const res = await run('ffmpeg', [
-    '-hide_banner',
-    '-loglevel',
-    'error',
-    '-ss',
-    String(seconds),
-    '-i',
-    videoPath,
-    '-frames:v',
-    '1',
-    // Some sources trip ffmpeg's MJPEG full-range constraints; allow unofficial compliance
-    // and force a widely-supported JPEG pixel format.
-    '-strict',
-    '-2',
-    '-pix_fmt',
-    'yuvj420p',
-    '-f',
-    'image2pipe',
-    '-vcodec',
-    'mjpeg',
-    'pipe:1',
-  ]);
-  if (res.code !== 0 || !res.stdout || res.stdout.length === 0) {
-    const err = res.stderr.toString('utf8').slice(0, 1500);
-    throw new Error(`ffmpeg failed to extract frame: ${err || `exit=${res.code}`}`);
+  const tNum = Number(seconds);
+  const tSafe = Number.isFinite(tNum) ? tNum : 0;
+  const ss = String(seconds);
+  /** Even dimensions + RGB24 avoids MJPEG/YUV full-range encoder failures on VP9/WebM screen captures. */
+  const vfRgbEven = 'scale=trunc(iw/2)*2:trunc(ih/2)*2,format=rgb24';
+  const stem = path.join(tmpdir(), `mqp-ff-${randomUUID()}`);
+  const outJpg = `${stem}.jpg`;
+  const outPng = `${stem}.png`;
+  const outBmp = `${stem}.bmp`;
+
+  const t0 = Math.max(0, tSafe - 0.05);
+  const t1 = tSafe + 0.35;
+
+  /** @type {Array<{ label: string; path: string; args: string[] }>} */
+  const attempts = [
+    {
+      label: 'hwaccel_none+select_between+png',
+      path: outPng,
+      args: [
+        '-hide_banner', '-loglevel', 'warning',
+        '-hwaccel', 'none',
+        '-threads', '1',
+        '-fflags', '+genpts',
+        '-i', videoPath,
+        '-vf',
+        `select=between(t\\,${t0}\\,${t1}),setpts=PTS-STARTPTS,${vfRgbEven}`,
+        '-frames:v', '1',
+        '-c:v', 'png',
+        '-y',
+        outPng,
+      ],
+    },
+    {
+      label: 'accurate_seek+png+rgb24',
+      path: outPng,
+      args: [
+        '-hide_banner', '-loglevel', 'warning',
+        '-hwaccel', 'none',
+        '-fflags', '+genpts',
+        '-i', videoPath,
+        '-ss', ss,
+        '-frames:v', '1',
+        '-vf', vfRgbEven,
+        '-c:v', 'png',
+        '-y',
+        outPng,
+      ],
+    },
+    {
+      label: 'fast_seek+png+rgb24',
+      path: outPng,
+      args: [
+        '-hide_banner', '-loglevel', 'warning',
+        '-fflags', '+genpts',
+        '-ss', ss,
+        '-i', videoPath,
+        '-frames:v', '1',
+        '-vf', vfRgbEven,
+        '-c:v', 'png',
+        '-y',
+        outPng,
+      ],
+    },
+    {
+      label: 'trim_decode+png+rgb24',
+      path: outPng,
+      args: [
+        '-hide_banner', '-loglevel', 'warning',
+        '-fflags', '+genpts',
+        '-i', videoPath,
+        '-vf',
+        `trim=start=${tSafe}:duration=0.06,setpts=PTS-STARTPTS,${vfRgbEven}`,
+        '-frames:v', '1',
+        '-c:v', 'png',
+        '-y',
+        outPng,
+      ],
+    },
+    {
+      label: 'accurate_seek+bmp+rgb24',
+      path: outBmp,
+      args: [
+        '-hide_banner', '-loglevel', 'warning',
+        '-fflags', '+genpts',
+        '-i', videoPath,
+        '-ss', ss,
+        '-frames:v', '1',
+        '-vf', vfRgbEven,
+        '-c:v', 'bmp',
+        '-y',
+        outBmp,
+      ],
+    },
+    {
+      label: 'mjpeg_unofficial+yuvj420p',
+      path: outJpg,
+      args: [
+        '-hide_banner', '-loglevel', 'warning',
+        '-strict', '-2',
+        '-fflags', '+genpts',
+        '-i', videoPath,
+        '-ss', ss,
+        '-frames:v', '1',
+        '-vf', 'scale=trunc(iw/2)*2:trunc(ih/2)*2',
+        '-pix_fmt', 'yuvj420p',
+        '-q:v', '2',
+        '-y',
+        outJpg,
+      ],
+    },
+  ];
+
+  const errors = [];
+  try {
+    for (const a of attempts) {
+      await unlink(a.path).catch(() => {});
+      const res = await run('ffmpeg', a.args);
+      const stderr = res.stderr.toString('utf8').trim().slice(0, 2000);
+      const exists = existsSync(a.path);
+      let size = 0;
+      if (exists) {
+        try {
+          size = statSync(a.path).size;
+        } catch {
+          size = 0;
+        }
+      }
+      if (res.code === 0 && size > 0) {
+        const buf = await readFile(a.path);
+        if (buf.length > 0) {
+          return buf;
+        }
+      }
+      errors.push(`${a.label}(exit=${res.code}, fileBytes=${size})${stderr ? ` — ${stderr}` : ''}`);
+    }
+    throw new Error(`ffmpeg failed to extract frame at ${seconds}s · ${errors.join(' · ')}`);
+  } finally {
+    await unlink(outJpg).catch(() => {});
+    await unlink(outPng).catch(() => {});
+    await unlink(outBmp).catch(() => {});
   }
-  return res.stdout;
 }
 
 export async function writeTempVideoFromUpload({ buffer, mimeType, prefix }) {
