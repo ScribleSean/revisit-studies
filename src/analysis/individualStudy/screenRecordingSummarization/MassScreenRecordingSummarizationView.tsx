@@ -76,6 +76,8 @@ async function fetchBlobFromObjectUrl(url: string) {
   return res.blob();
 }
 
+const SUMMARY_PREVIEW_CHARS = 150;
+
 function getDefaultPrompt() {
   return [
     'Provide a high-level summary of the screen recording in 3-5 sentences.',
@@ -228,6 +230,12 @@ export function MassScreenRecordingSummarizationView({
     status: 'ok' | 'skipped' | 'failed' | 'too_large';
     error?: string;
   }>>({});
+  const [expandedSummaryKeys, setExpandedSummaryKeys] = useState<Record<string, boolean>>({});
+  const [batchCompleteBanner, setBatchCompleteBanner] = useState<{
+    saved: number;
+    skipped: number;
+    failed: number;
+  } | null>(null);
 
   const geminiServerFallback = Boolean(massApiHealth.loaded && massApiHealth.hasGeminiServerKey);
 
@@ -414,18 +422,22 @@ export function MassScreenRecordingSummarizationView({
 
     setIsRunning(true);
     setError(null);
+    setBatchCompleteBanner(null);
     setProgress({ done: 0, total: selectedCount });
 
     const selectedItems = recordings.filter((r) => selectedKeys.has(`${r.participantId}::${r.identifier}`));
 
-    // Clear only "failed/ok" results for this run; keep older ones so user can re-run with overwrite if desired later.
     setResults((prev) => {
-      const entries = selectedItems.map((i) => [`${i.participantId}::${i.identifier}`, { status: 'ok' as const }]);
-      return { ...prev, ...Object.fromEntries(entries) };
+      const next = { ...prev };
+      selectedItems.forEach((i) => {
+        delete next[`${i.participantId}::${i.identifier}`];
+      });
+      return next;
     });
 
     try {
-      const processOne = async (item: RecordingItem) => {
+      type RunOutcome = 'saved' | 'skipped' | 'failed';
+      const processOne = async (item: RecordingItem): Promise<RunOutcome> => {
         const itemKey = `${item.participantId}::${item.identifier}`;
 
         try {
@@ -435,7 +447,7 @@ export function MassScreenRecordingSummarizationView({
               URL.revokeObjectURL(existingSummaryUrl);
               setResults((prev) => ({ ...prev, [itemKey]: { status: 'skipped' } }));
               setProgress((p) => ({ ...p, done: p.done + 1 }));
-              return;
+              return 'skipped';
             }
           }
 
@@ -453,7 +465,7 @@ export function MassScreenRecordingSummarizationView({
               },
             }));
             setProgress((p) => ({ ...p, done: p.done + 1 }));
-            return;
+            return 'skipped';
           }
 
           const blob = await fetchBlobFromObjectUrl(videoObjectUrl);
@@ -472,7 +484,7 @@ export function MassScreenRecordingSummarizationView({
                 [itemKey]: { status: 'failed', error: MASS_API_FETCHABLE_URL_HELP },
               }));
               setProgress((p) => ({ ...p, done: p.done + 1 }));
-              return;
+              return 'failed';
             }
             const large = await analyzeViaFilesApi(massVideoUrl, file.type || 'video/webm');
             if ('error' in large) {
@@ -481,7 +493,7 @@ export function MassScreenRecordingSummarizationView({
                 [itemKey]: { status: 'failed', error: large.error },
               }));
               setProgress((p) => ({ ...p, done: p.done + 1 }));
-              return;
+              return 'failed';
             }
             summaryText = large.summary;
             persistedModel = large.modelUsed;
@@ -496,7 +508,7 @@ export function MassScreenRecordingSummarizationView({
                   [itemKey]: { status: 'failed', error: MASS_API_FETCHABLE_URL_HELP },
                 }));
                 setProgress((p) => ({ ...p, done: p.done + 1 }));
-                return;
+                return 'failed';
               }
               const large = await analyzeViaFilesApi(massVideoUrl, file.type || 'video/webm');
               if ('error' in large) {
@@ -515,7 +527,7 @@ export function MassScreenRecordingSummarizationView({
                   },
                 }));
                 setProgress((p) => ({ ...p, done: p.done + 1 }));
-                return;
+                return 'failed';
               }
               summaryText = large.summary;
               persistedModel = large.modelUsed;
@@ -533,8 +545,17 @@ export function MassScreenRecordingSummarizationView({
                 [itemKey]: { status: 'failed', error: errMsg },
               }));
               setProgress((p) => ({ ...p, done: p.done + 1 }));
-              return;
+              return 'failed';
             }
+          }
+
+          if (!summaryText?.trim()) {
+            setResults((prev) => ({
+              ...prev,
+              [itemKey]: { status: 'failed', error: 'Empty summary returned for this clip' },
+            }));
+            setProgress((p) => ({ ...p, done: p.done + 1 }));
+            return 'failed';
           }
 
           setResults((prev) => ({
@@ -559,18 +580,30 @@ export function MassScreenRecordingSummarizationView({
           }
 
           setProgress((p) => ({ ...p, done: p.done + 1 }));
+          return 'saved';
         } catch (e) {
           const msg = e instanceof Error ? e.message : 'Failed to summarize clip';
           setResults((prev) => ({ ...prev, [itemKey]: { status: 'failed', error: msg } }));
           setProgress((p) => ({ ...p, done: p.done + 1 }));
+          return 'failed';
         }
       };
 
-      // Sequential processing (avoids rate-limit spikes) without eslint "no-await-in-loop" violations.
+      let saved = 0;
+      let skipped = 0;
+      let failed = 0;
+
       await selectedItems.reduce(
-        (prevPromise, item) => prevPromise.then(() => processOne(item)),
+        (prevPromise, item) => prevPromise.then(async () => {
+          const o = await processOne(item);
+          if (o === 'saved') saved += 1;
+          else if (o === 'skipped') skipped += 1;
+          else failed += 1;
+        }),
         Promise.resolve(),
       );
+
+      setBatchCompleteBanner({ saved, skipped, failed });
     } finally {
       setIsRunning(false);
     }
@@ -754,6 +787,26 @@ export function MassScreenRecordingSummarizationView({
         </Stack>
 
         <Stack gap="sm">
+          {batchCompleteBanner && (
+            <Alert color="green" variant="light" title="Batch complete">
+              <Text size="sm">
+                Batch complete —
+                {' '}
+                {batchCompleteBanner.saved}
+                {' '}
+                summaries saved,
+                {' '}
+                {batchCompleteBanner.skipped}
+                {' '}
+                skipped,
+                {' '}
+                {batchCompleteBanner.failed}
+                {' '}
+                failed.
+              </Text>
+            </Alert>
+          )}
+
           <Group justify="space-between">
             <Text size="sm" color="dimmed">
               Clips found:
@@ -798,13 +851,23 @@ export function MassScreenRecordingSummarizationView({
                 const key = `${r.participantId}::${r.identifier}`;
                 const isChecked = selectedKeys.has(key);
                 const result = results[key];
+                const summaryExpanded = Boolean(expandedSummaryKeys[key]);
+                const summaryFull = result?.summary ?? '';
+                const summaryNeedsTruncate = summaryFull.length > SUMMARY_PREVIEW_CHARS;
+
                 return (
                   <Card
                     key={key}
                     withBorder
                     shadow="xs"
                     padding="sm"
-                    style={{ background: isChecked ? 'rgba(0, 0, 0, 0.02)' : undefined }}
+                    bg={
+                      result?.status === 'ok'
+                        ? 'green.0'
+                        : isChecked
+                          ? 'gray.0'
+                          : undefined
+                    }
                   >
                     <Group justify="space-between">
                       <Checkbox
@@ -819,16 +882,35 @@ export function MassScreenRecordingSummarizationView({
                     </Group>
 
                     {result?.status && (
-                      <Text size="xs" mt={4} color={result.status === 'ok' ? 'green' : result.status === 'skipped' ? 'blue' : 'red'}>
-                        {result.status === 'ok' ? 'Ready' : result.status === 'skipped' ? 'Skipped (already summarized)' : result.status === 'too_large' ? `Too large (> ${maxInlineBytes / (1024 * 1024)}MB)` : 'Failed'}
-                        {result.status === 'failed' && result.error ? `: ${result.error}` : ''}
-                      </Text>
+                      <Stack gap={2} mt={4}>
+                        <Text size="xs" fw={600} color={result.status === 'ok' ? 'green.9' : result.status === 'skipped' ? 'blue' : 'red'}>
+                          {result.status === 'ok' ? 'Summarized' : result.status === 'skipped' ? 'Skipped' : result.status === 'too_large' ? `Too large (> ${maxInlineBytes / (1024 * 1024)}MB)` : 'Failed'}
+                          {result.status === 'failed' && result.error ? `: ${result.error}` : ''}
+                        </Text>
+                        {result.status === 'skipped' && result.error && (
+                          <Text size="xs" c="dimmed">{result.error}</Text>
+                        )}
+                      </Stack>
                     )}
 
                     {result?.summary && (
-                      <Text size="sm" mt="xs" style={{ whiteSpace: 'pre-wrap' }}>
-                        {result.summary}
-                      </Text>
+                      <Stack gap={6} mt="xs">
+                        <Text size="sm" style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+                          {summaryNeedsTruncate && !summaryExpanded
+                            ? `${summaryFull.slice(0, SUMMARY_PREVIEW_CHARS)}…`
+                            : summaryFull}
+                        </Text>
+                        {summaryNeedsTruncate && (
+                          <Button
+                            variant="light"
+                            color="green"
+                            size="compact-xs"
+                            onClick={() => setExpandedSummaryKeys((prev) => ({ ...prev, [key]: !prev[key] }))}
+                          >
+                            {summaryExpanded ? 'Show less' : 'Show more'}
+                          </Button>
+                        )}
+                      </Stack>
                     )}
                   </Card>
                 );

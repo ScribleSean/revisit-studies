@@ -504,7 +504,9 @@ export class FirebaseStorageEngine extends CloudStorageEngine {
 
     try {
       return await getDownloadURL(screenRecordingRef);
-    } catch {
+    } catch (e) {
+      // TEMP DEBUG: remove once mass summarization + Storage reads are confirmed working.
+      console.warn('[FirebaseStorageEngine] _getScreenRecordingUrl failed:', e);
       return null;
     }
   }
