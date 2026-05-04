@@ -11,7 +11,7 @@ import {
   cleanupFiles,
   clampSampleTimes,
   extractJpegFrameBuffer,
-  ffprobeDurationSeconds,
+  resolveVideoSampleDurationSeconds,
   sampleTimestamps,
 } from './frame-sampler.mjs';
 
@@ -36,13 +36,8 @@ export async function runOcrOnVideoPath(videoPath, mimeType) {
   const framesEnv = Number(process.env.MQP_OCR_FRAMES || 8);
   const frames = Math.max(1, Math.min(20, Math.floor(framesEnv)));
 
-  let duration = null;
-  try {
-    duration = await ffprobeDurationSeconds(videoPath);
-  } catch {
-    duration = null;
-  }
-  const times = clampSampleTimes(sampleTimestamps(duration ?? 0, frames, 20), duration ?? 0);
+  const duration = await resolveVideoSampleDurationSeconds(videoPath);
+  const times = clampSampleTimes(sampleTimestamps(duration, frames, 20), duration);
 
   const tmpFiles = [];
   const frameInputs = [];

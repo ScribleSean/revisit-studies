@@ -45,10 +45,104 @@ export async function ffprobeDurationSeconds(videoPath) {
   return Number.isFinite(n) ? n : null;
 }
 
+/** Video stream `duration` from ffprobe (sometimes set when `format=duration` is missing/wrong on WebM). */
+export async function ffprobeVideoStreamDurationSeconds(videoPath) {
+  const res = await run('ffprobe', [
+    '-v', 'error',
+    '-select_streams', 'v:0',
+    '-show_entries', 'stream=duration',
+    '-of', 'default=noprint_wrappers=1:nokey=1',
+    videoPath,
+  ]);
+  const text = res.stdout.toString('utf8').trim();
+  const n = Number(text);
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
+
+/** Demuxer-reported frame count (fast; often N/A for WebM). */
+export async function ffprobeStreamNbFramesMetadata(videoPath) {
+  const res = await run('ffprobe', [
+    '-v', 'error',
+    '-select_streams', 'v:0',
+    '-show_entries', 'stream=nb_frames',
+    '-of', 'default=noprint_wrappers=1:nokey=1',
+    videoPath,
+  ]);
+  const text = res.stdout.toString('utf8').trim();
+  if (!text || text === 'N/A') return null;
+  const n = parseInt(text, 10);
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
+
+/** Decoded frame count (slow on long files; use only when duration metadata is unusable). */
+export async function ffprobeStreamNbReadFrames(videoPath) {
+  const res = await run('ffprobe', [
+    '-v', 'error',
+    '-select_streams', 'v:0',
+    '-count_frames',
+    '-show_entries', 'stream=nb_read_frames',
+    '-of', 'default=noprint_wrappers=1:nokey=1',
+    videoPath,
+  ]);
+  const text = res.stdout.toString('utf8').trim();
+  if (!text || text === 'N/A') return null;
+  const n = parseInt(text, 10);
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
+
+const DEFAULT_SCREEN_FPS = 25;
+const FALLBACK_SAMPLE_SPAN_SEC = 60;
+
+/**
+ * Duration for spreading OCR/VLM sample times when WebM/container metadata lies (0, NaN, Infinity).
+ * Tries format duration, stream duration, nb_frames/fps, decoded frame count/fps, then a fixed span.
+ */
+export async function resolveVideoSampleDurationSeconds(videoPath) {
+  let d = null;
+  try {
+    d = await ffprobeDurationSeconds(videoPath);
+  } catch {
+    d = null;
+  }
+  if (Number.isFinite(d) && d > 0) return d;
+
+  try {
+    d = await ffprobeVideoStreamDurationSeconds(videoPath);
+  } catch {
+    d = null;
+  }
+  if (Number.isFinite(d) && d > 0) return d;
+
+  let frames = null;
+  try {
+    frames = await ffprobeStreamNbFramesMetadata(videoPath);
+  } catch {
+    frames = null;
+  }
+  if (frames != null) {
+    const est = frames / DEFAULT_SCREEN_FPS;
+    if (Number.isFinite(est) && est > 0) return est;
+  }
+
+  try {
+    frames = await ffprobeStreamNbReadFrames(videoPath);
+  } catch {
+    frames = null;
+  }
+  if (frames != null) {
+    const est = frames / DEFAULT_SCREEN_FPS;
+    if (Number.isFinite(est) && est > 0) return est;
+  }
+
+  return FALLBACK_SAMPLE_SPAN_SEC;
+}
+
 export function sampleTimestamps(durationSeconds, n, maxN = 12) {
   const safeN = Math.max(1, Math.min(maxN, Math.floor(n)));
   if (!Number.isFinite(durationSeconds) || durationSeconds <= 0) {
-    return Array.from({ length: safeN }, (_, i) => i);
+    // Evenly space across a default span so callers never get N copies of t=0 (bad WebM metadata).
+    const span = FALLBACK_SAMPLE_SPAN_SEC;
+    return Array.from({ length: safeN }, (_, i) => ((i + 1) / (safeN + 1)) * span);
   }
   // Spread across the clip; avoid exact endpoints.
   return Array.from({ length: safeN }, (_, i) => ((i + 1) / (safeN + 1)) * durationSeconds);

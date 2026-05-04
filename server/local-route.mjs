@@ -6,7 +6,7 @@
 import {
   clampSampleTimes,
   extractJpegFrameBuffer,
-  ffprobeDurationSeconds,
+  resolveVideoSampleDurationSeconds,
   sampleTimestamps,
 } from './frame-sampler.mjs';
 import { resolveVideoQueryToTemp, safeUnlink } from './resolve-video-input.mjs';
@@ -71,8 +71,8 @@ export function registerLocalRoutes(app) {
       const model = String(process.env.OLLAMA_VLM_MODEL || 'llava:7b');
       const frames = Number(process.env.MQP_LOCAL_FRAMES || 6);
 
-      const duration = await ffprobeDurationSeconds(tmp);
-      const times = clampSampleTimes(sampleTimestamps(duration ?? 0, frames, 12), duration ?? 0);
+      const duration = await resolveVideoSampleDurationSeconds(tmp);
+      const times = clampSampleTimes(sampleTimestamps(duration, frames, 12), duration);
 
       const framePrompt = [
         'You are analyzing a usability study screen recording.',

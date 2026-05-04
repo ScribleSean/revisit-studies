@@ -6,8 +6,8 @@
 import {
   clampSampleTimes,
   extractJpegFrameBuffer,
-  ffprobeDurationSeconds,
   guessImageMimeFromBuffer,
+  resolveVideoSampleDurationSeconds,
   sampleTimestamps,
 } from './frame-sampler.mjs';
 import { resolveVideoQueryToTemp, safeUnlink } from './resolve-video-input.mjs';
@@ -58,8 +58,8 @@ export function registerGpt4vRoutes(app) {
       const framesEnv = Number(process.env.MQP_GPT4V_FRAMES || 10);
       const frames = Math.max(1, Math.min(20, Math.floor(framesEnv)));
 
-      const duration = await ffprobeDurationSeconds(tmp);
-      const times = clampSampleTimes(sampleTimestamps(duration ?? 0, frames, 20), duration ?? 0);
+      const duration = await resolveVideoSampleDurationSeconds(tmp);
+      const times = clampSampleTimes(sampleTimestamps(duration, frames, 20), duration);
 
       let frameBuffers = [];
       try {

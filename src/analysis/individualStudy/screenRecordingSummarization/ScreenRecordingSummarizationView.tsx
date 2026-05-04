@@ -423,6 +423,26 @@ export function ScreenRecordingSummarizationView({
     return { ocrEventGrounded: m.eventGrounded, ocrFrameGrounded: m.ocrGrounded };
   }, [storedTimelineEvents, storedOcrFrames]);
 
+  /** WebM metadata often leaves `<video>.duration` at 0 — use timeline / OCR / confusion extent so strips and bars lay out correctly. */
+  const storedRecordingEffectiveDuration = useMemo(() => {
+    if (Number.isFinite(videoDuration) && videoDuration > 0) {
+      return videoDuration;
+    }
+    if (storedTimelineEvents.length > 0) {
+      const maxT = Math.max(...storedTimelineEvents.map((e) => e.timestamp));
+      if (Number.isFinite(maxT) && maxT > 0) return maxT * 1.1;
+    }
+    if (ocrStripFrames.length > 0) {
+      const maxO = Math.max(...ocrStripFrames.map((f) => f.timestampSec));
+      if (Number.isFinite(maxO) && maxO > 0) return maxO * 1.1;
+    }
+    if (storedConfusionScore?.windows?.length) {
+      const maxW = Math.max(...storedConfusionScore.windows.map((w) => w.endSec));
+      if (Number.isFinite(maxW) && maxW > 0) return maxW * 1.1;
+    }
+    return 0;
+  }, [videoDuration, storedTimelineEvents, ocrStripFrames, storedConfusionScore]);
+
   const sessionOcrStripFrames = useMemo(
     () => (participantSessionView?.mergedOcrFrames ?? []).map((f) => ({ timestampSec: f.timestampSec, text: f.text })),
     [participantSessionView?.mergedOcrFrames],
@@ -1289,7 +1309,7 @@ export function ScreenRecordingSummarizationView({
                       <RecordingTimelineStrip
                         events={storedTimelineEvents}
                         tags={storedTags}
-                        durationSeconds={videoDuration}
+                        durationSeconds={storedRecordingEffectiveDuration}
                         onSeek={(t) => {
                           const el = storedVideoRef.current;
                           if (el) {
@@ -1332,7 +1352,7 @@ export function ScreenRecordingSummarizationView({
                             {(() => {
                               const scores = storedConfusionScore.windows.map((w) => w.score);
                               const maxAbs = Math.max(0.01, ...scores.map((s) => Math.abs(s)));
-                              const d = Math.max(0.01, videoDuration || 0);
+                              const d = Math.max(0.01, storedRecordingEffectiveDuration || 0);
                               return storedConfusionScore.windows.map((w, i) => {
                                 const hPct = (Math.abs(w.score) / maxAbs) * 100;
                                 const neg = w.score < 0;
