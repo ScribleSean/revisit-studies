@@ -284,12 +284,10 @@ export function StudyAnalysisTabs({ globalConfig }: { globalConfig: GlobalConfig
     setSelectedParticipants([]);
   }, [allConditions]);
 
+  // Load independently of storageEngine so mass-api gating clears even if Firebase init is slow or failing.
   useEffect(() => {
     let cancelled = false;
-    if (!storageEngine) return () => { cancelled = true; };
     (async () => {
-      let openAi = false;
-      let nextHealth: MassApiHealthSnapshot = { ...INITIAL_MASS_API_HEALTH, loaded: true };
       try {
         const hr = await fetch(massApiHealthUrl);
         const hj = (await hr.json().catch(() => ({}))) as {
@@ -297,9 +295,9 @@ export function StudyAnalysisTabs({ globalConfig }: { globalConfig: GlobalConfig
           hasKey?: boolean;
           capabilities?: MassApiHealthSnapshot['capabilities'];
         };
-        openAi = Boolean(hj.hasOpenAiKey);
+        const openAi = Boolean(hj.hasOpenAiKey);
         const caps = hj.capabilities && typeof hj.capabilities === 'object' ? hj.capabilities : {};
-        nextHealth = {
+        const nextHealth: MassApiHealthSnapshot = {
           loaded: true,
           hasGeminiServerKey: Boolean(hj.hasKey),
           hasOpenAiKey: openAi,
@@ -309,17 +307,25 @@ export function StudyAnalysisTabs({ globalConfig }: { globalConfig: GlobalConfig
       } catch {
         if (!cancelled) setMassApiHealth({ ...INITIAL_MASS_API_HEALTH, loaded: true });
       }
+    })();
+    return () => { cancelled = true; };
+  }, [massApiHealthUrl]);
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!storageEngine) return () => { cancelled = true; };
+    (async () => {
       try {
         const s = await storageEngine.getScreenRecordingAnalysisSettings();
         let p = s.summarizationPipeline;
-        if (p === 'gpt4o' && !openAi) p = 'gemini';
+        if (p === 'gpt4o' && !massApiHealth.hasOpenAiKey) p = 'gemini';
         if (!cancelled) setSummarizationPipeline(p);
       } catch {
         if (!cancelled) setSummarizationPipeline('gemini');
       }
     })();
     return () => { cancelled = true; };
-  }, [storageEngine, studyId, massApiHealthUrl]);
+  }, [storageEngine, studyId, massApiHealth.hasOpenAiKey]);
 
   useEffect(() => {
     if (summarizationPipeline === 'gpt4o' && !massApiHealth.hasOpenAiKey) {

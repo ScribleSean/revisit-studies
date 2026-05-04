@@ -46,6 +46,21 @@ import {
 } from './types';
 import { EditedText, TaglessEditedText } from '../../analysis/individualStudy/thinkAloud/types';
 
+/** Comma-separated hosts/suffixes — if current hostname matches, skip App Check (see constructor). */
+function firebaseAppCheckDisabledForCurrentHost(): boolean {
+  const raw = typeof import.meta.env.VITE_FIREBASE_APPCHECK_DISABLE_HOST_SUFFIX === 'string'
+    ? import.meta.env.VITE_FIREBASE_APPCHECK_DISABLE_HOST_SUFFIX
+    : '';
+  const entries = raw.split(',').map((s) => s.trim()).filter(Boolean);
+  if (entries.length === 0 || typeof window === 'undefined') return false;
+  const host = window.location.hostname.toLowerCase();
+  return entries.some((entry) => {
+    const e = entry.toLowerCase();
+    if (e.startsWith('.')) return host.endsWith(e);
+    return host === e;
+  });
+}
+
 export class FirebaseStorageEngine extends CloudStorageEngine {
   private RECAPTCHAV3TOKEN = import.meta.env.VITE_RECAPTCHAV3TOKEN;
 
@@ -76,7 +91,11 @@ export class FirebaseStorageEngine extends CloudStorageEngine {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (window as any).FIREBASE_APPCHECK_DEBUG_TOKEN = true;
     }
-    const disableAppCheck = import.meta.env.VITE_FIREBASE_DISABLE_APP_CHECK === 'true';
+    // App Check exchangeRecaptchaV3Token returns 403 when the host is not allowed for the reCAPTCHA key
+    // or App Check is misconfigured — Storage then breaks. Use VITE_FIREBASE_DISABLE_APP_CHECK=true or
+    // VITE_FIREBASE_APPCHECK_DISABLE_HOST_SUFFIX=.github.io (comma-separated) until Firebase Console is fixed.
+    const disableAppCheck = import.meta.env.VITE_FIREBASE_DISABLE_APP_CHECK === 'true'
+      || firebaseAppCheckDisabledForCurrentHost();
     const recaptchaKey = typeof this.RECAPTCHAV3TOKEN === 'string' ? this.RECAPTCHAV3TOKEN.trim() : '';
     if (!disableAppCheck && recaptchaKey) {
       try {
