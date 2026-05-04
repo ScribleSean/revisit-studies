@@ -159,7 +159,9 @@ export abstract class StorageEngine {
 
   protected abstract participantStore: ReturnType<typeof localforage.createInstance>;
 
-  protected collectionPrefix = import.meta.env.DEV ? 'dev-' : 'prod-';
+  /** Override with e.g. `prod-` when analyzing cloud data written by a production build while running `yarn serve` (`dev-`). */
+  protected collectionPrefix = (import.meta.env.VITE_FIREBASE_COLLECTION_PREFIX as string | undefined)?.trim()
+    || (import.meta.env.DEV ? 'dev-' : 'prod-');
 
   protected studyId: string | undefined;
 
