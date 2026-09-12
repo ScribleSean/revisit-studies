@@ -1,3 +1,4 @@
+import { STORAGE_PREFIX } from './storagePrefix';
 /* eslint-disable no-await-in-loop */
 import { expect, test } from '@playwright/test';
 import {
@@ -131,7 +132,7 @@ test('Test vega component with reactive response', async ({ page }) => {
     throw new Error('No recorded Vega replay found');
   }
 
-  const provenanceKey = `dev-demo-vega/provenance/${recording.participantId}_vegademo2_2`;
+  const provenanceKey = `${STORAGE_PREFIX}demo-vega/provenance/${recording.participantId}_vegademo2_2`;
   await expect.poll(
     async () => await readStoredValue(page, provenanceKey),
     { timeout: 15000 },

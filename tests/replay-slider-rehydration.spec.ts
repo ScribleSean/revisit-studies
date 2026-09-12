@@ -1,3 +1,4 @@
+import { STORAGE_PREFIX } from './storagePrefix';
 /* eslint-disable no-await-in-loop */
 import { expect, test } from '@playwright/test';
 import {
@@ -34,7 +35,7 @@ test('SMEQ replay restores the saved slider value without writing participant da
 
   const savedValue = Number(recording.answer.smeq);
   expect(Number.isFinite(savedValue)).toBe(true);
-  const participantKey = `dev-library-smeq/participants/${recording.participantId}_participantData`;
+  const participantKey = `${STORAGE_PREFIX}library-smeq/participants/${recording.participantId}_participantData`;
   const participantBeforeReplay = await readStoredValue(page, participantKey);
 
   await page.goto(`${replayPath}?participantId=${recording.participantId}&revisitPageId=e2e-smeq-replay`);

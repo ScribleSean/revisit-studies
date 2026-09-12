@@ -408,6 +408,11 @@ export function ConfigSwitcher({
   return (
     <AppShell.Main>
       <Container size="sm" px={0}>
+        <Card withBorder mb="lg">
+          <Text fw={600}>Explore ReVIEW with simulated recordings</Text>
+          <Text size="sm" mb="sm">Try saved summaries, timelines, and comparison tools in your browser.</Text>
+          <Button onClick={() => navigate('/review-demo')}>Open simulated demo</Button>
+        </Card>
         <Image
           maw={150}
           mx="auto"

@@ -22,6 +22,7 @@ import { useStorageEngine } from './storage/storageEngineHooks';
 import { PageTitle } from './utils/PageTitle';
 import { shouldProtectAnalysisRoute } from './utils/analysisRouteAccess';
 import { StartupErrorScreen } from './components/StartupErrorScreen';
+import { ReviewDemo } from './demo/ReviewDemo';
 
 async function fetchGlobalConfigArray() {
   const globalFile = await fetch(`${PREFIX}global.json`);
@@ -153,6 +154,7 @@ export function GlobalConfigParser() {
       <AuthProvider>
         <ModalsProvider>
           <Routes>
+            <Route path="/review-demo" element={<ReviewDemo globalConfig={globalConfig} />} />
             <Route
               path="/"
               element={(

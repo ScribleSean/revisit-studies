@@ -17,7 +17,7 @@ test.each([false, true])('a delayed import captures its study and respects cance
   const gate = new Promise<void>((resolve) => { release = resolve; });
   // @ts-expect-error Capture storage reads to delay only the source.
   const get = engine._getFromStorage.bind(engine);
-  // @ts-expect-error Inject a controlled in-flight read.
+  // Inject a controlled in-flight read.
   const read = vi.spyOn(engine, '_getFromStorage').mockImplementation(async (...args: Parameters<typeof get>) => { if (args[1] === 'screenRecordingAnalysisSettings') await gate; return get(...args); });
   const controller = new AbortController();
   const pending = engine.importLegacyReviewSettings(controller.signal);
@@ -74,7 +74,7 @@ test('write failure and cancellation preserve current preferences', async () => 
   await engine._pushToStorage('', 'screenRecordingAnalysisSettings', { summarizationPipeline: 'gemini' });
   await engine.saveReviewArtifact('settings', { pipeline: 'heuristic', confusionWords: [] });
   const before = await engine.getReviewArtifact('settings');
-  // @ts-expect-error Inject failure at the write boundary.
+  // Inject failure at the write boundary.
   vi.spyOn(engine, '_pushToStorage').mockRejectedValueOnce(new Error('Disk unavailable'));
   await expect(engine.importLegacyReviewSettings()).rejects.toThrow('Disk unavailable');
   expect(await engine.getReviewArtifact('settings')).toEqual(before);

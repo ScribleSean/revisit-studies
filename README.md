@@ -4,9 +4,37 @@ ReVISit introduces reVISit.spec, a DSL for specifying study setups (consent form
 
 Create your own interactive, web-based data visualization by starting from the [template repository](https://github.com/revisit-studies/template) that tracks the stable version of this repository but removes unnecessary code baggage. Check out the [installation documentation](https://revisit.dev/docs/getting-started/installation/) for details.
 
-## ReVIEW local rebuild (in progress)
+## ReVIEW rebuild and browser demo
 
-This branch rebuilds the MQP recording-analysis features on upstream commit `641d02cd4dc4c1f9ed0cb4b2022030476b211a66` (September 9, 2026). The old fork is preserved on `archive/review-mqp-20260909`. Report parity is still being implemented; the list below describes verified improvements and remaining work.
+This rebuild includes upstream `revisit-studies/study` through commit `8969435bcef7117b96f204b3442ed601b5573b10`, fetched September 12, 2026. It uses the current upstream architecture and dependencies, with ReVIEW recording analysis added on top. The deployed application does not depend on the old fork implementation. Report parity remains subject to the verification limits below.
+
+### Try it now
+
+Open the [GitHub Pages demo](https://scriblesean.github.io/revisit-studies/review-demo), then select **Load simulated recordings**. This adds six explicitly labeled participants to each of two existing studies, with 18 saved recordings in total. The examples reuse three small, scripted chart animations: fluent, hesitant, and reconsidering. They include saved summaries, all six event types across the examples, OCR, confusion scores, and researcher tags.
+
+Choose **Review recordings** to play a clip, seek from evidence, add tags, and export Markdown or JSON. Choose **Compare recordings** to explore event counts, co-occurrence, and dense time windows. **All studies** opens the existing upstream study collection. **Try the actual study** runs the original example; simulated recordings are illustrative animations, not recordings of those actual sessions.
+
+Demo data stays in this browser's IndexedDB. Loading is atomic and repeatable: existing participant IDs and reviewer edits are preserved, and failed downloads do not leave a partial import. It does not upload anything or require a login. Clearing site data removes local data. The assets can be regenerated with `node scripts/generate-review-demo.mjs` after installing Playwright Chromium.
+
+**GitHub Pages supports saved analysis, playback, tags, exports, and dashboards. New AI analysis, batch processing, and semantic queries require the local Node/Python bridge.** The sample evidence is scripted, not AI output, and cannot establish accuracy or time savings. The local setup below enables fresh analysis of your own recordings.
+
+The Pages workflow builds with Node 24, the frozen Yarn 1 lockfile, `VITE_BASE_PATH=/revisit-studies/`, and `VITE_STORAGE_ENGINE=localStorage`, then publishes `gh-pages`. The existing SPA fallback supports bookmarked analysis routes. Vite preview now respects the production base path, so the same deployment can be verified locally.
+
+The recording view now puts playback and timeline evidence before export, pipeline setup, and legacy-import controls. Browser test helpers accept `REVIEW_TEST_STORAGE_PREFIX=prod` when checking a production build instead of accidentally reading the development database. The focused demo test also accepts `REVIEW_DEMO_BASE_PATH=/revisit-studies/` to exercise the real Pages route prefix.
+
+### Comparison with the MQP report
+
+| Report capability | Rebuild status | What the Pages demo proves |
+| --- | --- | --- |
+| Recording review and cross-clip analysis tabs | Implemented on current upstream storage and routing | Navigation, saved playback, evidence, and comparisons |
+| Six timestamped events, OCR grounding, confusion scoring | Implemented; real local speech/OCR extraction tested separately | Scripted examples and seeking; not detection accuracy |
+| Gemini, GPT, local VLM, and deterministic pipelines | Adapters and failure/cancellation contracts tested; deterministic local pipeline exercised with real tools | Saved output only; no live model execution |
+| Researcher tags, prompts, batch analysis, cache | Implemented with cancellation, atomic saves, and retained successful results | Tags and saved review; batch/model operations need the bridge |
+| MiniLM semantic search | Real local embeddings verified; stale revisions excluded | Semantic queries need the local bridge; synthetic examples do not claim search quality |
+| Nine artifact categories, snapshots, Markdown/JSON exports | Storage lifecycle and export tests cover the rebuilt schema and legacy imports | Browser-local exports; cloud service lifecycle coverage uses tests, not a production cloud deployment |
+| Reproducible evaluation and review-time improvement | Evaluation tooling and synthetic checks exist | No reproduction of the report's human review-time or model-quality results |
+
+The rebuild adds stronger save consistency, cancellation, bounded queues, cache validation, local dependency reuse, and regression coverage. Those changes improve reliability; they do not establish that the rebuild matches the report's claimed model quality or 83.4% researcher time reduction. A labeled participant corpus and a new human review study remain necessary for those claims. Unlike the report's browser/cloud fallback, model calls in this rebuild go through the local bridge so credentials stay out of the browser.
 
 ### Improvements implemented
 
@@ -60,7 +88,7 @@ Run `yarn serve:review-api` in one terminal and `yarn serve` in another. Vite pr
 
 ### Verification and limits
 
-Latest complete frontend unit checkpoint: **2,193 passed, one existing skip, 177 files** (133.76 seconds). Full source ESLint and TypeScript passed. Native bridge tests: **70 passed**. Python extraction tests: **11 passed**. Production build passed (2.94 seconds), retaining upstream dynamic-import warnings. Final full Chromium: **44 passed, three failed** (3.7 minutes). Only the external website and two Svelte cases fail because their resources are blocked by the test environment. Recording review, MVNV, and skip logic passed. Counts elsewhere in this README describe earlier checkpoints.
+Latest local checkpoint, September 12, 2026, after integrating current upstream: **2,193 frontend unit tests passed, one existing skip, 177 files** (68.01 seconds). Full source ESLint and TypeScript passed. Native bridge tests: **70 passed**. Python extraction tests: **11 passed**. Production build passed (2.65 seconds), retaining upstream plugin/dynamic-import warnings. **All 49 Chromium tests passed against the production build** (3.0 minutes), including the existing external website, Svelte, Vega, replay, MVNV, recording review, and skip-logic studies. Network access was available for the external study resources. The two demo tests also passed separately at the actual `/revisit-studies/` Pages prefix, covering import/retry, preserved edits, playback/seek, reload, JSON export, and cross-recording totals. A real Markdown export of the six simulated screen recordings completed with zero thumbnail warnings. Other counts and blocked-network notes below describe earlier September 9 checkpoints. This checkpoint does not claim a Safari/WebKit run or live cloud-model accuracy.
 
 **Synchronized recording timeline:** four rows align automatic events, purple researcher tags, gray OCR ticks, and signed confusion bars to video time. The six automatic types have distinct colors/shapes and a legend. Markers support mouse and Enter/Space seeking; the slider and red cursor follow video playback. Focus/hover displays raw evidence in a scrollable readout. Gold rings pair exact spoken confusion phrases with matching OCR in the same three-second bin. Evidence lists remain available for overlapping markers. The timeline scrolls horizontally on narrow screens to retain marker hit areas. Cursor updates are isolated from the surrounding evidence lists and dashboard.
 

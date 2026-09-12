@@ -43,7 +43,7 @@ test('conflicting current edits are reported and not overwritten', async () => {
 test('failed import write and pre-cancel preserve target and source', async () => {
   await engine.saveReviewArtifact('settings', { pipeline: 'local', confusionWords: [] });
   const before = await engine.getReviewArtifact('settings');
-  // @ts-expect-error Inject a write failure at the persistence boundary.
+  // Inject a write failure at the persistence boundary.
   const write = vi.spyOn(engine, '_pushToStorage').mockRejectedValueOnce(new Error('Disk unavailable'));
   await expect(engine.importLegacyReviewPrompts()).rejects.toThrow('Disk unavailable');
   write.mockRestore();
@@ -61,7 +61,7 @@ test('cancellation during source reads drains them and prevents the settings wri
   const gate = new Promise<void>((resolve) => { release = resolve; });
   // @ts-expect-error Capture the real storage method for a delayed source read.
   const get = engine._getFromStorage.bind(engine);
-  // @ts-expect-error Delay only legacy reads at the persistence boundary.
+  // Delay only legacy reads at the persistence boundary.
   const read = vi.spyOn(engine, '_getFromStorage').mockImplementation(async (...args: Parameters<typeof get>) => { if (args[1] === 'screenRecordingPrompts') await gate; return get(...args); });
   const pending = engine.importLegacyReviewPrompts(controller.signal);
   await vi.waitFor(() => expect(read).toHaveBeenCalled());
@@ -76,7 +76,7 @@ test('study switching while reading cannot redirect migrated settings', async ()
   const gate = new Promise<void>((resolve) => { release = resolve; });
   // @ts-expect-error Capture real storage to delay the source read.
   const get = engine._getFromStorage.bind(engine);
-  // @ts-expect-error Delay the captured study's legacy read.
+  // Delay the captured study's legacy read.
   const read = vi.spyOn(engine, '_getFromStorage').mockImplementation(async (...args: Parameters<typeof get>) => { if (args[1] === 'screenRecordingPrompts') await gate; return get(...args); });
   const pending = engine.importLegacyReviewPrompts();
   await vi.waitFor(() => expect(read).toHaveBeenCalled());

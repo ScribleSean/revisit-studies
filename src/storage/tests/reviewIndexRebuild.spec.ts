@@ -39,7 +39,7 @@ test('failed source reads preserve the previous saved index', async () => {
   const original = await engine.getReviewArtifact('index');
   // @ts-expect-error Capture storage reads for fault injection.
   const get = engine._getFromStorage.bind(engine);
-  // @ts-expect-error Fail a source read only; derived index reads remain available.
+  // Fail a source read only; derived index reads remain available.
   const read = vi.spyOn(engine, '_getFromStorage').mockImplementation(async (...args: Parameters<typeof get>) => {
     if (args[1] === 'review-tags') throw new Error('Permission denied');
     return get(...args);
@@ -65,7 +65,7 @@ test('cancellation drains at most four admitted participant reads before returni
   let admitted = 0;
   // @ts-expect-error Capture the real boundary for controlled reads.
   const get = engine._getFromStorage.bind(engine);
-  // @ts-expect-error Hold participant reads while allowing index verification.
+  // Hold participant reads while allowing index verification.
   const read = vi.spyOn(engine, '_getFromStorage').mockImplementation(async (...args: Parameters<typeof get>) => {
     if (args[1] === 'participantData') { admitted += 1; return pending; }
     return get(...args);

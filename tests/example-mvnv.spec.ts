@@ -1,3 +1,4 @@
+import { STORAGE_PREFIX } from './storagePrefix';
 /* eslint-disable no-await-in-loop */
 import { test, expect, Page } from '@playwright/test';
 import {
@@ -283,7 +284,7 @@ test('test', async ({ page, browserName }) => {
 
   const assignments = await readStoredValue<Record<string, unknown>>(
     page,
-    'dev-example-mvnv/sequenceAssignment',
+    `${STORAGE_PREFIX}example-mvnv/sequenceAssignment`,
   );
   const participantId = Object.keys(assignments ?? {})[0];
   if (!participantId) {
@@ -300,7 +301,7 @@ test('test', async ({ page, browserName }) => {
   await expect.poll(async () => {
     const participant = await readStoredValue<{ answers?: Record<string, MvnvAnswer> }>(
       page,
-      `dev-example-mvnv/participants/${participantId}_participantData`,
+      `${STORAGE_PREFIX}example-mvnv/participants/${participantId}_participantData`,
     );
     firstTaskRecording = Object.entries(participant?.answers ?? {})
       .map(([identifier, answer]) => ({ ...answer, identifier }))
@@ -314,8 +315,8 @@ test('test', async ({ page, browserName }) => {
     return Boolean(firstTaskRecording);
   }, { timeout: 15000 }).toBe(true);
 
-  const participantKey = `dev-example-mvnv/participants/${participantId}_participantData`;
-  const provenanceKey = `dev-example-mvnv/provenance/${participantId}_${firstTaskRecording!.identifier}`;
+  const participantKey = `${STORAGE_PREFIX}example-mvnv/participants/${participantId}_participantData`;
+  const provenanceKey = `${STORAGE_PREFIX}example-mvnv/provenance/${participantId}_${firstTaskRecording!.identifier}`;
   await expect.poll(async () => readStoredValue(page, provenanceKey), { timeout: 15000 }).not.toBeNull();
   const participantBeforeReplay = await readStoredValue(page, participantKey);
   const provenanceBeforeReplay = await readStoredValue(page, provenanceKey);

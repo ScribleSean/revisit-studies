@@ -1,3 +1,4 @@
+import { STORAGE_PREFIX } from './storagePrefix';
 /* eslint-disable no-await-in-loop */
 import { expect, Page } from '@playwright/test';
 
@@ -193,7 +194,7 @@ export async function readParticipantRecording(
 ) {
   const assignments = await readStoredValue<Record<string, unknown>>(
     page,
-    `dev-${studyId}/sequenceAssignment`,
+    `${STORAGE_PREFIX}${studyId}/sequenceAssignment`,
   );
   const participantId = Object.keys(assignments ?? {})[0];
   if (!participantId) {
@@ -206,7 +207,7 @@ export async function readParticipantRecording(
       startTime?: number;
       endTime?: number;
     }>;
-  }>(page, `dev-${studyId}/participants/${participantId}_participantData`);
+  }>(page, `${STORAGE_PREFIX}${studyId}/participants/${participantId}_participantData`);
   const answer = participant?.answers?.[identifier];
   if (
     typeof answer?.startTime !== 'number'

@@ -206,10 +206,12 @@ export function RecordingReview({ engine, participants }: { engine: StorageEngin
   return (
     <Stack p="md">
       <Title order={3}>Recording review</Title>
-      <RecordingReportExport engine={engine} />
+
       {!health && <Alert title="Analysis service unavailable">Start the local ReVIEW analysis service, then reopen this tab. Saved recordings and annotations remain available.</Alert>}
       {error && <Alert color="red">{error}</Alert>}
       <Select label="Participant and recording" searchable allowDeselect={false} data={options} value={selection || null} onChange={setSelected} placeholder="No completed task recordings" />
+      {clip ? <ClipReview key={`${selection}:${generation}:${initialTime}`} engine={engine} clip={clip} onBusyChange={setSingleBusy} initialTime={initialTime} importing={importBusy} settings={effectiveSettings} embeddings={health?.embeddings === true} available={!saving && !batchBusy && !importBusy && settingsReady && !!health?.pipelines.some((p) => p.id === settings.pipeline && p.available)} /> : <Text c="dimmed">Complete a study task with screen recording enabled to review its recording here.</Text>}
+      <RecordingReportExport engine={engine} />
       <Group align="end">
         <Select label="Analysis pipeline" value={settings.pipeline} disabled={!settingsReady || saving} data={['heuristic', 'gemini', 'gpt4o', 'local'].map((id) => ({ value: id, label: id === 'heuristic' ? 'Local timeline' : id, disabled: !health?.pipelines.some((p) => p.id === id && p.available) }))} onChange={(value) => { if (value) setSettings({ ...settings, pipeline: value as ReviewPipeline }); }} />
         <Textarea label="Confusion phrases (comma separated)" value={phrases} disabled={!settingsReady || saving} onChange={(event) => setPhrases(event.currentTarget.value)} />
@@ -222,7 +224,6 @@ export function RecordingReview({ engine, participants }: { engine: StorageEngin
       <LegacySettingsImport engine={engine} disabled={!settingsReady || saving || singleBusy || batchBusy || importBusy} busyChanged={setSaving} imported={(pipeline) => setSettings((current) => ({ ...current, pipeline }))} />
       <BatchRecordingReview engine={engine} clips={options.map((option) => { const [participantId, taskId] = JSON.parse(option.value); return { participantId, taskId }; })} settings={effectiveSettings} available={!saving && !singleBusy && !importBusy && settingsReady && !!health?.pipelines.some((p) => p.id === settings.pipeline && p.available)} embeddings={health?.embeddings === true} busy={batchBusy} setBusy={(value) => { setBatchBusy(value); if (value) setGeneration((current) => current + 1); }} completed={() => { setGeneration((value) => value + 1); }} />
       {clip && <LegacyRecordingImport key={selection} engine={engine} clip={clip} disabled={singleBusy || batchBusy || saving || importBusy} busyChanged={setImportBusy} imported={() => { setGeneration((value) => value + 1); }} />}
-      {clip ? <ClipReview key={`${selection}:${generation}:${initialTime}`} engine={engine} clip={clip} onBusyChange={setSingleBusy} initialTime={initialTime} importing={importBusy} settings={effectiveSettings} embeddings={health?.embeddings === true} available={!saving && !batchBusy && !importBusy && settingsReady && !!health?.pipelines.some((p) => p.id === settings.pipeline && p.available)} /> : <Text c="dimmed">Complete a study task with screen recording enabled to review its recording here.</Text>}
     </Stack>
   );
 }

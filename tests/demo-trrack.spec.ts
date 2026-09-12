@@ -1,3 +1,4 @@
+import { STORAGE_PREFIX } from './storagePrefix';
 /* eslint-disable no-await-in-loop */
 import {
   expect, test, type FrameLocator, type Page,
@@ -33,7 +34,7 @@ async function expectDotCount(frame: FrameLocator, count: number) {
 }
 
 async function readRecordedReplay(page: Page, studyId: string): Promise<RecordedReplay | null> {
-  const assignments = await readStoredValue<Record<string, unknown>>(page, `dev-${studyId}/sequenceAssignment`);
+  const assignments = await readStoredValue<Record<string, unknown>>(page, `${STORAGE_PREFIX}${studyId}/sequenceAssignment`);
   const participantId = Object.keys(assignments ?? {})[0];
   if (!participantId) {
     return null;
@@ -41,11 +42,11 @@ async function readRecordedReplay(page: Page, studyId: string): Promise<Recorded
 
   const participant = await readStoredValue<{ answers?: Record<string, { startTime?: number; endTime?: number }> }>(
     page,
-    `dev-${studyId}/participants/${participantId}_participantData`,
+    `${STORAGE_PREFIX}${studyId}/participants/${participantId}_participantData`,
   );
   const provenance = await readStoredValue<{ stimulus?: { traversalEvents?: Array<{ createdOn?: number }> } }>(
     page,
-    `dev-${studyId}/provenance/${participantId}_countDots_1`,
+    `${STORAGE_PREFIX}${studyId}/provenance/${participantId}_countDots_1`,
   );
   const answer = participant?.answers?.countDots_1;
   const traversalTimes = provenance?.stimulus?.traversalEvents

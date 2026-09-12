@@ -4,12 +4,12 @@ import react from '@vitejs/plugin-react-swc';
 import { coverageConfigDefaults } from 'vitest/config';
 
 // https://vitejs.dev/config/
-export default defineConfig(({ command, mode }) => {
+export default defineConfig(({ command, mode, isPreview }) => {
   const env = loadEnv(mode, process.cwd());
 
   return {
     server: { proxy: { '/api/review': 'http://127.0.0.1:3001' } },
-    base: command === 'build' ? env.VITE_BASE_PATH : '/',
+    base: command === 'build' || isPreview ? env.VITE_BASE_PATH : '/',
     plugins: [
       react({ devTarget: 'es2022' }),
     ],

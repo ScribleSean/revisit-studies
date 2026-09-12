@@ -92,7 +92,7 @@ describe('versioned review storage', () => {
   test('index failure reports a warning while retaining the committed analysis', async () => {
     // @ts-expect-error Preserve the real storage boundary for fault injection.
     const push = engine._pushToStorage.bind(engine);
-    // @ts-expect-error Fail only the derived index, after source commit succeeds.
+    // Fail only the derived index, after source commit succeeds.
     const upload = vi.spyOn(engine, '_pushToStorage').mockImplementation(async (...args: Parameters<typeof push>) => {
       if (args[1] === 'review-index') throw new Error('Index upload failed');
       return push(...args);
@@ -126,7 +126,7 @@ describe('versioned review storage', () => {
   });
   test('atomic analysis save failure preserves the complete previous result', async () => {
     const first = await engine.saveReviewAnalysis(analysisValue, clip);
-    // @ts-expect-error Inject a failed storage write at the commit boundary.
+    // Inject a failed storage write at the commit boundary.
     vi.spyOn(engine, '_pushToStorage').mockRejectedValueOnce(new Error('Upload interrupted'));
     await expect(engine.saveReviewAnalysis({ ...analysisValue, summary: { ...samples.summary, text: 'New' }, events: [] }, clip)).rejects.toThrow('Upload interrupted');
     expect(await engine.getReviewAnalysis(clip)).toEqual(first);
@@ -183,7 +183,7 @@ describe('versioned review storage', () => {
   });
 
   test('recording downloads forward cancellation and release temporary URLs on failure', async () => {
-    // @ts-expect-error Isolate the adapter URL primitive from the shared download contract.
+    // Isolate the adapter URL primitive from the shared download contract.
     vi.spyOn(engine, '_getScreenRecordingUrl').mockResolvedValue('blob:review-download');
     const revoke = vi.fn();
     vi.stubGlobal('URL', { revokeObjectURL: revoke });

@@ -1,3 +1,4 @@
+import { STORAGE_PREFIX } from './storagePrefix';
 import { expect, Page } from '@playwright/test';
 import { ParticipantData } from '../src/storage/types';
 
@@ -14,13 +15,13 @@ async function getCurrentParticipantData(page: Page, studyIdExternal: string) {
         const currentParticipant = store.get(`${studyId}/currentParticipantId`);
 
         currentParticipant.onsuccess = () => {
-          const currentParticipantId = studyId === 'dev-example-VLAT-full-randomized' ? 'test' : currentParticipant.result;
+          const currentParticipantId = studyId.endsWith('-example-VLAT-full-randomized') ? 'test' : currentParticipant.result;
           const participantData = store.get(`${studyId}/participants/${currentParticipantId}_participantData`);
           participantData.onsuccess = () => resolve(participantData.result);
         };
       };
     });
-  }, `dev-${studyIdExternal}`);
+  }, `${STORAGE_PREFIX}${studyIdExternal}`);
 }
 
 export async function checkSavedAnswers(page: Page, studyId: string) {

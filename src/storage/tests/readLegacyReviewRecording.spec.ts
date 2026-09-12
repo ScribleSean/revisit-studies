@@ -22,7 +22,7 @@ test('reads actual old paths and validates a combined result without writing new
 
 test('read errors propagate and cancellation does not start later artifact reads', async () => {
   const controller = new AbortController();
-  // @ts-expect-error Inject cancellation at the read boundary.
+  // Inject cancellation at the read boundary.
   const read = vi.spyOn(engine, '_getFromStorage').mockImplementation(async () => { controller.abort(); return null; });
   await expect(engine.readLegacyReviewRecording(clip, controller.signal)).rejects.toThrow();
   expect(read).toHaveBeenCalledTimes(1);
@@ -33,7 +33,7 @@ test('read errors propagate and cancellation does not start later artifact reads
 test('caller clip mutation cannot redirect later reads', async () => {
   const identity = { ...clip };
   const observed: [string, string, string?][] = [];
-  // @ts-expect-error Inspect captured read identities.
+  // Inspect captured read identities.
   const read = vi.spyOn(engine, '_getFromStorage').mockImplementation(async (prefix: string, type: string, studyId?: string) => { observed.push([prefix, type, studyId]); identity.participantId = 'other'; identity.taskId = 'changed'; return null; });
   expect(await engine.readLegacyReviewRecording(identity)).toEqual({ analysis: null, tags: null, embedding: null });
   expect(read).toHaveBeenCalledTimes(6);
@@ -63,7 +63,7 @@ test('partial write failures are reported and retry only fills missing categorie
   await engine._pushToStorage('screenRecordingTags/participant', 'task', [{ id: 'tag', timestamp: 1, label: 'Review' }]);
   // @ts-expect-error Capture the original write boundary.
   const push = engine._pushToStorage.bind(engine);
-  // @ts-expect-error Fail only tag materialization.
+  // Fail only tag materialization.
   const write = vi.spyOn(engine, '_pushToStorage').mockImplementation(async (...args: Parameters<typeof push>) => { if (args[1] === 'review-tags') throw new Error('Disk failure'); return push(...args); });
   const first = await engine.importLegacyReviewRecording(clip);
   expect(first.imported).toEqual(['analysis']); expect(first.errors).toEqual(['tags: Disk failure']);
@@ -78,7 +78,7 @@ test('retry repairs a failed derived index even when source categories are alrea
   await engine._pushToStorage('screenRecordingTags/participant', 'task', [{ id: 'tag', timestamp: 1, label: 'Review' }]);
   // @ts-expect-error Capture writes for derived-index fault injection.
   const push = engine._pushToStorage.bind(engine);
-  // @ts-expect-error Fail only index writes, preserving successful source import.
+  // Fail only index writes, preserving successful source import.
   const write = vi.spyOn(engine, '_pushToStorage').mockImplementation(async (...args: Parameters<typeof push>) => { if (args[1] === 'review-index') throw new Error('Index unavailable'); return push(...args); });
   const first = await engine.importLegacyReviewRecording(clip);
   expect(first.imported).toEqual(['tags']); expect(first.errors.join(' ')).toContain('Index unavailable');

@@ -1,3 +1,4 @@
+import { STORAGE_PREFIX } from './storagePrefix';
 /* eslint-disable no-await-in-loop */
 import { test, expect, Page } from '@playwright/test';
 import { nextClick, waitForStudyEndMessage } from './utils';
@@ -170,7 +171,7 @@ async function goToCheck(page: Page, check: 'response' | 'responses' | 'attentio
 }
 
 async function getTags(page: Page) {
-  return page.evaluate(async () => {
+  return page.evaluate(async (storagePrefix) => {
     let db;
     const request = indexedDB.open('revisit');
 
@@ -182,9 +183,9 @@ async function getTags(page: Page) {
         const store = transaction.objectStore('keyvaluepairs');
         // const sequenceArrayInternal = store.get('sequenceArray');
         // sequenceArrayInternal.onsuccess = () => resolve(sequenceArrayInternal.result);
-        const currentParticipant = store.get('dev-test-skip-logic/currentParticipantId');
+        const currentParticipant = store.get(`${storagePrefix}test-skip-logic/currentParticipantId`);
         currentParticipant.onsuccess = () => {
-          const participantData = store.get(`dev-test-skip-logic/participants/${currentParticipant.result}_participantData`);
+          const participantData = store.get(`${storagePrefix}test-skip-logic/participants/${currentParticipant.result}_participantData`);
           participantData.onsuccess = () => {
             const { participantTags } = participantData.result;
             resolve(participantTags);
@@ -192,7 +193,7 @@ async function getTags(page: Page) {
         };
       };
     });
-  });
+  }, STORAGE_PREFIX);
 }
 
 test('evaluates response, block, nested, and attention-check skip conditions', async ({ page }) => {
