@@ -9,6 +9,12 @@ import {
 
 test.setTimeout(180000);
 
+let taskTransitions: { iteration: number; question: string; before: string; after: string }[] = [];
+test.beforeEach(() => { taskTransitions = []; });
+test.afterEach(async () => {
+  await test.info().attach('mvnv-task-transitions', { body: JSON.stringify(taskTransitions, null, 2), contentType: 'application/json' });
+});
+
 async function getCurrentTaskQuestion(page: Page) {
   const question = page.locator('p').filter({ has: page.locator('strong:has-text("Question:")') }).first();
   if (!(await question.isVisible().catch(() => false))) {
@@ -243,6 +249,10 @@ test('test', async ({ page, browserName }) => {
       await expect(qText).toBeVisible({ timeout: 5000 });
     }
     const questionBefore = await getCurrentTaskQuestion(page);
+    const transition = {
+      iteration: i, question: questionBefore, before: page.url(), after: '',
+    };
+    taskTransitions.push(transition);
     // Check if the current question is the task zero question
     if (questionBefore === taskZeroQuestion) {
       await expect(page.getByText(taskZeroQuestion)).toBeVisible();
@@ -256,12 +266,14 @@ test('test', async ({ page, browserName }) => {
       break;
     }
     await nextClick(page, taskTimeoutMs);
-    // Best-effort settle only; do not fail the whole run on transient render gaps.
+    transition.after = page.url();
+    // React may update the route before replacing the previous question. Wait
+    // for both so the next iteration cannot answer stale task controls.
     await expect.poll(async () => {
       if (await isFinished()) return true;
       const questionAfter = await getCurrentTaskQuestion(page);
-      return !!questionAfter;
-    }, { timeout: 5000 }).toBe(true).catch(() => { });
+      return page.url() !== transition.before && !!questionAfter && questionAfter !== questionBefore;
+    }, { timeout: taskTimeoutMs }).toBe(true);
   }
 
   expect(sawTaskZero).toBe(true);
@@ -316,8 +328,34 @@ test('test', async ({ page, browserName }) => {
   const selectedAnswerBoxCount = () => replayFrame.locator('.answerBox rect').evaluateAll((rects) => (
     rects.filter((rect) => getComputedStyle(rect).fill !== 'rgb(255, 255, 255)').length
   ));
+  const savedSelectedNames = firstTaskRecording!.answer!['iframe-task'] as string[];
+  expect(savedSelectedNames.length).toBeGreaterThan(0);
+  const selectedAnswerNames = () => replayFrame.locator('.answerBox rect').evaluateAll((rects) => (
+    rects.filter((rect) => getComputedStyle(rect).fill !== 'rgb(255, 255, 255)').map((rect) => {
+      const datum = (rect as Element & { __data__: { shortName?: string; name: string } }).__data__;
+      return datum.shortName || datum.name;
+    }).sort()
+  ));
 
-  await expect.poll(selectedAnswerBoxCount, { timeout: 15000 }).toBeGreaterThan(0);
+  try {
+    await expect.poll(selectedAnswerNames, { timeout: 15000 }).toEqual([...savedSelectedNames].sort());
+  } finally {
+    const iframeState = await replayFrame.locator('body').evaluate(() => {
+      const frameWindow = window as typeof window & { controller?: { model?: { nodes?: unknown[]; app?: { currentState?: () => unknown } }; view?: { datumID?: string } } };
+      return {
+        url: window.location.href,
+        nodes: frameWindow.controller?.model?.nodes,
+        datumID: frameWindow.controller?.view?.datumID,
+        state: frameWindow.controller?.model?.app?.currentState?.(),
+        boxes: Array.from(document.querySelectorAll('.answerBox rect')).map((rect) => ({
+          datum: (rect as Element & { __data__?: unknown }).__data__, fill: getComputedStyle(rect).fill,
+        })),
+      };
+    });
+    await test.info().attach('mvnv-replay-state', {
+      body: JSON.stringify({ firstTaskParticipantPath, firstTaskRecording, iframeState }), contentType: 'application/json',
+    });
+  }
   await expect.poll(async () => replayFrame.locator('.answer').count(), { timeout: 15000 }).toBeGreaterThan(0);
 
   await seekReplay(

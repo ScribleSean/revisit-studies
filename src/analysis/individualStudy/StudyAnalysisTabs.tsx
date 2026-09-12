@@ -1,7 +1,7 @@
 import {
   Alert, AppShell, Badge, Center, Checkbox, Container, Flex, Group, LoadingOverlay, Stack, Tabs, Text, Title, MultiSelect, Tooltip,
 } from '@mantine/core';
-import { useNavigate, useParams } from 'react-router';
+import { useLocation, useNavigate, useParams } from 'react-router';
 import {
   IconChartDonut2, IconTable, IconSettings,
   IconInfoCircle,
@@ -37,6 +37,9 @@ import { ThinkAloudAnalysis } from './thinkAloud/ThinkAloudAnalysis';
 import { FirebaseStorageEngine } from '../../storage/engines/FirebaseStorageEngine';
 import { ConfigView } from './config/ConfigView';
 import { StartupErrorScreen } from '../../components/StartupErrorScreen';
+import { RecordingReview } from './screenRecordingSummarization/RecordingReview';
+import { CrossRecordingReview } from './screenRecordingSummarization/CrossRecordingReview';
+import { recordingQuery } from './screenRecordingSummarization/recordingNavigation';
 
 const TABLE_HEADER_HEIGHT = 37; // Height of the tabs header
 
@@ -82,6 +85,7 @@ async function getCurrentConfigHashForStudy(
 }
 
 export function StudyAnalysisTabs({ globalConfig }: { globalConfig: GlobalConfig; }) {
+  const [recordingSearch, setRecordingSearch] = useState<{ studyId: string | null | undefined; query: string } | null>(null);
   const { studyId: routeStudyId } = useParams();
   const [studyConfig, setStudyConfig] = useState<ParsedConfig<StudyConfig> | undefined>(undefined);
   const [startupError, setStartupError] = useState<{ error: unknown } | null>(null);
@@ -102,6 +106,7 @@ export function StudyAnalysisTabs({ globalConfig }: { globalConfig: GlobalConfig
 
   const { storageEngine } = useStorageEngine();
   const navigate = useNavigate();
+  const { search } = useLocation();
   const { analysisTab } = useParams();
   const { user } = useAuth();
   const [ref, { width }] = useResizeObserver();
@@ -573,12 +578,14 @@ export function StudyAnalysisTabs({ globalConfig }: { globalConfig: GlobalConfig
               keepMounted={false}
               variant="outline"
               value={analysisTab}
-              onChange={(value) => navigate(`/analysis/stats/${routeStudyId}/${value}`)}
+              onChange={(value) => { if (value && value !== analysisTab) navigate({ pathname: `/analysis/stats/${routeStudyId}/${value}`, search }); }}
             >
               <Tabs.List>
                 <Tabs.Tab value="summary" leftSection={<IconChartPie size={16} />}>Study Summary</Tabs.Tab>
                 <Tabs.Tab value="table" leftSection={<IconTable size={16} />}>Participant View</Tabs.Tab>
                 <Tabs.Tab value="stats" leftSection={<IconChartDonut2 size={16} />}>Trial Stats</Tabs.Tab>
+                <Tabs.Tab value="recordings">Recording review</Tabs.Tab>
+                <Tabs.Tab value="cross-recordings">Study analysis (cross-clip)</Tabs.Tab>
                 <Tooltip
                   label={!isFirebaseEngine
                     ? 'Think aloud coding is only available when using Firebase and when audio recording is enabled in your study config'
@@ -615,6 +622,12 @@ export function StudyAnalysisTabs({ globalConfig }: { globalConfig: GlobalConfig
               </Tabs.Panel>
               <Tabs.Panel style={{ overflow: 'auto' }} value="stats" pt="xs">
                 {studyConfig && <StatsView studyConfig={studyConfig} visibleParticipants={visibleParticipants} allConfigs={allConfigs} />}
+              </Tabs.Panel>
+              <Tabs.Panel value="recordings" pt="xs" style={{ overflow: 'auto' }}>
+                {storageEngine && <RecordingReview key={canonicalStudyId} engine={storageEngine} participants={selectedParticipants.length ? selectedParticipants : visibleParticipants} />}
+              </Tabs.Panel>
+              <Tabs.Panel value="cross-recordings" pt="xs" style={{ overflow: 'auto' }}>
+                {storageEngine && <CrossRecordingReview key={canonicalStudyId} engine={storageEngine} participants={selectedParticipants.length ? selectedParticipants : visibleParticipants} initialQuery={recordingSearch?.studyId === canonicalStudyId ? recordingSearch?.query || '' : ''} rememberQuery={(query) => setRecordingSearch({ studyId: canonicalStudyId, query })} select={(clip) => navigate(`/analysis/stats/${routeStudyId}/recordings?${recordingQuery(clip)}`)} />}
               </Tabs.Panel>
               <Tabs.Panel value="tagging" pt="xs">
                 {studyConfig && codingEnabled

@@ -174,11 +174,12 @@ vi.mock('@supabase/supabase-js', () => {
             });
             return { data: paths, error: null };
           },
-          list: async (path: string, _opts?: object) => {
+          list: async (path: string, options?: { limit?: number; offset?: number }) => {
             const prefix = path.endsWith('/') ? path : `${path}/`;
             const keys = Object.keys(storageFiles).filter((k) => k.startsWith(prefix));
             const names = new Set(keys.map((k) => k.slice(prefix.length).split('/')[0]));
-            return { data: [...names].map((name) => ({ name })), error: null };
+            const entries = [...names].sort().map((name) => ({ name, id: `${prefix}${name}` in storageFiles ? name : null }));
+            return { data: entries.slice(options?.offset || 0, (options?.offset || 0) + (options?.limit || 100)), error: null };
           },
           updateMetadata: async (_path: string, _metadata: object) => ({ data: {}, error: null }),
         }),

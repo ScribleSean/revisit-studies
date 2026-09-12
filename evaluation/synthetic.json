@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "provenance": "synthetic",
+  "description": "Generated scene transition, steady 120-second video, and four-second MP4 with digital silence. Expected events come from fixture construction, not human raters.",
+  "clips": [
+    {
+      "id": "scene-transition",
+      "file": "../tests/fixtures/review-scene-change.webm",
+      "duration": 4,
+      "events": [{ "type": "scene_change", "timestamp": 2 }]
+    },
+    {
+      "id": "steady-video",
+      "file": "../tests/fixtures/review-dense-timeline.webm",
+      "duration": 120,
+      "events": []
+    },
+    {
+      "id": "silent-audio-mp4",
+      "file": "../tests/fixtures/review-silent-audio.mp4",
+      "duration": 4,
+      "events": []
+    }
+  ]
+}

@@ -32,6 +32,7 @@ let currentStable: ReturnType<typeof useAsync> = {
 // ── mocks ─────────────────────────────────────────────────────────────────────
 
 vi.mock('react-router', () => ({
+  useLocation: () => ({ search: '' }),
   useNavigate: () => vi.fn(),
   useParams: () => mockParams,
 }));
@@ -110,6 +111,18 @@ vi.mock('../individualStudy/management/ManageView', () => ({
 }));
 vi.mock('../individualStudy/thinkAloud/ThinkAloudAnalysis', () => ({
   ThinkAloudAnalysis: () => <div>ThinkAloudAnalysis</div>,
+}));
+vi.mock('../individualStudy/screenRecordingSummarization/RecordingReview', () => ({
+  RecordingReview: ({ participants }: { participants: { participantId: string }[] }) => <div data-testid="recording-review-participants">{participants.map((participant) => participant.participantId).join(',')}</div>,
+}));
+vi.mock('../individualStudy/screenRecordingSummarization/CrossRecordingReview', () => ({
+  CrossRecordingReview: ({ participants, initialQuery, rememberQuery }: { participants: { participantId: string }[]; initialQuery: string; rememberQuery: (query: string) => void }) => (
+    <div>
+      <div data-testid="cross-review-participants">{participants.map((participant) => participant.participantId).join(',')}</div>
+      <output data-testid="remembered-query">{initialQuery}</output>
+      <button type="button" onClick={() => rememberQuery('separate task')}>Submit test search</button>
+    </div>
+  ),
 }));
 vi.mock('../individualStudy/config/ConfigView', () => ({
   ConfigView: () => <div>ConfigView</div>,
@@ -217,6 +230,24 @@ describe('StudyAnalysisTabs', () => {
     expect(html).toContain('Coding');
     expect(html).toContain('Config');
     expect(html).toContain('Manage');
+    expect(html).toContain('Recording review');
+    expect(html).toContain('Study analysis (cross-clip)');
+  });
+
+  test('retains the submitted recording query on tab changes and isolates it from another study', async () => {
+    const view = render(<StudyAnalysisTabs globalConfig={mockGlobalConfig} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Submit test search' }));
+    expect(screen.getByTestId('remembered-query').textContent).toBe('separate task');
+
+    mockParams = { studyId: 'test-study', analysisTab: 'recordings' };
+    await act(async () => view.rerender(<StudyAnalysisTabs globalConfig={mockGlobalConfig} />));
+    mockParams = { studyId: 'test-study', analysisTab: 'cross-recordings' };
+    await act(async () => view.rerender(<StudyAnalysisTabs globalConfig={mockGlobalConfig} />));
+    expect(screen.getByTestId('remembered-query').textContent).toBe('separate task');
+
+    mockParams = { studyId: 'another-study', analysisTab: 'cross-recordings' };
+    await act(async () => view.rerender(<StudyAnalysisTabs globalConfig={mockGlobalConfig} />));
+    expect(screen.getByTestId('remembered-query').textContent).toBe('');
   });
 
   test('renders disabled Live Monitor tab and Firebase-only message when not Firebase', () => {
@@ -259,6 +290,7 @@ describe('StudyAnalysisTabs', () => {
     });
     // After selecting a participant, the checkbox labels should contain "of"
     expect(document.body.textContent).toContain('of');
+    expect(screen.getByTestId('recording-review-participants').textContent).toBe('p1');
   });
 
   test('renders ThinkAloudAnalysis in Coding panel when Firebase and studyConfig is loaded', async () => {

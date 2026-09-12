@@ -10,6 +10,7 @@ import {
   beforeAll, beforeEach, afterAll, afterEach, describe, expect, test, vi,
 } from 'vitest';
 
+import { getBlob, listAll, uploadBytes } from 'firebase/storage';
 import { type ParticipantMetadata, type StudyConfig } from '../../parser/types';
 import testConfigSimple from './testConfigSimple.json';
 import { generateSequenceArray } from '../../utils/handleRandomSequences';
@@ -504,6 +505,47 @@ describe.each([
     await storageEngine._deleteDirectory(target);
     // @ts-expect-error using protected method for testing
     expect(await storageEngine._directoryExists(target)).toBe(false);
+  });
+
+  test('review artifact reads distinguish missing data from permission failures', async () => {
+    const clip = { participantId: 'p', taskId: 't' };
+    expect(await storageEngine.getReviewArtifact('events', clip)).toBeNull();
+    await storageEngine.saveReviewArtifact('events', [], clip);
+    expect((await storageEngine.getReviewArtifact('events', clip))?.value).toEqual([]);
+    vi.mocked(getBlob).mockRejectedValueOnce(new Error('permission denied'));
+    await expect(storageEngine.getReviewArtifact('events', clip)).rejects.toThrow('permission denied');
+  });
+
+  test('legacy review reads preserve plain summaries and propagate failed or corrupt sources', async () => {
+    expect((await storageEngine.importLegacyReviewPrompts()).imported).toBe(0);
+    // @ts-expect-error Inspect old recording storage directly.
+    expect(await storageEngine._getFromStorage('screenRecordingEvents/p', 'task')).toBeNull();
+    vi.mocked(getBlob).mockResolvedValueOnce(new Blob(['Plain historical summary']));
+    // @ts-expect-error Historical summaries can be plain text.
+    expect(await storageEngine._getFromStorage('screenRecordingSummary/p', 'task')).toBe('Plain historical summary');
+    vi.mocked(getBlob).mockResolvedValueOnce(new Blob(['broken json']));
+    // @ts-expect-error Broken event data must not be mistaken for missing data.
+    await expect(storageEngine._getFromStorage('screenRecordingEvents/p', 'task')).rejects.toThrow();
+    vi.mocked(getBlob).mockRejectedValueOnce(new Error('Legacy permission denied'));
+    // @ts-expect-error Permission errors must stop migration.
+    await expect(storageEngine._getFromStorage('', 'screenRecordingPrompts')).rejects.toThrow('Legacy permission denied');
+  });
+
+  test('snapshot copy rejects failed listing and uploads', async () => {
+    vi.mocked(listAll).mockRejectedValueOnce(new Error('listing failed'));
+    // @ts-expect-error using protected method for testing
+    await expect(storageEngine._copyDirectory('source', 'target')).rejects.toThrow('listing failed');
+    storageObjects['source/review-events'] = '{}';
+    vi.mocked(uploadBytes).mockRejectedValueOnce(new Error('upload failed'));
+    // @ts-expect-error using protected method for testing
+    await expect(storageEngine._copyDirectory('source', 'target')).rejects.toThrow('upload failed');
+    expect(storageObjects['target/review-events']).toBeUndefined();
+  });
+
+  test('snapshot deletion rejects a failed listing', async () => {
+    vi.mocked(listAll).mockRejectedValueOnce(new Error('listing failed'));
+    // @ts-expect-error using protected method for testing
+    await expect(storageEngine._deleteDirectory('source')).rejects.toThrow('listing failed');
   });
 
   test('_copyRealtimeData copies realtime data', async () => {

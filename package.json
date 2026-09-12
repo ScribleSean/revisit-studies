@@ -4,6 +4,9 @@
   "version": "2.0.0",
   "type": "module",
   "scripts": {
+    "serve:review-api": "node server/review/start.mjs",
+    "test:review-api": "node --test server/review/tests/*.test.mjs",
+    "evaluate:review": "node evaluation/run.mjs",
     "buildDocs": "typedoc",
     "serve": "vite --host=0.0.0.0 --port=8080",
     "typecheck": "tsc --noEmit",

@@ -97,11 +97,11 @@ function rehydrateAdjMatrixAnswer(selectedIds) {
 }
 
 function rehydrateSelectedNodes(selectedNodes) {
-  const selectedNames = selectedNodes.map((node) => node.name);
+  const selectedNames = selectedNodes.map((node) => node.shortName || node.name);
   const selectedIds = selectedNodes.map((node) => node.id);
   taskList[currentTask].answer.nodes = selectedNodes.map((node) => ({
     id: node.id,
-    name: node.name,
+    name: node.shortName || node.name,
   }));
   const selectedList = d3
     .select('#selectedNodeList')
@@ -133,7 +133,9 @@ function rehydrateRevisitState() {
   );
   const selectedNames = trialAnswer?.answer?.[revisitTaskID];
   if (Array.isArray(selectedNames)) {
-    rehydrateSelectedNodes(graph.nodes.filter((node) => selectedNames.includes(node.name)));
+    // Recorded answers use shortName. Retain full-name compatibility for older
+    // saved data rather than silently dropping differently labeled nodes.
+    rehydrateSelectedNodes(graph.nodes.filter((node) => selectedNames.includes(node.shortName) || selectedNames.includes(node.name)));
   }
 }
 
@@ -141,6 +143,10 @@ Revisit.onAnswersReceive((answers) => {
   revisitAnswers = answers;
   rehydrateRevisitState();
 });
+
+// Matrix data loads asynchronously after loadTask returns. Restore the latest
+// saved/replay state only once the replacement answer controls exist as well.
+window.addEventListener('revisit-mvnv-rendered', rehydrateRevisitState);
 
 Revisit.onProvenanceReceive((state) => {
   revisitProvenanceState = state;

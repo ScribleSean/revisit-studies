@@ -34,6 +34,7 @@ import { ReCaptchaV3Provider, initializeAppCheck } from '@firebase/app-check';
 import {
   browserPopupRedirectResolver, getAuth, GoogleAuthProvider, onAuthStateChanged, signInAnonymously, signInWithPopup, signOut,
 } from '@firebase/auth';
+import { isReviewStorageArtifact } from '../reviewArtifacts';
 import {
   CloudStorageEngine,
   REVISIT_MODE,
@@ -98,8 +99,16 @@ export class FirebaseStorageEngine extends CloudStorageEngine {
     try {
       const blob = await getBlob(storageRef);
       const fullProvStr = await blob.text();
-      storageObj = JSON.parse(fullProvStr);
-    } catch {
+      try { storageObj = JSON.parse(fullProvStr); } catch (error) {
+        // Old task-named summary objects can contain plain text rather than JSON.
+        if (prefix.startsWith('screenRecordingSummary/')) return fullProvStr as unknown as StorageObject<T>;
+        throw error;
+      }
+    } catch (error) {
+      if (isReviewStorageArtifact(prefix, type)) {
+        if ((error as { code?: string }).code === 'storage/object-not-found') return null;
+        throw error;
+      }
       console.warn(
         `${prefix} does not have ${type} for ${this.collectionPrefix}${this.studyId}.`,
       );
@@ -108,10 +117,10 @@ export class FirebaseStorageEngine extends CloudStorageEngine {
     return storageObj;
   }
 
-  protected async _pushToStorage<T extends StorageObjectType>(prefix: string, type: T, objectToUpload: StorageObject<T>) {
+  protected async _pushToStorage<T extends StorageObjectType>(prefix: string, type: T, objectToUpload: StorageObject<T>, studyId?: string) {
     const storageRef = ref(
       this.storage,
-      `${this.collectionPrefix}${this.studyId}/${prefix}_${type}`,
+      `${this.collectionPrefix}${studyId || this.studyId}/${prefix}_${type}`,
     );
 
     if (objectToUpload instanceof Blob) {
@@ -127,10 +136,11 @@ export class FirebaseStorageEngine extends CloudStorageEngine {
   protected async _deleteFromStorage<T extends StorageObjectType>(
     prefix: string,
     type: T,
+    studyId?: string,
   ) {
     const storageRef = ref(
       this.storage,
-      `${this.collectionPrefix}${this.studyId}/${prefix}_${type}`,
+      `${this.collectionPrefix}${studyId || this.studyId}/${prefix}_${type}`,
     );
     await deleteObject(storageRef);
   }
@@ -649,6 +659,7 @@ export class FirebaseStorageEngine extends CloudStorageEngine {
       await Promise.all(copyPromises);
     } catch (error) {
       console.error('Error copying file:', error);
+      throw error;
     }
   }
 
@@ -661,6 +672,7 @@ export class FirebaseStorageEngine extends CloudStorageEngine {
       await Promise.all(deletePromises);
     } catch (error) {
       console.error('Error deleting files in directory:', error);
+      throw error;
     }
   }
 
@@ -825,11 +837,13 @@ export class FirebaseStorageEngine extends CloudStorageEngine {
 
       const sourceFileURL = await getDownloadURL(sourceFileRef);
       const response = await fetch(sourceFileURL);
+      if (!response.ok) throw new Error(`Snapshot source download failed (HTTP ${response.status})`);
       const blob = await response.blob();
 
       await uploadBytes(targetFileRef, blob);
     } catch (error) {
       console.error('Error copying file:', error);
+      throw error;
     }
   }
 

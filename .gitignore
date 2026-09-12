@@ -39,3 +39,11 @@ supabase/volumes/db/data
 !supabase/volumes/api/
 
 coverage/
+
+# Local ReVIEW runtime and analysis artifacts
+.venv/
+.review-models/
+.review-cache/
+.review-uploads/
+.review-cleanup/
+__pycache__/

@@ -1,0 +1,7 @@
+# Local analysis dependencies; install in .venv, never the system interpreter.
+openai-whisper>=20231117
+scenedetect[opencv]>=0.6.4
+opencv-python>=4.8.0
+sentence-transformers>=2.2.0
+pytesseract>=0.3.10
+Pillow>=10

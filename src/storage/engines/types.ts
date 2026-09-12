@@ -1,6 +1,17 @@
 import localforage from 'localforage';
 import throttle from 'lodash.throttle';
 import { v4 as uuidv4 } from 'uuid';
+import { queueReviewIndexUpdate } from '../reviewIndexQueue';
+import { planLegacyPromptImport } from '../legacyReviewPrompts';
+import { legacyReviewPipeline } from '../legacyReviewSettings';
+import { convertLegacyRecording } from '../legacyReviewRecording';
+import { decodeLegacyReviewArtifact } from '../decodeLegacyReviewArtifact';
+import type { StudyIndexedEvent } from '../../analysis/individualStudy/screenRecordingSummarization/studyEventsIndexTypes';
+import {
+  ANALYSIS_KINDS, parseReviewAnalysis, parseReviewArtifact, reviewArtifactPrefix, validateReviewValue,
+  type ReviewAnalysis, type ReviewAnalysisValue,
+  type ReviewArtifact, type ReviewArtifactKind, type ReviewArtifacts, type ReviewClip,
+} from '../reviewArtifacts';
 import { StudyConfig } from '../../parser/types';
 import { ParticipantMetadata, Sequence, StoredProvenance } from '../../store/types';
 import { ParticipantData, ParticipantDataWithStatus } from '../types';
@@ -103,6 +114,10 @@ export type StorageObject<T extends StorageObjectType> =
   ? ParticipantTags
   : T extends 'tags'
   ? Tag[]
+  : T extends 'review-analysis'
+  ? ReviewAnalysis
+  : T extends `review-${infer K extends ReviewArtifactKind}`
+  ? ReviewArtifact<K>
   : Blob; // Fallback for any random string
 
 interface CloudStorageEngineError {
@@ -241,10 +256,10 @@ export abstract class StorageEngine {
   protected abstract _getFromStorage<T extends StorageObjectType>(prefix: string, type: T, studyId?: string): Promise<StorageObject<T> | null>;
 
   // Pushes an object to the storage engine. The object is identified by its type and studyId.
-  protected abstract _pushToStorage<T extends StorageObjectType>(prefix: string, type: T, objectToUpload: StorageObject<T>): Promise<void>;
+  protected abstract _pushToStorage<T extends StorageObjectType>(prefix: string, type: T, objectToUpload: StorageObject<T>, studyId?: string): Promise<void>;
 
   // Deletes an object from the storage engine. The object is identified by its type and studyId.
-  protected abstract _deleteFromStorage<T extends StorageObjectType>(prefix: string, type: T): Promise<void>;
+  protected abstract _deleteFromStorage<T extends StorageObjectType>(prefix: string, type: T, studyId?: string): Promise<void>;
 
   // Caches an object in the storage engine (using cache headers) to avoid fetching it from the server every time.
   protected abstract _cacheStorageObject<T extends StorageObjectType>(prefix: string, type: T): Promise<void>;
@@ -1765,6 +1780,354 @@ export abstract class StorageEngine {
   }
 
   // Gets the sequence array from the storage engine.
+  async getReviewArtifact<K extends ReviewArtifactKind>(kind: K, clip?: ReviewClip): Promise<ReviewArtifact<K> | null> {
+    const prefix = reviewArtifactPrefix(kind, clip);
+    const { studyId } = this;
+    if (!studyId) throw new Error('Study ID is not set');
+    await this.verifyStudyDatabase();
+    if (ANALYSIS_KINDS.some((key) => key === kind)) {
+      const analysis = parseReviewAnalysis(await this._getFromStorage(prefix, 'review-analysis', studyId));
+      if (analysis) return { version: 1, updatedAt: analysis.updatedAt, value: analysis.value[kind as typeof ANALYSIS_KINDS[number]] } as ReviewArtifact<K>;
+    }
+    const data = await this._getFromStorage(prefix, `review-${kind}`, studyId);
+    return parseReviewArtifact(kind, data);
+  }
+
+  async getReviewAnalysis(clip: ReviewClip): Promise<ReviewAnalysis | null> {
+    const prefix = reviewArtifactPrefix('summary', clip);
+    const { studyId } = this;
+    if (!studyId) throw new Error('Study ID is not set');
+    await this.verifyStudyDatabase();
+    const current = parseReviewAnalysis(await this._getFromStorage(prefix, 'review-analysis', studyId));
+    if (current) return current;
+    // Compatibility for artifacts saved before atomic analysis was introduced.
+    const [summary, events, ocr, confusion] = await Promise.all(ANALYSIS_KINDS.map(async (kind) => parseReviewArtifact(kind, await this._getFromStorage(prefix, `review-${kind}`, studyId))));
+    if (!summary && !events && !ocr && !confusion) return null;
+    const values = [summary, events, ocr, confusion];
+    const updatedAt = values.map((item) => item?.updatedAt || '').sort().at(-1)!;
+    return {
+      version: 1,
+      revision: `legacy:${JSON.stringify(values.map((item) => item?.updatedAt || null))}`,
+      updatedAt,
+      value: {
+        summary: (summary?.value || { text: '', pipeline: 'legacy', model: '' }) as ReviewArtifacts['summary'],
+        events: (events?.value || []) as ReviewArtifacts['events'],
+        ocr: (ocr?.value || []) as ReviewArtifacts['ocr'],
+        confusion: (confusion?.value || []) as ReviewArtifacts['confusion'],
+      },
+    };
+  }
+
+  async saveReviewAnalysis(value: ReviewAnalysisValue, clip: ReviewClip) {
+    const prefix = reviewArtifactPrefix('summary', clip);
+    const identity = { ...clip };
+    const { studyId } = this;
+    if (!studyId) throw new Error('Study ID is not set');
+    const analysis: ReviewAnalysis = {
+      version: 1, revision: uuidv4(), updatedAt: new Date().toISOString(), value: structuredClone(value),
+    };
+    parseReviewAnalysis(analysis);
+    await this.verifyStudyDatabase();
+    await this.queueReviewClip(studyId, identity, () => this._pushToStorage(prefix, 'review-analysis', analysis, studyId));
+    const indexWarning = await this.updateReviewEventIndex(studyId, identity, 'auto');
+    return { ...analysis, ...(indexWarning ? { indexWarning } : {}) };
+  }
+
+  private async readReviewSourceEvents(studyId: string, clip: ReviewClip, source: 'auto' | 'tag'): Promise<StudyIndexedEvent[]> {
+    const prefix = reviewArtifactPrefix('events', clip);
+    if (source === 'auto') {
+      const analysis = parseReviewAnalysis(await this._getFromStorage(prefix, 'review-analysis', studyId));
+      const current = analysis?.value.events ?? parseReviewArtifact('events', await this._getFromStorage(prefix, 'review-events', studyId))?.value ?? [];
+      return current.map((event) => ({ ...event, ...clip, source: 'auto' }));
+    }
+    const current = parseReviewArtifact('tags', await this._getFromStorage(prefix, 'review-tags', studyId))?.value || [];
+    return current.map((tag) => ({
+      ...clip, timestamp: tag.timestamp, type: 'tag', evidence: tag.label, source: 'tag',
+    }));
+  }
+
+  getReviewStudyId() {
+    const { studyId } = this;
+    if (!studyId) throw new Error('Study ID is not set');
+    return studyId;
+  }
+
+  async getReviewStudyClips(signal: AbortSignal) {
+    const studyId = this.getReviewStudyId();
+    signal.throwIfAborted();
+    await this.verifyStudyDatabase();
+    return { studyId, clips: await this.collectReviewClips(studyId, signal) };
+  }
+
+  private async collectReviewClips(studyId: string, signal: AbortSignal) {
+    signal.throwIfAborted();
+    const participantIds = [...new Set(await this.getAllParticipantIds(studyId))];
+    const identities = new Map<string, ReviewClip>();
+    for (let offset = 0; offset < participantIds.length; offset += 4) {
+      signal.throwIfAborted();
+      const ids = participantIds.slice(offset, offset + 4);
+      // eslint-disable-next-line no-await-in-loop
+      const reads = await Promise.allSettled(ids.map((id) => this._getFromStorage(`participants/${id}`, 'participantData', studyId)));
+      signal.throwIfAborted();
+      reads.forEach((result, index) => {
+        if (result.status === 'rejected') throw result.reason;
+        const participant = result.value;
+        if (!participant) return; // An assigned slot may have no saved participant yet.
+        if (!isParticipantData(participant) || participant.participantId !== ids[index] || !participant.answers || typeof participant.answers !== 'object' || Array.isArray(participant.answers)) throw new Error(`Invalid participant data for ${ids[index]}`);
+        Object.values(participant.answers).forEach((answer) => {
+          const clip = { participantId: participant.participantId, taskId: answer.identifier };
+          reviewArtifactPrefix('events', clip);
+          identities.set(JSON.stringify([clip.participantId, clip.taskId]), clip);
+        });
+      });
+    }
+    return [...identities.values()];
+  }
+
+  /** Reconstruct the whole study, independently of active dashboard filters. */
+  async rebuildReviewIndex(signal: AbortSignal = new AbortController().signal) {
+    const studyId = this.getReviewStudyId();
+    signal.throwIfAborted();
+    await this.verifyStudyDatabase();
+    let rebuilt!: ReviewArtifact<'index'>;
+    await queueReviewIndexUpdate(`${this.collectionPrefix}${studyId}`, async () => {
+      const clips = await this.collectReviewClips(studyId, signal);
+      const events: StudyIndexedEvent[] = [];
+      for (let offset = 0; offset < clips.length; offset += 4) {
+        signal.throwIfAborted();
+        // Drain every admitted read before an error or cancellation returns.
+        // eslint-disable-next-line no-await-in-loop
+        const reads = await Promise.allSettled(clips.slice(offset, offset + 4).flatMap((clip) => [
+          this.readReviewSourceEvents(studyId, clip, 'auto'), this.readReviewSourceEvents(studyId, clip, 'tag'),
+        ]));
+        signal.throwIfAborted();
+        for (const result of reads) {
+          if (result.status === 'rejected') throw result.reason;
+          for (const event of result.value) events.push(event);
+        }
+      }
+      signal.throwIfAborted();
+      rebuilt = { version: 1, updatedAt: new Date().toISOString(), value: events };
+      await this._pushToStorage(reviewArtifactPrefix('index'), 'review-index', rebuilt, studyId);
+    });
+    return rebuilt;
+  }
+
+  private async updateReviewEventIndex(studyId: string, clip: ReviewClip, source: 'auto' | 'tag') {
+    try {
+      await queueReviewIndexUpdate(`${this.collectionPrefix}${studyId}`, async () => {
+        const prefix = reviewArtifactPrefix('index');
+        // Delayed notifications read the current source, not superseded payloads.
+        const events = await this.readReviewSourceEvents(studyId, clip, source);
+        const existing = parseReviewArtifact('index', await this._getFromStorage(prefix, 'review-index', studyId));
+        const retained = (existing?.value || []).filter((event) => !(event.participantId === clip.participantId && event.taskId === clip.taskId && event.source === source));
+        const artifact: ReviewArtifact<'index'> = { version: 1, updatedAt: new Date().toISOString(), value: [...retained, ...events] };
+        await this._pushToStorage(prefix, 'review-index', artifact, studyId);
+      });
+      return undefined;
+    } catch (reason) {
+      return `Recording data saved; study index update failed: ${reason instanceof Error ? reason.message : String(reason)}`;
+    }
+  }
+
+  async getReviewRecording(clip: ReviewClip, signal?: AbortSignal): Promise<Blob | null> {
+    const url = await this._getScreenRecordingUrl(clip.taskId, clip.participantId);
+    if (!url) return null;
+    try {
+      const response = await fetch(url, { signal });
+      if (!response.ok) throw new Error(`Recording download failed (HTTP ${response.status})`);
+      return await response.blob();
+    } finally {
+      if (url.startsWith('blob:')) URL.revokeObjectURL(url);
+    }
+  }
+
+  async saveReviewArtifact<K extends ReviewArtifactKind>(kind: K, value: ReviewArtifacts[K], clip?: ReviewClip) {
+    const prefix = reviewArtifactPrefix(kind, clip);
+    const identity = clip ? { ...clip } : undefined;
+    validateReviewValue(kind, value);
+    const { studyId } = this;
+    if (!studyId) throw new Error('Study ID is not set');
+    // Capture caller-owned data before yielding so edits during an upload cannot
+    // change the payload or move results into a newly selected study.
+    const artifact: ReviewArtifact<K> = { version: 1, updatedAt: new Date().toISOString(), value: structuredClone(value) };
+    await this.verifyStudyDatabase();
+    // The runtime kind selects the same validated value as the conditional storage type.
+    const write = async () => {
+      if (ANALYSIS_KINDS.some((key) => key === kind) && await this._getFromStorage(prefix, 'review-analysis', studyId)) throw new Error('Update atomic analysis with saveReviewAnalysis');
+      await this._pushToStorage(prefix, `review-${kind}`, artifact as unknown as StorageObject<`review-${K}`>, studyId);
+    };
+    if (kind === 'settings') await queueReviewIndexUpdate(JSON.stringify(['settings', this.collectionPrefix, studyId]), write);
+    else if (identity) await this.queueReviewClip(studyId, identity, write);
+    else await write();
+    let indexWarning: string | undefined;
+    if (identity && (kind === 'events' || kind === 'tags')) {
+      indexWarning = await this.updateReviewEventIndex(studyId, identity, kind === 'events' ? 'auto' : 'tag');
+    }
+    return { ...artifact, ...(indexWarning ? { indexWarning } : {}) };
+  }
+
+  private queueReviewClip(studyId: string, clip: ReviewClip, write: () => Promise<void>) {
+    return queueReviewIndexUpdate(JSON.stringify(['clip', this.collectionPrefix, studyId, clip.participantId, clip.taskId]), write);
+  }
+
+  async importLegacyReviewRecording(clip: ReviewClip, signal = new AbortController().signal) {
+    const identity = { ...clip };
+    const prefix = reviewArtifactPrefix('summary', identity);
+    const { studyId } = this;
+    if (!studyId) throw new Error('Study ID is not set');
+    const source = await this.readLegacyReviewRecording(identity, signal);
+    const result = {
+      imported: [] as string[], preserved: [] as string[], errors: [] as string[], cancelled: false,
+    };
+    await this.queueReviewClip(studyId, identity, async () => {
+      for (const kind of ['analysis', 'tags', 'embedding'] as const) {
+        if (signal.aborted) { result.cancelled = true; break; }
+        if (source[kind] !== null) {
+          try {
+            // Existing artifacts, including earlier separate analysis categories, take precedence.
+            // eslint-disable-next-line no-await-in-loop
+            let exists = (await this._getFromStorage(prefix, `review-${kind}`, studyId)) != null;
+            if (kind === 'analysis' && !exists) {
+              for (const category of ANALYSIS_KINDS) {
+                // eslint-disable-next-line no-await-in-loop
+                if (await this._getFromStorage(prefix, `review-${category}`, studyId)) { exists = true; break; }
+              }
+            }
+            if (signal.aborted) { result.cancelled = true; break; }
+            if (exists) result.preserved.push(kind);
+            else {
+              const updatedAt = new Date().toISOString();
+              const artifact = kind === 'analysis'
+                ? {
+                  version: 1 as const, revision: uuidv4(), updatedAt, value: source.analysis!,
+                }
+                : { version: 1 as const, updatedAt, value: source[kind]! };
+              // Runtime category matches the converted and validated payload.
+              // eslint-disable-next-line no-await-in-loop
+              await this._pushToStorage(prefix, `review-${kind}`, artifact as StorageObject<`review-${typeof kind}`>, studyId);
+              result.imported.push(kind);
+            }
+          } catch (error) { result.errors.push(`${kind}: ${error instanceof Error ? error.message : String(error)}`); }
+        }
+      }
+    });
+    for (const [kind, indexSource] of [['analysis', 'auto'], ['tags', 'tag']] as const) {
+      if (result.imported.includes(kind) || result.preserved.includes(kind)) {
+        // eslint-disable-next-line no-await-in-loop
+        const warning = await this.updateReviewEventIndex(studyId, identity, indexSource);
+        if (warning) result.errors.push(warning);
+      }
+    }
+    return result;
+  }
+
+  async readLegacyReviewRecording(clip: ReviewClip, signal = new AbortController().signal) {
+    reviewArtifactPrefix('summary', clip);
+    const identity = { ...clip };
+    const { studyId } = this;
+    if (!studyId) throw new Error('Study ID is not set');
+    signal.throwIfAborted();
+    await this.verifyStudyDatabase();
+    const paths = {
+      summary: 'screenRecordingSummary',
+      events: 'screenRecordingEvents',
+      ocr: 'screenRecordingOcrFrames',
+      confusion: 'screenRecordingConfusionScore',
+      tags: 'screenRecordingTags',
+      embedding: 'screenRecordingEmbedding',
+    } as const;
+    const source: Partial<Record<keyof typeof paths, unknown>> = {};
+    for (const kind of Object.keys(paths) as (keyof typeof paths)[]) {
+      signal.throwIfAborted();
+      // Bound reads/decoding to one artifact at a time, preserving the original clip and study.
+      // eslint-disable-next-line no-await-in-loop
+      const raw = await this._getFromStorage(`${paths[kind]}/${identity.participantId}`, identity.taskId, studyId);
+      // eslint-disable-next-line no-await-in-loop
+      source[kind] = await decodeLegacyReviewArtifact(raw, kind === 'summary', signal);
+    }
+    signal.throwIfAborted();
+    return convertLegacyRecording(source);
+  }
+
+  async importLegacyReviewSettings(signal = new AbortController().signal) {
+    const { studyId } = this;
+    if (!studyId) throw new Error('Study ID is not set');
+    signal.throwIfAborted();
+    await this.verifyStudyDatabase();
+    let result: { pipeline: ReviewArtifacts['settings']['pipeline'] | null; changed: boolean } = { pipeline: null, changed: false };
+    await queueReviewIndexUpdate(JSON.stringify(['settings', this.collectionPrefix, studyId]), async () => {
+      signal.throwIfAborted();
+      const reads = await Promise.allSettled([
+        this._getFromStorage('', 'screenRecordingAnalysisSettings', studyId),
+        this._getFromStorage('review/study', 'review-settings', studyId),
+      ]);
+      signal.throwIfAborted();
+      const [legacy, current] = reads;
+      if (legacy.status === 'rejected') throw legacy.reason;
+      if (current.status === 'rejected') throw current.reason;
+      const pipeline = legacyReviewPipeline(await decodeLegacyReviewArtifact(legacy.value, false, signal));
+      const settings = parseReviewArtifact('settings', current.value);
+      if (!pipeline) return;
+      result = { pipeline, changed: settings?.value.pipeline !== pipeline };
+      if (!result.changed) return;
+      const value: ReviewArtifacts['settings'] = { ...(settings?.value || { confusionWords: ['wait', 'not sure', 'confused', 'unclear'] }), pipeline };
+      const artifact: ReviewArtifact<'settings'> = { version: 1, updatedAt: new Date().toISOString(), value };
+      signal.throwIfAborted();
+      await this._pushToStorage('review/study', 'review-settings', artifact, studyId);
+    });
+    return result;
+  }
+
+  async importLegacyReviewPrompts(signal = new AbortController().signal) {
+    const { studyId } = this;
+    if (!studyId) throw new Error('Study ID is not set');
+    signal.throwIfAborted();
+    await this.verifyStudyDatabase();
+    let result: ReturnType<typeof planLegacyPromptImport> | undefined;
+    // Share the settings write queue so imports read the latest committed library.
+    await queueReviewIndexUpdate(JSON.stringify(['settings', this.collectionPrefix, studyId]), async () => {
+      signal.throwIfAborted();
+      const reads = await Promise.allSettled([
+        this._getFromStorage('', 'screenRecordingPrompts', studyId),
+        this._getFromStorage('review/study', 'review-settings', studyId),
+      ]);
+      signal.throwIfAborted();
+      const [legacy, current] = reads;
+      if (legacy.status === 'rejected') throw legacy.reason;
+      if (current.status === 'rejected') throw current.reason;
+      const settings = parseReviewArtifact('settings', current.value);
+      result = planLegacyPromptImport(legacy.value, settings?.value.promptLibrary || []);
+      if (result.imported) {
+        const value: ReviewArtifacts['settings'] = { ...(settings?.value || { pipeline: 'heuristic', confusionWords: ['wait', 'not sure', 'confused', 'unclear'] }), promptLibrary: result.library };
+        const artifact: ReviewArtifact<'settings'> = { version: 1, updatedAt: new Date().toISOString(), value };
+        signal.throwIfAborted();
+        await this._pushToStorage('review/study', 'review-settings', artifact, studyId);
+      }
+    });
+    return result!;
+  }
+
+  async deleteReviewArtifact(kind: ReviewArtifactKind, clip?: ReviewClip) {
+    const prefix = reviewArtifactPrefix(kind, clip);
+    const identity = clip ? { ...clip } : undefined;
+    const { studyId } = this;
+    if (!studyId) throw new Error('Study ID is not set');
+    await this.verifyStudyDatabase();
+    const remove = async () => {
+      if (ANALYSIS_KINDS.some((key) => key === kind) && await this._getFromStorage(prefix, 'review-analysis', studyId)) throw new Error('Update atomic analysis with saveReviewAnalysis');
+      await this._deleteFromStorage(prefix, `review-${kind}`, studyId);
+    };
+    if (identity) await this.queueReviewClip(studyId, identity, remove);
+    else await remove();
+    if (identity && (kind === 'events' || kind === 'tags')) {
+      const indexWarning = await this.updateReviewEventIndex(studyId, identity, kind === 'events' ? 'auto' : 'tag');
+      return { ...(indexWarning ? { indexWarning } : {}) };
+    }
+    return {};
+  }
+
+  // Gets the sequence array from the storage engine.
   async getSequenceArray() {
     await this.verifyStudyDatabase();
 
@@ -1847,6 +2210,7 @@ export abstract class StorageEngine {
       await this._copyDirectory(`${sourceName}/audio`, `${targetName}/audio`);
       await this._copyDirectory(`${sourceName}/screenRecording`, `${targetName}/screenRecording`);
       await this._copyDirectory(`${sourceName}/provenance`, `${targetName}/provenance`);
+      await this._copyDirectory(`${sourceName}/review`, `${targetName}/review`);
       await this._copyDirectory(sourceName, targetName);
       await this._copyRealtimeData(sourceName, targetName);
     }
@@ -1895,6 +2259,7 @@ export abstract class StorageEngine {
         await this._deleteDirectory(`${deletionTarget}/audio`);
         await this._deleteDirectory(`${deletionTarget}/screenRecording`);
         await this._deleteDirectory(`${deletionTarget}/provenance`);
+        await this._deleteDirectory(`${deletionTarget}/review`);
         await this._deleteDirectory(deletionTarget);
         await this._deleteRealtimeData(deletionTarget);
       }
@@ -1969,6 +2334,7 @@ export abstract class StorageEngine {
         `${originalName}/provenance`,
       );
       await this._copyDirectory(snapshotName, originalName);
+      await this._copyDirectory(`${snapshotName}/review`, `${originalName}/review`);
       await this._copyRealtimeData(snapshotName, originalName);
       successNotifications.push({
         message: 'Successfully restored snapshot to live data.',

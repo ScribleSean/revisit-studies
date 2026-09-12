@@ -21,15 +21,15 @@ export class LocalStorageEngine extends StorageEngine {
     return storedObject;
   }
 
-  protected async _pushToStorage<T extends StorageObjectType>(prefix: string, type: T, objectToUpload: StorageObject<T>) {
+  protected async _pushToStorage<T extends StorageObjectType>(prefix: string, type: T, objectToUpload: StorageObject<T>, studyId?: string) {
     await this.verifyStudyDatabase();
-    const storageKey = `${this.collectionPrefix}${this.studyId}/${prefix}_${type}`;
+    const storageKey = `${this.collectionPrefix}${studyId || this.studyId}/${prefix}_${type}`;
     await this.studyDatabase.setItem(storageKey, objectToUpload);
   }
 
-  protected async _deleteFromStorage<T extends StorageObjectType>(prefix: string, type: T) {
+  protected async _deleteFromStorage<T extends StorageObjectType>(prefix: string, type: T, studyId?: string) {
     await this.verifyStudyDatabase();
-    const storageKey = `${this.collectionPrefix}${this.studyId}/${prefix}_${type}`;
+    const storageKey = `${this.collectionPrefix}${studyId || this.studyId}/${prefix}_${type}`;
     await this.studyDatabase.removeItem(storageKey);
   }
 

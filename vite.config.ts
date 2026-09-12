@@ -8,12 +8,15 @@ export default defineConfig(({ command, mode }) => {
   const env = loadEnv(mode, process.cwd());
 
   return {
+    server: { proxy: { '/api/review': 'http://127.0.0.1:3001' } },
     base: command === 'build' ? env.VITE_BASE_PATH : '/',
     plugins: [
       react({ devTarget: 'es2022' }),
     ],
     resolve: {
       alias: {
+        // Hjson's Node entry reads os.EOL at startup; use its shipped browser bundle.
+        hjson: 'hjson/bundle/hjson.js',
         // /esm/icons/index.mjs only exports the icons statically, so no separate chunks are created
         '@tabler/icons-react': '@tabler/icons-react/dist/esm/icons/index.mjs',
         // UpSet treats this peer as optional, but Vite still resolves its dynamic import during pre-bundling.
@@ -22,7 +25,8 @@ export default defineConfig(({ command, mode }) => {
     },
     test: {
       environment: 'jsdom',
-      exclude: ['./tests/**', 'node_modules/**'],
+      // The analysis bridge uses Node's test runner via yarn test:review-api.
+      exclude: ['./tests/**', 'node_modules/**', 'server/review/tests/**'],
       setupFiles: ['vitest-localstorage-mock'],
       fileParallelism: true,
       maxWorkers: '100%',

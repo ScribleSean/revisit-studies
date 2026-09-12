@@ -13,6 +13,7 @@ type RowData = Record<string, string | number | boolean | null | object>;
 const revisitRows: RowData[] = [];
 const storageFiles: Record<string, string> = {};
 const localStore: Record<string, string | number | object | null> = {};
+const storageFailures = new Map<string, { message: string; statusCode: string }>();
 
 // ── mocks ─────────────────────────────────────────────────────────────────────
 vi.mock('@supabase/supabase-js', () => {
@@ -137,12 +138,14 @@ vi.mock('@supabase/supabase-js', () => {
       storage: {
         from: (_bucket: string) => ({
           download: async (path: string) => {
+            if (storageFailures.has(path)) return { data: null, error: storageFailures.get(path) };
             if (path in storageFiles) {
               return { data: storageFiles[path], error: null };
             }
-            return { data: null, error: { message: 'Object not found' } };
+            return { data: null, error: { message: 'Object not found', statusCode: '404' } };
           },
           upload: async (path: string, data: Blob | Buffer | string | object, _opts?: object) => {
+            if (storageFailures.has(`upload:${path}`)) return { data: null, error: storageFailures.get(`upload:${path}`) };
             let text: string;
             if (data instanceof Blob) {
               text = await data.text();
@@ -158,6 +161,7 @@ vi.mock('@supabase/supabase-js', () => {
             return { data: { path }, error: null };
           },
           remove: async (paths: string[]) => {
+            if (paths.some((path) => storageFailures.has(`remove:${path}`))) return { data: null, error: { message: 'Delete failed' } };
             paths.forEach((p) => {
               delete storageFiles[p];
               // Also cascade-delete files under directory prefix
@@ -168,11 +172,13 @@ vi.mock('@supabase/supabase-js', () => {
             });
             return { data: paths, error: null };
           },
-          list: async (path: string, _opts?: object) => {
+          list: async (path: string, options?: { limit?: number; offset?: number }) => {
+            if (storageFailures.has(`list:${path}`)) return { data: null, error: storageFailures.get(`list:${path}`) };
             const prefix = path.endsWith('/') ? path : `${path}/`;
             const keys = Object.keys(storageFiles).filter((k) => k.startsWith(prefix));
             const names = new Set(keys.map((k) => k.slice(prefix.length).split('/')[0]));
-            return { data: [...names].map((name) => ({ name })), error: null };
+            const entries = [...names].sort().map((name) => ({ name, id: `${prefix}${name}` in storageFiles ? name : null }));
+            return { data: entries.slice(options?.offset || 0, (options?.offset || 0) + (options?.limit || 100)), error: null };
           },
           updateMetadata: async (_path: string, _metadata: object) => ({ data: {}, error: null }),
         }),
@@ -235,10 +241,34 @@ describe.each([
   });
 
   afterEach(async () => {
+    storageFailures.clear();
     // @ts-expect-error using protected method for testing
     await storageEngine._testingReset(studyId);
     // @ts-expect-error using protected method for testing
     await storageEngine._testingReset('test-realtime-copy');
+  });
+
+  test('review artifact reads distinguish absence, corrupt data, and permission failures', async () => {
+    const clip = { participantId: 'p', taskId: 't' };
+    expect(await storageEngine.getReviewArtifact('events', clip)).toBeNull();
+    await storageEngine.saveReviewArtifact('events', [], clip);
+    expect((await storageEngine.getReviewArtifact('events', clip))?.value).toEqual([]);
+    const key = Object.keys(storageFiles).find((name) => name.endsWith('_review-events'))!;
+    storageFiles[key] = '{}';
+    await expect(storageEngine.getReviewArtifact('events', clip)).rejects.toThrow('unsupported');
+    storageFailures.set(key, { message: 'permission denied', statusCode: '403' });
+    await expect(storageEngine.getReviewArtifact('events', clip)).rejects.toMatchObject({ message: 'permission denied' });
+  });
+
+  test('legacy prompt absence is empty while permission failures propagate', async () => {
+    expect((await storageEngine.importLegacyReviewPrompts()).imported).toBe(0);
+    // @ts-expect-error Store the old root artifact shape.
+    await storageEngine._pushToStorage('', 'screenRecordingPrompts', { prompts: [] });
+    const key = Object.keys(storageFiles).find((name) => name.endsWith('_screenRecordingPrompts'))!;
+    storageFailures.set(key, { message: 'Legacy permission denied', statusCode: '403' });
+    await expect(storageEngine.importLegacyReviewPrompts()).rejects.toMatchObject({ message: 'Legacy permission denied' });
+    // @ts-expect-error A missing legacy recording artifact is absent, not an empty object.
+    expect(await storageEngine._getFromStorage('screenRecordingOcrFrames/p', 'task')).toBeNull();
   });
 
   test('_pushToStorage, _getFromStorage, and _removeFromStorage work correctly', async () => {
@@ -480,6 +510,41 @@ describe.each([
     // @ts-expect-error using protected method for testing
     const targetDeleted = await storageEngine._directoryExists(target);
     expect(targetDeleted).toBe(false);
+  });
+
+  test('snapshot directories paginate beyond 100 files and deletion skips none', async () => {
+    for (let i = 0; i < 250; i += 1) storageFiles[`page-source/review/${String(i).padStart(3, '0')}`] = `artifact-${i}`;
+    storageFiles['page-source/review/nested/keep'] = 'nested folders are handled separately';
+    // @ts-expect-error Exercise snapshot primitive.
+    await storageEngine._copyDirectory('page-source/review', 'page-target/review');
+    expect(Object.keys(storageFiles).filter((key) => key.startsWith('page-target/'))).toHaveLength(250);
+    expect(storageFiles['page-target/review/249']).toBe('artifact-249');
+    // @ts-expect-error Exercise snapshot primitive.
+    await storageEngine._deleteDirectory('page-target/review');
+    expect(Object.keys(storageFiles).filter((key) => key.startsWith('page-target/'))).toHaveLength(0);
+    expect(storageFiles['page-source/review/249']).toBe('artifact-249');
+    expect(storageFiles['page-source/review/nested/keep']).toBeDefined();
+  });
+
+  test('snapshot copies propagate listing, download, upload and deletion failures', async () => {
+    storageFiles['failure-source/file'] = 'artifact';
+    const failure = { message: 'Permission denied', statusCode: '403' };
+    storageFailures.set('failure-source/file', failure);
+    // @ts-expect-error Exercise snapshot primitive.
+    await expect(storageEngine._copyDirectory('failure-source', 'failure-target')).rejects.toThrow('download');
+    storageFailures.clear();
+    storageFailures.set('upload:failure-target/file', failure);
+    // @ts-expect-error Exercise snapshot primitive.
+    await expect(storageEngine._copyDirectory('failure-source', 'failure-target')).rejects.toThrow('upload');
+    storageFailures.clear();
+    storageFailures.set('list:failure-source', failure);
+    // @ts-expect-error Exercise snapshot primitive.
+    await expect(storageEngine._copyDirectory('failure-source', 'failure-target')).rejects.toThrow('list');
+    storageFailures.clear();
+    storageFailures.set('remove:failure-source/file', failure);
+    // @ts-expect-error Exercise snapshot primitive.
+    await expect(storageEngine._deleteDirectory('failure-source')).rejects.toThrow('delete');
+    expect(storageFiles['failure-source/file']).toBe('artifact');
   });
 
   test('_copyRealtimeData copies realtime data', async () => {

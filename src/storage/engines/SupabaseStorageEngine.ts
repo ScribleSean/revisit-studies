@@ -5,6 +5,7 @@ import {
   CloudStorageEngine, cleanupModes,
 } from './types';
 import { SnapshotParticipantCounts } from './utils/snapshotParticipantCounts';
+import { isReviewStorageArtifact } from '../reviewArtifacts';
 
 export class SupabaseStorageEngine extends CloudStorageEngine {
   private supabase = createClient(import.meta.env.VITE_SUPABASE_URL, import.meta.env.VITE_SUPABASE_ANON_KEY);
@@ -23,6 +24,10 @@ export class SupabaseStorageEngine extends CloudStorageEngine {
       .download(`${this.collectionPrefix}${studyId || this.studyId}/${prefix}_${type}`);
 
     if (error) {
+      if (isReviewStorageArtifact(prefix, type)) {
+        if (String((error as { statusCode?: string }).statusCode) === '404') return null;
+        throw error;
+      }
       return {} as StorageObject<T>;
     }
 
@@ -36,7 +41,7 @@ export class SupabaseStorageEngine extends CloudStorageEngine {
     }
   }
 
-  protected async _pushToStorage<T extends StorageObjectType>(prefix: string, type: T, objectToUpload: StorageObject<T>) {
+  protected async _pushToStorage<T extends StorageObjectType>(prefix: string, type: T, objectToUpload: StorageObject<T>, studyId?: string) {
     await this.verifyStudyDatabase();
 
     let uploadObject: Blob | Buffer<ArrayBuffer> = new Blob();
@@ -51,7 +56,7 @@ export class SupabaseStorageEngine extends CloudStorageEngine {
 
     const { error } = await this.supabase.storage
       .from('revisit')
-      .upload(`${this.collectionPrefix}${this.studyId}/${prefix}_${type}`, uploadObject, {
+      .upload(`${this.collectionPrefix}${studyId || this.studyId}/${prefix}_${type}`, uploadObject, {
         upsert: true,
       });
 
@@ -60,11 +65,11 @@ export class SupabaseStorageEngine extends CloudStorageEngine {
     }
   }
 
-  protected async _deleteFromStorage<T extends StorageObjectType>(prefix: string, type: T) {
+  protected async _deleteFromStorage<T extends StorageObjectType>(prefix: string, type: T, studyId?: string) {
     await this.verifyStudyDatabase();
     const { error } = await this.supabase.storage
       .from('revisit')
-      .remove([`${this.collectionPrefix}${this.studyId}/${prefix}_${type}`]);
+      .remove([`${this.collectionPrefix}${studyId || this.studyId}/${prefix}_${type}`]);
 
     if (error) {
       throw new Error('Failed to delete from Supabase');
@@ -603,50 +608,40 @@ export class SupabaseStorageEngine extends CloudStorageEngine {
     return data.length > 0;
   }
 
-  protected async _copyDirectory(source: string, target: string) {
-    const { data: keys, error } = await this.supabase.storage
-      .from('revisit')
-      .list(source);
-    if (error) {
-      console.error('Error listing directory contents:', error);
-      throw new Error('Failed to copy directory');
+  private async listDirectoryFiles(directory: string) {
+    const files: string[] = [];
+    for (let offset = 0; ; offset += 100) {
+      // eslint-disable-next-line no-await-in-loop
+      const { data, error } = await this.supabase.storage.from('revisit').list(directory, { limit: 100, offset, sortBy: { column: 'name', order: 'asc' } });
+      if (error || !data) throw new Error('Failed to list directory');
+      files.push(...data.filter((entry) => entry.id !== null).map((entry) => entry.name));
+      if (data.length < 100) return files;
     }
-    const copyPromises = keys.map(async (key) => {
-      const { data: fileData, error: fileError } = await this.supabase.storage
-        .from('revisit')
-        .download(`${source}/${key.name}`);
-      if (fileError) {
-        // We probably have a nested directory, so we can skip this file
-        return;
-      }
-      const { error: uploadError } = await this.supabase.storage
-        .from('revisit')
-        .upload(`${target}/${key.name}`, fileData, { upsert: true });
-      if (uploadError) {
-        console.error(`Error uploading file to ${target}/${key.name}:`, uploadError);
-      }
-    });
-    await Promise.all(copyPromises);
   }
 
-  protected async _deleteDirectory(path: string) {
-    const { data: keys, error } = await this.supabase.storage
-      .from('revisit')
-      .list(path);
-    if (error) {
-      console.error('Error listing directory contents:', error);
-      throw new Error('Failed to delete directory');
+  protected async _copyDirectory(source: string, target: string) {
+    const files = await this.listDirectoryFiles(source);
+    for (let offset = 0; offset < files.length; offset += 16) {
+      // eslint-disable-next-line no-await-in-loop
+      await Promise.all(files.slice(offset, offset + 16).map(async (name) => {
+        const sourcePath = `${source.replace(/\/$/, '')}/${name}`;
+        const targetPath = `${target.replace(/\/$/, '')}/${name}`;
+        const { data, error } = await this.supabase.storage.from('revisit').download(sourcePath);
+        if (error || data === null) throw new Error(`Failed to download snapshot file ${name}`);
+        const { error: uploadError } = await this.supabase.storage.from('revisit').upload(targetPath, data, { upsert: true });
+        if (uploadError) throw new Error(`Failed to upload snapshot file ${name}`);
+      }));
     }
-    if (keys.length === 0) {
-      // Skip deletion if the directory is empty
-      return;
-    }
-    const toDelete = keys.map((key) => `${path}/${key.name}`);
-    const { error: deleteError } = await this.supabase.storage
-      .from('revisit')
-      .remove(toDelete);
-    if (deleteError) {
-      throw new Error('Failed to delete directory');
+  }
+
+  protected async _deleteDirectory(directory: string) {
+    // Collect before removing: deleting while advancing offsets would skip files.
+    const files = await this.listDirectoryFiles(directory);
+    for (let offset = 0; offset < files.length; offset += 100) {
+      const paths = files.slice(offset, offset + 100).map((name) => `${directory.replace(/\/$/, '')}/${name}`);
+      // eslint-disable-next-line no-await-in-loop
+      const { error } = await this.supabase.storage.from('revisit').remove(paths);
+      if (error) throw new Error('Failed to delete directory');
     }
   }
 

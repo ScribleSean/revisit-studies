@@ -267,6 +267,7 @@ class Controller {
    */
   loadData(nodes: any, edges: any, matrix: any) {
     this.view.loadData(nodes, edges, matrix);
+    window.dispatchEvent(new Event('revisit-mvnv-rendered'));
   }
 
   /**
