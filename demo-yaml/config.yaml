@@ -1,4 +1,4 @@
-$schema: "https://raw.githubusercontent.com/revisit-studies/study/v2.4.1/src/parser/StudyConfigSchema.json"
+$schema: "https://raw.githubusercontent.com/revisit-studies/study/v2.4.4/src/parser/StudyConfigSchema.json"
 studyMetadata:
   title: "HTML stimulus loaded from YAML config"
   version: "pilot"
@@ -11,7 +11,6 @@ studyMetadata:
     - "WPI"
 uiConfig:
   contactEmail: "contact@revisit.dev"
-  helpTextPath: "demo-yaml/assets/help.md"
   logoPath: "revisitAssets/revisitLogoSquare.svg"
   withProgressBar: true
   autoDownloadStudy: false

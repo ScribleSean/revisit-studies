@@ -1,5 +1,5 @@
 {
-  "$schema": "https://raw.githubusercontent.com/revisit-studies/study/v2.4.1/src/parser/StudyConfigSchema.json",
+  "$schema": "https://raw.githubusercontent.com/revisit-studies/study/v2.4.4/src/parser/StudyConfigSchema.json",
   "studyMetadata": {
     "title": "Dynamic Blocks",
     "version": "pilot",
@@ -35,7 +35,7 @@
         {
           "id": "buttonResponse",
           "type": "buttons",
-          "prompt": "Choose the square with a high saturation",
+          "prompt": "Choose the square with the higher saturation.",
           "location": "belowStimulus",
           "options": [
             "Left",

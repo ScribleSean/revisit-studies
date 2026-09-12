@@ -1,5 +1,5 @@
 {
-  "$schema": "https://raw.githubusercontent.com/revisit-studies/study/v2.4.1/src/parser/StudyConfigSchema.json",
+  "$schema": "https://raw.githubusercontent.com/revisit-studies/study/v2.4.4/src/parser/StudyConfigSchema.json",
   "studyMetadata": {
     "title": "Video as a Stimulus",
     "version": "pilot",
@@ -7,7 +7,7 @@
       "The reVISit Team"
     ],
     "date": "2026-02-23",
-    "description": "A simple demo of using video as a stimulus. Data is collected via a numeric response field.",
+    "description": "A simple demo of using video as a stimulus.",
     "organizations": [
       "University of Utah",
       "WPI"

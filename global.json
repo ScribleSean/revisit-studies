@@ -1,7 +1,6 @@
 {
-  "$schema": "https://raw.githubusercontent.com/revisit-studies/study/v2.4.1/src/parser/GlobalConfigSchema.json",
+  "$schema": "https://raw.githubusercontent.com/revisit-studies/study/v2.4.4/src/parser/GlobalConfigSchema.json",
   "configsList": [
-    "maps-study",
     "tutorial",
     "tutorial-replication",
     "demo-html",
@@ -9,6 +8,7 @@
     "demo-form-elements",
     "demo-training",
     "demo-html-trrack",
+    "demo-svelte-trrack",
     "demo-react-trrack",
     "demo-screen-recording",
     "demo-image",
@@ -42,6 +42,8 @@
     "library-screen-recording",
     "library-smeq",
     "library-sus",
+    "library-ueq",
+    "library-ueq-s",
     "library-umux",
     "library-umux-lite",
     "library-virtual-chinrest",
@@ -52,13 +54,11 @@
     "test-likert-matrix",
     "test-parser-errors",
     "test-randomization",
+    "test-component-timeout",
     "test-skip-logic",
     "test-step-logic"
   ],
   "configs": {
-    "maps-study": {
-      "path": "maps-study/config.json"
-    },
     "tutorial": {
       "path": "tutorial/config.json"
     },
@@ -94,6 +94,9 @@
     },
     "demo-html-trrack": {
       "path": "demo-html-trrack/config.json"
+    },
+    "demo-svelte-trrack": {
+      "path": "demo-svelte-trrack/config.json"
     },
     "demo-react-trrack": {
       "path": "demo-react-trrack/config.json"
@@ -192,6 +195,14 @@
       "path": "library-sus/config.json",
       "test": true
     },
+    "library-ueq": {
+      "path": "library-ueq/config.json",
+      "test": true
+    },
+    "library-ueq-s": {
+      "path": "library-ueq-s/config.json",
+      "test": true
+    },
     "library-vlat": {
       "path": "library-vlat/config.json",
       "test": true
@@ -216,6 +227,10 @@
     },
     "test-randomization": {
       "path": "test-randomization/config.json",
+      "test": true
+    },
+    "test-component-timeout": {
+      "path": "test-component-timeout/config.json",
       "test": true
     },
     "test-skip-logic": {

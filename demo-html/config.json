@@ -1,5 +1,5 @@
 {
-  "$schema": "https://raw.githubusercontent.com/revisit-studies/study/v2.4.1/src/parser/StudyConfigSchema.json",
+  "$schema": "https://raw.githubusercontent.com/revisit-studies/study/v2.4.4/src/parser/StudyConfigSchema.json",
   "studyMetadata": {
     "title": "HTML as a Stimulus",
     "version": "pilot",
@@ -42,7 +42,7 @@
           "minVersion": 10
         }
       ],
-      "blockedMessage": "You must be on a relatively modern browser, Chrome > 100, Firefox > 100, Safari > 10."
+      "blockedMessage": "You must be on a relatively modern browser, Chrome 100 or later, Firefox 100 or later, Safari 10 or later."
     },
     "devices": {
       "allowed": [

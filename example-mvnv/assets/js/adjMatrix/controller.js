@@ -199,6 +199,7 @@ var Controller = /** @class */ (function () {
      */
     Controller.prototype.loadData = function (nodes, edges, matrix) {
         this.view.loadData(nodes, edges, matrix);
+        window.dispatchEvent(new Event('revisit-mvnv-rendered'));
     };
     /**
      * Obtains the order from the model and returns it to the view.

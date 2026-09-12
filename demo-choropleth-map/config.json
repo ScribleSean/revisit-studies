@@ -1,5 +1,5 @@
 {
-  "$schema": "https://raw.githubusercontent.com/revisit-studies/study/v2.4.1/src/parser/StudyConfigSchema.json",
+  "$schema": "https://raw.githubusercontent.com/revisit-studies/study/v2.4.4/src/parser/StudyConfigSchema.json",
   "studyMetadata": {
     "title": "Choropleth Map with Provenance Tracking",
     "version": "pilot",
@@ -29,7 +29,7 @@
     },
     "mapComponent": {
       "description": "Choropleth map colored by unemployment rate.",
-      "instruction": "Select top 3 states with highest unemployment rates.",
+      "instruction": "Select the top 3 states with the highest unemployment rates.",
       "type": "react-component",
       "path": "demo-choropleth-map/assets/Map.tsx",
       "nextButtonLocation": "sidebar",
