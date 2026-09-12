@@ -22,6 +22,8 @@ The Pages workflow builds with Node 24, the frozen Yarn 1 lockfile, `VITE_BASE_P
 
 The recording view now puts playback and timeline evidence before export, pipeline setup, and legacy-import controls. Browser test helpers accept `REVIEW_TEST_STORAGE_PREFIX=prod` when checking a production build instead of accidentally reading the development database. The focused demo test also accepts `REVIEW_DEMO_BASE_PATH=/revisit-studies/` to exercise the real Pages route prefix.
 
+The deployment also creates `review-demo/index.html` from the built application entry. Portfolio and résumé link checkers therefore receive HTTP 200 after the normal trailing-slash redirect, without needing to execute the JavaScript 404 fallback. Other analysis routes retain the SPA fallback.
+
 ### Comparison with the MQP report
 
 | Report capability | Rebuild status | What the Pages demo proves |

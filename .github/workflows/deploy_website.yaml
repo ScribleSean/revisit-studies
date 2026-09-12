@@ -25,6 +25,8 @@ jobs:
         env:
           VITE_BASE_PATH: /revisit-studies/
           VITE_STORAGE_ENGINE: localStorage
+      - name: Provide an HTTP 200 entry for the portfolio demo link
+        run: cp dist/index.html dist/review-demo/index.html
       - name: Publish browser-local demo
         uses: peaceiris/actions-gh-pages@v4
         with:
