@@ -27,13 +27,12 @@ export default defineConfig(({ command, mode }) => {
       environment: 'jsdom',
       // The analysis bridge uses Node's test runner via yarn test:review-api.
       exclude: ['./tests/**', 'node_modules/**', 'server/review/tests/**'],
-      setupFiles: ['vitest-localstorage-mock'],
       fileParallelism: true,
       maxWorkers: '100%',
       minWorkers: 1,
       coverage: {
         provider: 'v8',
-        all: true,
+        include: ['src/**/*.{ts,tsx}'],
         exclude: [
           ...coverageConfigDefaults.exclude,
           'public/**',
